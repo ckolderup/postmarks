@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
@@ -8,6 +9,7 @@ import * as apDb from './src/activity-pub-db.js';
 
 import routes from './src/routes/index.js';
 
+dotenv.config();
 
 const app = express();
 app.use(express.static('public'));
@@ -23,7 +25,7 @@ app.set('domain', domain);
 
 const hbs = create({
   helpers: {
-    
+
     pluralize(number, singular, plural) {
     if (number === 1)
         return singular;
