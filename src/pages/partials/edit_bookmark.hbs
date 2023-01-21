@@ -1,0 +1,32 @@
+<div class="edit-bookmark">
+  <form action="/bookmark/{{bookmark.id}}?ephemeral={{ephemeral}}" method="POST">
+    <label> URL </label><br>
+    <input type="text" name="url" value="{{bookmark.url}}"/><br>
+    <p>
+      <label> Title </label><br>
+      <input type="text" name="title" value="{{bookmark.title}}"/><br>
+      <label> Description </label><br>
+      <textarea name="description">{{bookmark.description}}</textarea><br>
+      <label> Tags </label><br>
+      <input type="text" name="tags" value="{{bookmark.tags}}" />
+    </p><br><br>
+    <p>
+      <details>
+        <summary><label> Auto-allow comments from (one username per line)</label></summary>
+        <textarea name="allowed">{{allowed}}</textarea>
+      </details>
+      <br><br>
+      <details>
+        <summary><label> Auto-ignore comments from (one username per line)</label></summary>
+        <textarea name="blocked">{{blocked}}</textarea>
+      </details>
+    </p>
+    <button type="submit">
+      {{#if bookmark}}
+        Save
+      {{else}}
+        Create
+      {{/if}}
+    </button>
+  </form>
+  </div>

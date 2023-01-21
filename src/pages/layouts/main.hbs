@@ -1,0 +1,53 @@
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://glitch.com/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {{{feedLink}}}
+
+    <title>{{title}} | {{siteName}}</title>
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.glitch.global/8b08fe2b-99fe-48bd-9a54-d17f87b3df2b/apple-touch-icon.png?v=1673498563060" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://cdn.glitch.global/8b08fe2b-99fe-48bd-9a54-d17f87b3df2b/favicon-32x32.png?v=1673498563687" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.glitch.global/8b08fe2b-99fe-48bd-9a54-d17f87b3df2b/favicon-16x16.png?v=1673498563436" />
+    <link rel="shortcut icon" href="https://cdn.glitch.global/8b08fe2b-99fe-48bd-9a54-d17f87b3df2b/favicon.ico?v=1673498564219" />
+
+    <!-- Import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+
+  </head>
+
+  <body>
+    <div class="header">
+      <div class="title">
+        <h1><a href="/">{{siteName}}</a></h1>
+      </div>
+      <div class="menu">
+        <a href="/bookmark/new">Add</a>
+        <a href="/admin">Admin</a>
+      </div>
+    </div>
+    <div class="wrapper">
+    {{> tag_list tags=tags}}
+    <div class="content" role="main">
+      <h2>{{title}}</h2>
+    {{{body}}}
+      </div>
+    </div>
+    <!-- The footer holds our remix button — you can use it for structure or cut it out ✂ -->
+  <footer class="footer">
+    <div class="links"></div>
+    <a href="/">Home</a>
+    <span class="divider">|</span>
+    <a href="/admin">Admin</a>
+    <span class="divider">|</span>
+    <a href="/bookmark/new">Add</a>
+    <a class="btn--remix" target="_top" href="https://glitch.com/edit/#!/remix/{{glitchProjectName}}">
+      <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140"
+        alt="" />
+      Remix on Glitch
+    </a>
+  </footer>
+  </body>
+</html>

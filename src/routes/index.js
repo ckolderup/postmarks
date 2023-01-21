@@ -1,0 +1,10 @@
+import { router as admin } from './admin.js';
+import { router as bookmark } from './bookmark.js';
+import { router as comment } from './comment.js';
+import { router as core } from './core.js';
+import { router as inbox } from './activitypub/inbox.js';
+import { router as message } from './activitypub/message.js';
+import { router as user } from './activitypub/user.js';
+import { router as webfinger } from './activitypub/webfinger.js';
+
+export default { admin, bookmark, comment, core, inbox, message, user, webfinger };

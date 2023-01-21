@@ -1,0 +1,10 @@
+{{> show_bookmark bookmark=bookmark }}
+
+<h2>Comments</h2>
+{{#if comments }}
+  {{#each comments }}
+    {{> show_comment comment=this }}
+  {{/each}}
+{{else }}
+  No comments yet!
+{{/if}}

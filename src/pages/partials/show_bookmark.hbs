@@ -1,0 +1,23 @@
+<div class="bookmark">
+  <div class="headline">
+    <a href="{{bookmark.url}}">{{bookmark.title}}</a>
+  </div>
+  <div class="subhead">
+    <span title="{{bookmark.created_at}}">{{bookmark.timestamp}}</span> • 
+    {{bookmark.domain}}
+  </div> 
+  <div class="description">
+    {{{htmlize bookmark.description}}}
+  </div>
+  <div class="tags">
+    {{#each bookmark.linkedTags}}{{{this}}} {{/each}}
+  </div>
+  <div class="bottom">
+    {{#if comment_count includeZero=true}}
+      <a href="/bookmark/{{bookmark.id}}">
+        {{bookmark.comment_count}} {{pluralize bookmark.comment_count 'comment' 'comments'}}
+      </a> •
+    {{/if}}
+    <a href="/bookmark/{{bookmark.id}}/edit">edit</a>
+  </div> 
+</div>

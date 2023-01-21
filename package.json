@@ -1,0 +1,41 @@
+{
+  "name": "fedimarks",
+  "version": "0.0.1",
+  "description": "A bookmark store and linkblog, powered by Express, sqlite and ActivityPub",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.1.2",
+    "express": "^4.18.2",
+    "express-handlebars": "^6.0.6",
+    "body-parser": "^1.20.1",
+    "express-basic-auth": "^1.2.1",
+    "open-graph-scraper": "^5.0.1",
+    "cors": "^2.8.5",
+    "request": "^2.88.2",
+    "chalk": "^5.1.2",
+    "open-graph": "^0.2.6",
+    "es6-promisify": "^7.0.0",
+    "string-strip-html": "^13.0.1"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/fedimarks"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "sqlite",
+    "fediverse",
+    "express",
+    "activitypub",
+    "mastodon"
+  ]
+}

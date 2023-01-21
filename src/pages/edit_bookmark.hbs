@@ -1,0 +1,37 @@
+{{#unless creating}}
+<p>
+  <a href="/bookmark/{{bookmark.id}}"> ← Back to viewing</a>
+</p>
+{{/unless}}
+
+
+{{> edit_bookmark }}
+
+{{#unless creating }}
+  <h2>Review comments</h2>
+  {{#if comments }}
+    {{#each comments }}
+      {{> show_comment comment=this admin=true}}
+    {{/each}}
+  {{else}}
+    No comments yet!
+  {{/if}}
+{{/unless}}
+
+{{#unless creating }}
+  <h2>
+    The Danger Zone
+  </h2>
+  <form action="/bookmark/{{bookmark.id}}/delete_hidden_comments" method="post">
+    <p>
+      Delete all hidden comments? They can't be recovered.
+    </p>
+    <button type="submit">Cleanup</button>
+  </form>
+  <form action="/bookmark/{{bookmark.id}}/delete" method="post">
+    <p>
+      You can also delete the bookmark entirely. There is no recovery.
+    </p>
+    <button type="submit">Delete</button>
+  </form>
+{{/unless}}

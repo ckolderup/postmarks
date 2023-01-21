@@ -1,0 +1,20 @@
+<div class="comment">
+  <div class="top">
+    <strong>{{{comment.linked_display_name}}}</strong> • 
+    <span class="timestamp" title="{{comment.created_at}}">{{comment.timestamp}}</span>
+  </div>
+  <div class="content">
+    {{comment.content}}
+  </div>
+  {{#if admin}}
+    <form action="/comment/{{comment.id}}/toggle" method="post">
+      <button type="submit">
+        {{#if comment.visible}}
+          Hide
+        {{else}}
+          Approve
+        {{/if}}
+      </button>
+    </form>
+  {{/if}} 
+</div>

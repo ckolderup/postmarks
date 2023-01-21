@@ -1,0 +1,12 @@
+{{#if error}}
+  <p class="error">
+    {{error}}
+  </p>
+{{else}}
+  <div class="bookmarks">
+    {{#each bookmarks }}
+      {{> show_bookmark bookmark=this }}
+    {{/each}}
+  </div>
+  {{> pagination url="" pageInfo=pageInfo }}
+{{/if}}
