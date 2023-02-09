@@ -58,14 +58,30 @@ open({
 .then(async dBase => {
   db = dBase;
 
-// We use try and catch blocks throughout to handle any database errors
   try {
     if (!exists) {
-      db.run('CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, followers TEXT, messages TEXT)');
+      const newDb = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+        if (err) {
+          console.log(`unable to open or create database: ${err}`);
+          process.exit(1);
+        }
+      });
+
+      newDb.close();
+
+      // now do it again, using the async/await library
+      await open({
+        filename: dbFile,
+        driver: sqlite3.Database
+      }).then(async dBase => {
+        db = dBase;
+      });
+
+      await db.run('CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, followers TEXT, messages TEXT)');
       // if there is no `messages` table in the DB, create an empty table
       // TODO: index messages on bookmark_id
-      db.run('CREATE TABLE IF NOT EXISTS messages (guid TEXT PRIMARY KEY, message TEXT, bookmark_id INTEGER)');
-      db.run('CREATE TABLE IF NOT EXISTS permissions (bookmark_id INTEGER NOT NULL UNIQUE, allowed TEXT, blocked TEXT)');
+      await db.run('CREATE TABLE IF NOT EXISTS messages (guid TEXT PRIMARY KEY, message TEXT, bookmark_id INTEGER)');
+      await db.run('CREATE TABLE IF NOT EXISTS permissions (bookmark_id INTEGER NOT NULL UNIQUE, allowed TEXT, blocked TEXT)');
 
       crypto.generateKeyPair('rsa', {
           modulusLength: 4096,
@@ -79,7 +95,7 @@ open({
         }
       }, async (err, publicKey, privateKey) => {
 
-        
+
         const actorName = `${account}@${domain}`;
         const actorRecord = createActor(account, domain, publicKey);
         const webfingerRecord = createWebfinger(account, domain);
@@ -89,7 +105,7 @@ open({
         catch(e) {
           console.log(e)
         }
-      }); 
+      });
     }
   } catch (dbError) {
     console.error(dbError);
@@ -146,4 +162,4 @@ export async function getPermissionsForBookmark(id) {
 
 export async function insertMessage(guid, bookmarkId, json) {
   return await db.run('insert or replace into messages(guid, bookmark_id, message) values(?, ?, ?)', guid, bookmarkId, json);
-} 
+}

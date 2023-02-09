@@ -9,7 +9,6 @@ import fs from 'fs';
 import sqlite3 from 'sqlite3';
 import{ open } from 'sqlite';
 import { timeSince, account, domain } from './util.js';
-import ogs from 'open-graph-scraper';
 import { stripHtml } from "string-strip-html";
 
 const ACCOUNT_MENTION_REGEX = new RegExp(`^@${account}@${domain} `);
@@ -19,7 +18,7 @@ const dbFile = "./.data/bookmarks.db";
 const exists = fs.existsSync(dbFile);
 let db;
 
-/* 
+/*
 We're using the sqlite wrapper so that we can make async / await connections
 - https://www.npmjs.com/package/sqlite
 */
@@ -32,14 +31,30 @@ We're using the sqlite wrapper so that we can make async / await connections
 
     // We use try and catch blocks throughout to handle any database errors
     try {
-      // The async / await syntax lets us write the db operations in a way that won't block the app
       if (!exists) {
+        const newDb = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+          if (err) {
+            console.log(`unable to open or create database: ${err}`);
+            process.exit(1);
+          }
+        });
+
+        newDb.close();
+
+        // now do it again, using the async/await library
+        await open({
+          filename: dbFile,
+          driver: sqlite3.Database
+        }).then(async dBase => {
+          db = dBase;
+        });
+
         // Database doesn't exist yet - create Bookmarks table
         await db.run(
           "CREATE TABLE bookmarks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, url TEXT, description TEXT, tags TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP);"
         );
 
-       // Add default choices to table
+        // Add default choices to table
         const defaults = [
           {
             title: 'Fedimarks - Getting Started',
@@ -60,13 +75,11 @@ We're using the sqlite wrapper so that we can make async / await connections
             tags: '#fedimarks #default',
           },
         ];
-        
-        await db.run('CREATE TABLE comments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, url TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, visible integer BOOLEAN DEFAULT 0 NOT NULL CHECK (visible IN (0,1)), bookmark_id INTEGER, FOREIGN KEY(bookmark_id) REFERENCES bookmarks(id) ON DELETE CASCADE);');
-        
-        const defaultsAsValuesList = defaults.map(b => `('${b.title}', '${b.url}', '${b.description}', '${b.tags}')`).join(', ');
-        console.log(defaultsAsValuesList);
-        await db.run(`INSERT INTO bookmarks (title, url, description, tags) VALUES ${ defaultsAsValuesList }`);
 
+        await db.run('CREATE TABLE comments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, url TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, visible integer BOOLEAN DEFAULT 0 NOT NULL CHECK (visible IN (0,1)), bookmark_id INTEGER, FOREIGN KEY(bookmark_id) REFERENCES bookmarks(id) ON DELETE CASCADE);');
+
+        const defaultsAsValuesList = defaults.map(b => `('${b.title}', '${b.url}', '${b.description}', '${b.tags}')`).join(', ');
+        db.run(`INSERT INTO bookmarks (title, url, description, tags) VALUES ${defaultsAsValuesList}`);
       }
     } catch (dbError) {
       console.error(dbError);
@@ -109,7 +122,7 @@ function addLinkedTags(bookmark) {
   const linkedTags = bookmark.tags?.split(' ').map(t => t.slice(1)).map((t) => {
     return `<a href="/tagged/${t}">#${t}</a>`;
   });
-  
+
   return { linkedTags, ...bookmark };
 }
 
@@ -144,7 +157,7 @@ export async function getBookmarksForTag(tag, limit=10, offset=0) {
     console.error(dbError);
   }
 }
-  
+
 export async function getBookmark(id) {
   try {
     const result =  await db.get("SELECT * from bookmarks WHERE id = ?", id);
@@ -154,35 +167,35 @@ export async function getBookmark(id) {
   }
 }
 
-  
+
 export async function getTags() {
   try {
     const allTagFields = await db.all("SELECT tags from bookmarks");
     const allTags = allTagFields.map(bookmarkTagList => bookmarkTagList.tags?.split(' ')).flat()
     const parsedTags = allTags.filter(t => t !== undefined).map(t => t.slice(1))
-    
+
     return [...new Set(parsedTags)].sort();
   } catch (dbError) {
     // Database connection error
     console.error(dbError);
   }
 }
-  
+
 export async function createBookmark(body) {
   try {
     const result = await db.run("INSERT INTO bookmarks (title, url, description, tags) VALUES (?, ?, ?, ?)", body.title, body.url, body.description, body.tags);
-    
+
     return getBookmark(result.lastID);
   } catch (dbError) {
     console.error(dbError);
   }
 }
-  
+
 export async function updateBookmark(id, body) {
   try {
     await db.run("UPDATE bookmarks SET title = ?, url = ?, description = ?, tags = ? WHERE id = ?", body.title, body.url, body.description, body.tags, id);
 
-    return await db.get("SELECT * from bookmarks WHERE id = ?", id); 
+    return await db.get("SELECT * from bookmarks WHERE id = ?", id);
   } catch (dbError) {
     console.error(dbError);
   }
