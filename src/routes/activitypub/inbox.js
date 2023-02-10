@@ -81,33 +81,29 @@ router.post('/', async function (req, res) {
     // Add the user to the DB of accounts that follow the account
     let db = req.app.get('apDb');
     // get the followers JSON for the user
-    const followers = await db.getFollowers(`${name}@${domain}`);
+    const oldFollowersText = await db.getFollowers(`${name}@${domain}`) || '[]';
 
-    if (followers === undefined) {
-      console.log(`No followers found for ${name}.`);
+    // update followers
+    let followers = parseJSON(oldFollowersText);
+    if (followers) {
+      followers.push(req.body.actor);
+      // unique items
+      followers = [...new Set(followers)];
     }
     else {
-      // update followers
-      let followers = parseJSON(followers);
-      if (followers) {
-        followers.push(req.body.actor);
-        // unique items
-        followers = [...new Set(followers)];
-      }
-      else {
-        followers = [req.body.actor];
-      }
-      let followersText = JSON.stringify(followers);
-      try {
-        // update into DB
-        const newFollowers = await db.setFollowers(followersText, `${name}@${domain}`);
-
-        console.log('updated followers!', newFollowers);
-      }
-      catch(e) {
-        console.log('error', e);
-      }
+      followers = [req.body.actor];
     }
+    let newFollowersText = JSON.stringify(followers);
+    try {
+      // update into DB
+      const newFollowers = await db.setFollowers(newFollowersText, `${name}@${domain}`);
+
+      console.log('updated followers!', newFollowers);
+    }
+    catch(e) {
+      console.log('error', e);
+    }
+
   } else if (req.body.type === 'Create' && req.body.object.type === 'Note') {
     const apDb = req.app.get('apDb');
     const bookmarksDb = req.app.get('bookmarksDb');
