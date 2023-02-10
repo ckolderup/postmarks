@@ -21,7 +21,8 @@ To set your app up:
 * If you're using Glitch:
   * Rename your project immediately in the project settings, if you intend to be called something else. This determines the domain that your site lives at, which also determines the second half of your `@username@project-name.glitch.me` identity on the fediverse. NOTE: If you change this later, you will break the connection any existing followers have to your site, they'll have to re-follow the account on its new domain (and depending on the software they're following from, may even prevent them from unfollowing the old URL 😱)
   * In your `.env` editor, create a key `ADMIN_KEY` and give it a text string as a value. This is your "password" when your browser prompts you.
-  * Make a file called `account.json` in the project root. Copy the contents of `account.json.example` into it and edit the values to set your `@username`, display name, bio, and avatar. (If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@project-name.glitch.me`.)
+  * Edit the contents of `account.json.example` to set your `@username`, display name, bio, and avatar. (If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@project-name.glitch.me`.)
+  * THEN: either rename `account.json.example` to `account.json`, or copy the contents into a new file called `account.json`. Whatever `username` you have in this file when the project first starts you'll need to retain or else you'll break your followers' connection to this account.
 * Otherwise:
   * Set up your domain by editing `src/util.js` and making the definition of `export const domain` return a string that is your domain. Fun, huh?
   * Create a `.env` file in the root of the project.
