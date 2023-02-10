@@ -4,3 +4,4 @@ node_modules
 .data/*.db
 .env
 request_logs.txt
+account.json
