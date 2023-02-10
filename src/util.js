@@ -4,9 +4,11 @@ import chalk from 'chalk';
 
 export const seo = JSON.parse(await readFile(new URL('./seo.json', import.meta.url)));
 export const data = JSON.parse(await readFile(new URL('./data.json', import.meta.url)));
+export const actorInfo = JSON.parse(await readFile(new URL('../account.json', import.meta.url)));
 
-export const account = process.env.ACTOR_NAME || 'bookmarks';
+export const account = actorInfo.username || 'bookmarks';
 export const domain = `${process.env.PROJECT_DOMAIN}.glitch.me`; // edit this if you have a custom domain
+
 
 export function timeSince(ms)  {
   var timestamp = new Date(ms);
