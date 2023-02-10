@@ -146,23 +146,23 @@ open({
 });
 
 export async function getFollowers(name) {
-  return await db.get("select followers from accounts where name = ?", name);
+  const followers = await db.get("select followers from accounts limit 1",)
+  return followers || [];
 }
 
 export async function setFollowers(followersJson, name) {
   return await db.run(
-    "update accounts set followers=? where name = ?",
-    followersJson,
-    name
+    "update accounts set followers=?",
+    followersJson
   );
 }
 
 export async function getActor(name) {
-  return await db.get("select actor from accounts where name = ?", name);
+  return (await db.get("select actor from accounts limit 1"))[0];
 }
 
 export async function getWebfinger(name) {
-  return await db.get("select webfinger from accounts where name = ?", name);
+  return (await db.get("select webfinger from accounts limit 1"))[0];
 }
 
 export async function getGuidForBookmarkId(id) {
@@ -180,7 +180,7 @@ export async function getMessage(guid) {
 }
 
 export async function getPrivateKey(name) {
-  return await db.get("select privkey from accounts where name = ?", name);
+  return (await db.get("select privkey from accounts limit 1"))[0];
 }
 
 export async function getGlobalPermissions() {
