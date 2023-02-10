@@ -68,10 +68,10 @@ document.addEventListener(
     const text = event.target.value;
     try {
       navigator.clipboard.writeText(text);
-      document.getElementById('copy-status').innerText = 'Copied to clipboard';
+      document.getElementById('copy-status').innerText = 'Copied to clipboard!';
       setTimeout(function () {
-        document.getElementById('copy-status').innerText = 'Click the code above to copy';
-      }, 1200);
+        document.getElementById('copy-status').innerText = 'Click the code above to copy it to your clipboard';
+      }, 1500);
     } catch (err) {
       console.error('Failed to copy!', err);
     }
