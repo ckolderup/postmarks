@@ -29,7 +29,7 @@ router.get("/popup", basicUserAuth, async (req, res) => {
     params.bookmark = {
       url: decodeURI(req.query.url),
     };
-    
+
     try {
       let meta = await ogParser(decodeURI(req.query.url));
 
@@ -156,9 +156,9 @@ router.post("/multiadd", basicUserAuth, async (req, res) => {
       }
     } catch (e) {
        console.log(`couldn't fetch opengraph data for ${url}`);
-    }    
-    
-    await bookmarksDb.createBookmark({ url, ...meta }); 
+    }
+
+    await bookmarksDb.createBookmark({ url, ...meta });
   });
 
   return req.query.raw ? res.sendStatus(200) : res.redirect("/");
@@ -178,11 +178,13 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
     new URL(req.body.url);
   } catch {
     res.send("error: invalid URL")
+    return;
   }
 
-  const hashtagFormat = new RegExp(/^(#[a-zA-Z0-9]+ )*#[a-zA-Z0-9]+\s*$/gm);
+  const hashtagFormat = new RegExp(/^(#[a-zA-Z0-9.\-_]+ )*#[a-zA-Z0-9.\-_]+\s*$/gm);
   if (!hashtagFormat.test(req.body.tags)) {
-    res.send("invalid tag format: must be in #hashtag #format, alphanumeric characters only");
+    res.send("invalid tag format: must be in #hashtag #format, tag name supports a-z, A-Z, 0-9 and the following word separators: -_.");
+    return;
   }
 
   if (id) {
