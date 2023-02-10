@@ -29,15 +29,21 @@ router.get("/popup", basicUserAuth, async (req, res) => {
     params.bookmark = {
       url: decodeURI(req.query.url),
     };
+    
+    try {
+      let meta = await ogParser(decodeURI(req.query.url));
 
-    let meta = await ogParser(decodeURI(req.query.url));
 
-    if (req.query?.highlight !== undefined && req.query?.highlight !== '') {
-      params.bookmark.description = `"${decodeURI(req.query.highlight)}"`
-    } else if (meta.description !== undefined) {
-      params.bookmark.description = `"${meta.description}"`;
+
+      if (req.query?.highlight !== undefined && req.query?.highlight !== '') {
+        params.bookmark.description = `"${decodeURI(req.query.highlight)}"`
+      } else if (meta.description !== undefined) {
+        params.bookmark.description = `"${meta.description}"`;
+      }
+      params.bookmark.title = meta?.title;
+    } catch (e) {
+      console.log(`error fetching opengraph tags: ${e}`);
     }
-    params.bookmark.title = meta?.title;
   }
 
   params.tags = await bookmarksDb.getTags();
@@ -136,19 +142,23 @@ router.post("/multiadd", basicUserAuth, async (req, res) => {
     try {
       //use the constructor to do a rough URL validity check
       new URL(url);
+    } catch (e) {
+      console.log(`unable to parse url ${url}`);
+    }
 
-      if (url.length < 3) return;
+    if (url.length < 3) return;
 
-      const meta = await ogParser(url);
+    let meta = {};
+    try {
+      meta = await ogParser(url);
       if (meta.description !== undefined) {
         meta.description = `"${meta.description}"`;
       }
-
-      await bookmarksDb.createBookmark({ url, ...meta });
-    }
-    catch (e) {
-      console.log(`unable to parse url ${url}`);
-    }
+    } catch (e) {
+       console.log(`couldn't fetch opengraph data for ${url}`);
+    }    
+    
+    await bookmarksDb.createBookmark({ url, ...meta }); 
   });
 
   return req.query.raw ? res.sendStatus(200) : res.redirect("/");
@@ -197,18 +207,22 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
     const noDescription = req.body.title === '';
     let meta = {};
     if (noTitle || noDescription) {
-      meta = await ogParser(req.body.url);
-      if (meta.description !== undefined) {
-        meta.description = `"${meta.description}"`;
+      try {
+        meta = await ogParser(req.body.url);
+        if (meta.description !== undefined) {
+          meta.description = `"${meta.description}"`;
+        }
+      } catch (e) {
+        console.log(`couldn't fetch opengraph data for ${req.body.url}: ${e}`);
       }
     }
 
-    const mergedObject = { title: meta.title, description: meta.description, ...removeEmpty(req.body) };
+    const mergedObject = { title: meta?.title, description: meta?.description, ...removeEmpty(req.body) };
     bookmark = await bookmarksDb.createBookmark({ // STRONG PARAMETERS
       url: mergedObject.url.trim(),
-      title: mergedObject.title.trim(),
-      description: mergedObject.description.trim(),
-      tags: mergedObject.tags.trim()
+      title: mergedObject.title?.trim() || 'Untitled',
+      description: mergedObject.description?.trim() || '',
+      tags: mergedObject.tags?.trim()
     });
 
     sendMessage(bookmark, 'create', apDb, account, domain);
