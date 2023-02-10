@@ -5,7 +5,7 @@ import chalk from 'chalk';
 export const seo = JSON.parse(await readFile(new URL('./seo.json', import.meta.url)));
 export const data = JSON.parse(await readFile(new URL('./data.json', import.meta.url)));
 
-export const account = process.env.ACTOR_NAME || 'webmaster';
+export const account = process.env.ACTOR_NAME || 'bookmarks';
 export const domain = `${process.env.PROJECT_DOMAIN}.glitch.me`; // edit this if you have a custom domain
 
 export function timeSince(ms)  {
@@ -26,7 +26,7 @@ export function timeSince(ms)  {
     const month = timestamp.toDateString().match(/ [a-zA-Z]*/)[0].replace(" ", "");
     const year = timestamp.getFullYear() == now.getFullYear() ? "" : " " + timestamp.getFullYear();
     return day + " " + month + year;
-  } 
+  }
 }
 
 const getActualRequestDurationInMilliseconds = start => {
@@ -62,7 +62,7 @@ export function actorMatchesUsername(actor, username) {
 
     return (account == actorResult[3] && domain == actorResult[1]);
 }
- 
+
 export function simpleLogger(req, res, next) { //middleware function
   let current_datetime = new Date();
   let formatted_date =
@@ -82,7 +82,7 @@ export function simpleLogger(req, res, next) { //middleware function
   let status = res.statusCode;
   const start = process.hrtime();
   const durationInMilliseconds = getActualRequestDurationInMilliseconds(start);
-  
+
   let log = `[${chalk.blue(formatted_date)}] ${method}:${url} ${status} ${chalk.red(durationInMilliseconds.toLocaleString() + "ms")}`;
   console.log(log);
   fs.appendFile("request_logs.txt", log + "\n", err => {
