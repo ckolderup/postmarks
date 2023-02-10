@@ -6,7 +6,7 @@ export const data = JSON.parse(await readFile(new URL('./data.json', import.meta
 export const actorInfo = JSON.parse(await readFile(new URL('../account.json', import.meta.url)));
 
 export const account = actorInfo.username || 'bookmarks';
-export const domain = `${process.env.PROJECT_DOMAIN}.glitch.me`; // edit this if you have a custom domain
+export const domain = process.env.PROJECT_DOMAIN ? `${process.env.PROJECT_DOMAIN}.glitch.me` : 'localhost'; // edit this if you have a custom domain
 
 
 export function timeSince(ms)  {

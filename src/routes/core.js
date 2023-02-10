@@ -1,5 +1,5 @@
 import express from 'express';
-import { data } from '../util.js';
+import { data, actorInfo } from '../util.js';
 
 export const router = express.Router();
 
@@ -46,6 +46,10 @@ router.get("/", async (req, res) => {
   return req.query.raw
     ? res.send(params)
     : res.render("index", params);
+});
+
+router.get("/about", async (req, res) => {
+  res.render("about", { title: 'About', actorInfo, domain: req.app.get('domain')});
 });
 
 router.get("/index.xml", async (req, res) => {

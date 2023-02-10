@@ -1,7 +1,7 @@
 /******************************************************************************
 START Glitch hello-app default styles
 
-The styles in this section do some minimal CSS resets, set default fonts and 
+The styles in this section do some minimal CSS resets, set default fonts and
 colors, and handle the layout for our footer and "Remix on Glitch" button. If
 you're new to CSS they may seem a little complicated, but you can scroll down
 to this section's matching END comment to see page-specific styles.
@@ -248,14 +248,14 @@ p.error a:visited {
 
 .bookmark .description {
   margin-left: 10px;
-  margin-bottom: 10px;  
+  margin-bottom: 10px;
 }
 
 .bookmark .tags {
   margin-left: 10px;
 }
 
-.bookmark .tags a, .bookmark .bottom a { 
+.bookmark .tags a, .bookmark .bottom a {
   font-weight: normal;
 }
 
@@ -265,7 +265,7 @@ textarea {
   width: 75%;
 }
 
-.tag-list { 
+.tag-list {
   margin-top: 20px;
 }
 
@@ -273,4 +273,13 @@ textarea {
   list-style-type: none;
   padding: 0;
   margin: 0;
+}
+
+.bio {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 125px auto;
+}
+.bio .avatar {
+  width: 125px;
 }

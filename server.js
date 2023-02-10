@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.json({type: 'application/activity+json'}));
 
-app.set('site_name', actorInfo.name || 'Fedimarks');
+app.set('site_name', actorInfo.displayName || 'Fedimarks');
 app.set('bookmarksDb', bookmarksDb);
 app.set('apDb', apDb);
 app.set('account', account);

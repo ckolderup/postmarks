@@ -1,0 +1,34 @@
+<div class="bio"><img class="avatar" src="{{actorInfo.avatar}}" /><p>
+  {{actorInfo.description}}
+</p></div>
+<h2>Follow on the Fediverse</h2>
+<div>
+  <input readonly type="text" id="copy-bookmarklet" value="@{{actorInfo.username}}@{{domain}}" />
+  <p><small id="copy-status">Click the code above to copy</small></p>
+</div>
+
+<script>
+  document.addEventListener(
+    'click',
+    function (event) {
+      // Only fire if the target has id copy
+      if (!event.target.matches('#copy-bookmarklet')) return;
+
+      if (!navigator.clipboard) {
+        // Clipboard API not available
+        return;
+      }
+      const text = event.target.value;
+      try {
+        navigator.clipboard.writeText(text);
+        document.getElementById('copy-status').innerText = 'Copied to clipboard';
+        setTimeout(function () {
+          document.getElementById('copy-status').innerText = 'Click the code above to copy';
+        }, 1200);
+      } catch (err) {
+        console.error('Failed to copy!', err);
+      }
+    },
+    false
+  );
+</script>

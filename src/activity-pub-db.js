@@ -65,6 +65,9 @@ open({
 }).then(async (dBase) => {
   db = dBase;
 
+  const actorName = `${account}@${domain}`;
+  let publicKey = null;
+
   try {
     if (!exists) {
       const newDb = new sqlite3.Database(
@@ -99,44 +102,48 @@ open({
       await db.run(
         "CREATE TABLE IF NOT EXISTS permissions (bookmark_id INTEGER NOT NULL UNIQUE, allowed TEXT, blocked TEXT)"
       );
+
+      crypto.generateKeyPair(
+        "rsa",
+        {
+          modulusLength: 4096,
+          publicKeyEncoding: {
+            type: "spki",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs8",
+            format: "pem",
+          },
+        },
+        async (err, generatedPublicKey, generatedPrivateKey) => {
+          try {
+            publicKey = generatedPublicKey;
+            const actorRecord = actorJson(account, domain, actorInfo, publicKey);
+            const webfingerRecord = webfingerJson(account, domain);
+
+            await db.run(
+              `INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)`,
+              actorName,
+              JSON.stringify(actorRecord),
+              generatedPublicKey,
+              generatedPrivateKey,
+              JSON.stringify(webfingerRecord)
+            );
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      );
     }
+
+    // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
+    const actorRecord = actorJson(account, domain, actorInfo, publicKey);
+    await db.run(`UPDATE accounts SET name = ?, actor = ?`, actorName, JSON.stringify(actorRecord));
   } catch (dbError) {
     console.error(dbError);
   }
 });
-
-// re-run the actor setup every time in case the avatar, description, etc have changed
-crypto.generateKeyPair(
-  "rsa",
-  {
-    modulusLength: 4096,
-    publicKeyEncoding: {
-      type: "spki",
-      format: "pem",
-    },
-    privateKeyEncoding: {
-      type: "pkcs8",
-      format: "pem",
-    },
-  },
-  async (err, publicKey, privateKey) => {
-    const actorName = `${account}@${domain}`;
-    const actorRecord = actorJson(account, domain, actorInfo, publicKey);
-    const webfingerRecord = webfingerJson(account, domain);
-    try {
-      await db.run(
-        `INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)`,
-        actorName,
-        JSON.stringify(actorRecord),
-        publicKey,
-        privateKey,
-        JSON.stringify(webfingerRecord)
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }
-);
 
 export async function getFollowers(name) {
   return await db.get("select followers from accounts where name = ?", name);
