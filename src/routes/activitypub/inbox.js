@@ -11,13 +11,12 @@ async function signAndSend(message, name, domain, req, res, targetDomain) {
   let inboxFragment = inbox.replace('https://'+targetDomain,'');
   // get the private key
   let db = req.app.get('apDb');
-  const result = await db.getPrivateKey(`${name}@${domain}`);
+  const privkey = await db.getPrivateKey(`${name}@${domain}`);
 
-  if (result === undefined) {
+  if (privkey === undefined) {
     return res.status(404).send(`No record found for ${name}.`);
   }
   else {
-    let privkey = result.privkey;
     const digestHash = crypto.createHash('sha256').update(JSON.stringify(message)).digest('base64');
     const signer = crypto.createSign('sha256');
     let d = new Date();
@@ -82,14 +81,14 @@ router.post('/', async function (req, res) {
     // Add the user to the DB of accounts that follow the account
     let db = req.app.get('apDb');
     // get the followers JSON for the user
-    const result = await db.getFollowers(`${name}@${domain}`);
+    const followers = await db.getFollowers(`${name}@${domain}`);
 
-    if (result === undefined) {
+    if (followers === undefined) {
       console.log(`No followers found for ${name}.`);
     }
     else {
       // update followers
-      let followers = parseJSON(result.followers);
+      let followers = parseJSON(followers);
       if (followers) {
         followers.push(req.body.actor);
         // unique items

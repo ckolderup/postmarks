@@ -10,13 +10,12 @@ function getGuidFromPermalink(urlString) {
 async function signAndSend(message, name, domain, db, targetDomain, inbox) {
   // get the private key
   let inboxFragment = inbox.replace('https://'+targetDomain,'');
-  const result = await db.getPrivateKey(`${name}@${domain}`);
+  const privkey = await db.getPrivateKey(`${name}@${domain}`);
 
-  if (result === undefined) {
+  if (privkey === undefined) {
     console.log(`No private key found for ${name}.`);
   }
   else {
-    let privkey = result.privkey;
     const digest = crypto.createHash('sha256').update(JSON.stringify(message)).digest('base64');
     const signer = crypto.createSign('sha256');
     let d = new Date();
@@ -139,7 +138,7 @@ function createMessage(noteObject, bookmarkId, account, domain, db) {
 
 export async function sendMessage(bookmark, action, db, account, domain) {
   const result = await db.getFollowers(`${account}@${domain}`);
-  const followers = JSON.parse(result?.followers);
+  const followers = JSON.parse(result);
 
   if (followers === null) {
     console.log(`No followers for account ${account}@${domain}`);
@@ -157,7 +156,7 @@ export async function sendMessage(bookmark, action, db, account, domain) {
 
       return !matches?.some(x => x)
     });
-    console.log(`removed ${JSON.parse(result?.followers).length - followers?.length} followers due to blocks that apply to this bookmark (includes global blocks)`);
+    console.log(`removed ${JSON.parse(result).length - result?.length} followers due to blocks that apply to this bookmark (includes global blocks)`);
 
     const noteObject = createNoteObject(await bookmark, account, domain)
     let message;

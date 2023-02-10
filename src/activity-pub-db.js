@@ -146,8 +146,8 @@ open({
 });
 
 export async function getFollowers(name) {
-  const followers = await db.get("select followers from accounts limit 1",)
-  return followers || [];
+  const result = await db.get("select followers from accounts limit 1");
+  return result?.followers;
 }
 
 export async function setFollowers(followersJson, name) {
@@ -158,11 +158,19 @@ export async function setFollowers(followersJson, name) {
 }
 
 export async function getActor(name) {
-  return (await db.get("select actor from accounts limit 1"))[0];
+  const result = await db.get("select actor from accounts limit 1")
+  return result?.actor;
 }
 
 export async function getWebfinger(name) {
-  return (await db.get("select webfinger from accounts limit 1"))[0];
+  const result = await db.get("select webfinger from accounts limit 1");
+  return result?.webfinger
+}
+
+
+export async function getPrivateKey(name) {
+  const result = await db.get("select privkey from accounts limit 1");
+  return result?.privkey;
 }
 
 export async function getGuidForBookmarkId(id) {
@@ -179,9 +187,6 @@ export async function getMessage(guid) {
   return await db.get("select message from messages where guid = ?", guid);
 }
 
-export async function getPrivateKey(name) {
-  return (await db.get("select privkey from accounts limit 1"))[0];
-}
 
 export async function getGlobalPermissions() {
   return await db.get("select * from permissions where bookmark_id = 0");

@@ -13,13 +13,13 @@ router.get('/:name', async function (req, res) {
     const username = name;
     name = `${name}@${domain}`;
 
-    const result = await db.getActor(name);
+    const actor = await db.getActor(name);
 
-    if (result === undefined) {
+    if (actor === undefined) {
       return res.status(404).send(`No actor record found for ${name}.`);
     }
     else {
-      let tempActor = JSON.parse(result.actor);
+      let tempActor = JSON.parse(actor);
       // Added this followers URI for Pleroma compatibility, see https://github.com/dariusk/rss-to-activitypub/issues/11#issuecomment-471390881
       // New Actors should have this followers URI but in case of migration from an old version this will add it in on the fly
       if (tempActor.followers === undefined) {
@@ -39,13 +39,12 @@ router.get('/:name/followers', async function (req, res) {
     let db = req.app.get('apDb');
     let domain = req.app.get('domain');
 
-    const result = await db.getFollowers(`${name}@${domain}`);
+    let followers = await db.getFollowers(`${name}@${domain}`);
 
-    let followers;
-    if (result === undefined) {
+    if (followers === undefined) {
       followers = [];
     } else {
-      followers = JSON.parse(result.followers);
+      followers = JSON.parse(followers);
     }
 
     let followersCollection = {
