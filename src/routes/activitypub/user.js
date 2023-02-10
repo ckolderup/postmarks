@@ -53,7 +53,7 @@ router.get('/:name/followers', async function (req, res) {
       "id":`https://${domain}/u/${name}/followers`,
       "first": {
         "type":"OrderedCollectionPage",
-        "totalItems":followers.length,
+        "totalItems":followers?.length || 0,
         "partOf":`https://${domain}/u/${name}/followers`,
         "orderedItems": followers,
         "id":`https://${domain}/u/${name}/followers?page=1`

@@ -144,7 +144,6 @@ open({
 
     // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
     const publicKey = await getPublicKey(account);
-    console.log(`public key: ${JSON.stringify(publicKey)}`);
     const actorRecord = actorJson(account, domain, actorInfo, publicKey);
     await db.run(`UPDATE accounts SET name = ?, actor = ?`, actorName, JSON.stringify(actorRecord));
   } catch (dbError) {
