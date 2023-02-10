@@ -172,7 +172,7 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
     return;
   }
 
-  const hashtagFormat = new RegExp(/^(#[a-zA-Z0-9.\-_]+ )*#[a-zA-Z0-9.\-_]+\s*$/gm);
+  const hashtagFormat = new RegExp(/^(#[a-zA-Z0-9.\-_:]+ )*#[a-zA-Z0-9.\-_:]+\s*$/gm);
   if (!hashtagFormat.test(req.body.tags)) {
     res.send("invalid tag format: must be in #hashtag #format, tag name supports a-z, A-Z, 0-9 and the following word separators: -_.");
     return;
