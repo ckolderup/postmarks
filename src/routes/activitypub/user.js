@@ -49,7 +49,7 @@ router.get('/:name/followers', async function (req, res) {
 
     let followersCollection = {
       "type":"OrderedCollection",
-      "totalItems":followers.length,
+      "totalItems":followers?.length || 0,
       "id":`https://${domain}/u/${name}/followers`,
       "first": {
         "type":"OrderedCollectionPage",
