@@ -1,17 +1,16 @@
 import express from 'express';
-import request from 'request';
 import og from 'open-graph';
 import { promisify } from 'es6-promisify';
 const ogParser = promisify(og);
 
-import { seo, data, account, domain, removeEmpty } from '../util.js';
+import { data, account, domain, removeEmpty } from '../util.js';
 import { basicUserAuth } from '../basic-auth.js';
 import { sendMessage } from '../activitypub.js';
 
 export const router = express.Router();
 
 router.get("/new", basicUserAuth, async (req, res) => {
-  let params = req.query.raw ? {} : { seo: seo, ephemeral: false };
+  let params = req.query.raw ? {} : { ephemeral: false };
   const bookmarksDb = req.app.get('bookmarksDb');
 
   params.tags = await bookmarksDb.getTags();
@@ -22,7 +21,7 @@ router.get("/new", basicUserAuth, async (req, res) => {
 });
 
 router.get("/popup", basicUserAuth, async (req, res) => {
-  let params = req.query.raw ? {} : { seo: seo, ephemeral: true };
+  let params = req.query.raw ? {} : { ephemeral: true };
   const bookmarksDb = req.app.get('bookmarksDb');
 
   if (req.query.url !== undefined) {
@@ -55,11 +54,7 @@ router.get("/popup", basicUserAuth, async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  /*
-  Params is the data we pass to the client
-  - SEO values for front-end UI but not for raw data
-  */
-  let params = req.query.raw ? {} : { seo: seo };
+  let params = {};
   const bookmarksDb = req.app.get('bookmarksDb');
 
   params.tags = await bookmarksDb.getTags();
@@ -81,11 +76,7 @@ router.get("/:id", async (req, res) => {
 });
 
 router.get("/:id/edit", basicUserAuth, async (req, res) => {
-  /*
-  Params is the data we pass to the client
-  - SEO values for front-end UI but not for raw data
-  */
-  let params = req.query.raw ? {} : { seo: seo, ephemeral: false };
+  let params = req.query.raw ? {} : { ephemeral: false };
   const bookmarksDb = req.app.get('bookmarksDb');
   const apDb = req.app.get('apDb');
 

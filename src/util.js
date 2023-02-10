@@ -2,7 +2,6 @@ import fs from 'fs';
 import { readFile } from 'fs/promises';
 import chalk from 'chalk';
 
-export const seo = JSON.parse(await readFile(new URL('./seo.json', import.meta.url)));
 export const data = JSON.parse(await readFile(new URL('./data.json', import.meta.url)));
 export const actorInfo = JSON.parse(await readFile(new URL('../account.json', import.meta.url)));
 

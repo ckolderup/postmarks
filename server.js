@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
-import { seo, domain, account, simpleLogger } from './src/util.js';
+import { domain, account, simpleLogger, actorInfo } from './src/util.js';
 import { basicUserAuth } from './src/basic-auth.js';
 import * as bookmarksDb from './src/bookmarks-db.js';
 import * as apDb from './src/activity-pub-db.js';
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.json({type: 'application/activity+json'}));
 
-app.set('site_name', seo.title || 'Fedimarks');
+app.set('site_name', actorInfo.name || 'Fedimarks');
 app.set('bookmarksDb', bookmarksDb);
 app.set('apDb', apDb);
 app.set('account', account);
@@ -55,10 +55,6 @@ const hbs = create({
 app.set('view engine', '.hbs');
 app.set('views', './src/pages');
 app.engine('.hbs', hbs.engine);
-
-if (seo.url === "glitch-default") {
-  seo.url = `https://${domain}`;
-}
 
 app.use(simpleLogger);
 
