@@ -29,7 +29,6 @@ We're using the sqlite wrapper so that we can make async / await connections
   .then(async dBase => {
     db = dBase;
 
-    // We use try and catch blocks throughout to handle any database errors
     try {
       if (!exists) {
         const newDb = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {

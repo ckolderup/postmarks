@@ -1,6 +1,6 @@
 .glitchdotcom.json
 .node-gyp
 node_modules
-.data/*
+.data/*.db
 .env
 request_logs.txt
