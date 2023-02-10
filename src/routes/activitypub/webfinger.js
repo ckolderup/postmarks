@@ -12,7 +12,7 @@ router.get('/', async function (req, res) {
     let db = req.app.get('apDb');
     const result = await db.getWebfinger(name);
     if (result === undefined) {
-      return res.status(404).send(`No record found for ${name}.`);
+      return res.status(404).send(`No webfinger record found for ${name}.`);
     }
     else {
       console.log(result.webfinger);

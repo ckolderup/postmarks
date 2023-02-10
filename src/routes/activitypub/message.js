@@ -10,9 +10,9 @@ router.get('/:guid', async function (req, res) {
   else {
     let db = req.app.get('apDb');
     const result = await db.getMessage(guid);
-    
+
     if (result === undefined) {
-      return res.status(404).send(`No record found for ${guid}.`);
+      return res.status(404).send(`No message found for ${guid}.`);
     }
     else {
       res.json(JSON.parse(result.message));

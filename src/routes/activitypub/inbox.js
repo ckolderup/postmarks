@@ -5,14 +5,14 @@ import { actorMatchesUsername } from '../../util.js';
 
 export const router = express.Router();
 
-async function signAndSend(message, name, domain, req, res, targetDomain) { 
+async function signAndSend(message, name, domain, req, res, targetDomain) {
   // get the URI of the actor object and append 'inbox' to it
   let inbox = message.object.actor+'/inbox';
   let inboxFragment = inbox.replace('https://'+targetDomain,'');
   // get the private key
   let db = req.app.get('apDb');
   const result = await db.getPrivateKey(`${name}@${domain}`);
-  
+
   if (result === undefined) {
     return res.status(404).send(`No record found for ${name}.`);
   }
@@ -83,9 +83,9 @@ router.post('/', async function (req, res) {
     let db = req.app.get('apDb');
     // get the followers JSON for the user
     const result = await db.getFollowers(`${name}@${domain}`);
-    
+
     if (result === undefined) {
-      console.log(`No record found for ${name}.`);
+      console.log(`No followers found for ${name}.`);
     }
     else {
       // update followers
@@ -102,7 +102,7 @@ router.post('/', async function (req, res) {
       try {
         // update into DB
         const newFollowers = await db.setFollowers(followersText, `${name}@${domain}`);
-        
+
         console.log('updated followers!', newFollowers);
       }
       catch(e) {
@@ -112,57 +112,57 @@ router.post('/', async function (req, res) {
   } else if (req.body.type === 'Create' && req.body.object.type === 'Note') {
     const apDb = req.app.get('apDb');
     const bookmarksDb = req.app.get('bookmarksDb');
-    
+
     const domain = req.app.get('domain');
-    
+
     console.log(JSON.stringify(req.body));
     const inReplyToGuid = req.body.object.inReplyTo.match(`https://${domain}/m/(.+)`)[1];
-    
+
     if (inReplyToGuid === undefined) {
       // TODO: support reply chains, aka normal human conversations
       console.log("couldn't parse which message this is in reply to");
       res.sendStatus(422);
     }
-        
+
     const bookmarkId = await apDb.getBookmarkIdFromMessageGuid(inReplyToGuid);
-        
+
     if (typeof bookmarkId !== 'number') {
       console.log("couldn't find a bookmark this message is related to");
       res.sendStatus(400);
     }
-    
+
     const bookmarkPermissions = await apDb.getPermissionsForBookmark(bookmarkId);
     const globalPermissions = await apDb.getGlobalPermissions();
-    
+
     const bookmarkBlocks = bookmarkPermissions?.blocked?.split("\n") || [];
     const globalBlocks = globalPermissions?.blocked?.split("\n") || [];
-    
+
     const bookmarkAllows = bookmarkPermissions?.allowed?.split("\n") || [];
     const globalAllows = globalPermissions?.allowed?.split("\n") || [];
-    
+
     const blocklist = bookmarkBlocks.concat(globalBlocks).filter(x => x.match(/^@([^@]+)@(.+)$/));
     const allowlist = bookmarkAllows.concat(globalAllows).filter(x => x.match(/^@([^@]+)@(.+)$/));
-        
+
     if (blocklist.length > 0 && blocklist.map((username) => actorMatchesUsername(req.body.actor, username)).some(x => x)) {
       console.log(`Actor ${req.body.actor} matches a blocklist item, ignoring comment`);
       return res.sendStatus(403);
-    }   
+    }
     // TODO fetch actor details PS do NOT write your own URL regex
-    const actorDetails = req.body.actor.match(/https?:\/\/([^\/]+)\/users\/([a-zA-Z0-9\_]+)/); 
+    const actorDetails = req.body.actor.match(/https?:\/\/([^\/]+)\/users\/([a-zA-Z0-9\_]+)/);
     const actorDomain = actorDetails[1];
     const actorUsername = actorDetails[2];
-    
+
     const actor = `@${actorUsername}@${actorDomain}`;
     const commentUrl = req.body.object.id
-    
+
     let visible = 0;
     if (allowlist.map((username) => actorMatchesUsername(req.body.actor, username)).some(x => x)) {
       console.log(`Actor ${req.body.actor} matches an allowlist item, marking comment visible`);
       visible = 1;
     }
-    
+
     bookmarksDb.createComment(bookmarkId, actor, commentUrl, req.body.object.content, visible);
-    
+
     return res.sendStatus(200);
   }
 });

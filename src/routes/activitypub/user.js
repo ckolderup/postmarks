@@ -12,11 +12,11 @@ router.get('/:name', async function (req, res) {
     const domain = req.app.get('domain');
     const username = name;
     name = `${name}@${domain}`;
-    
+
     const result = await db.getActor(name);
-    
+
     if (result === undefined) {
-      return res.status(404).send(`No record found for ${name}.`);
+      return res.status(404).send(`No actor record found for ${name}.`);
     }
     else {
       let tempActor = JSON.parse(result.actor);
@@ -38,16 +38,16 @@ router.get('/:name/followers', async function (req, res) {
   else {
     let db = req.app.get('apDb');
     let domain = req.app.get('domain');
-    
+
     const result = await db.getFollowers(`${name}@${domain}`);
-    
+
     let followers;
     if (result === undefined) {
       followers = [];
     } else {
       followers = JSON.parse(result.followers);
     }
-    
+
     let followersCollection = {
       "type":"OrderedCollection",
       "totalItems":followers.length,
