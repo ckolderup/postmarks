@@ -127,6 +127,12 @@ label {
   font-size: 1.25rem;
 }
 
+label.small {
+  display: block;
+  font-weight: normal;
+  font-size: 0.8rem;
+}
+
 /* Title h1 style */
 h1 {
   color: #2800FF;
@@ -282,4 +288,28 @@ textarea {
 }
 .bio .avatar {
   width: 125px;
+}
+
+#taggedList {
+  display: flex;
+  gap: 5px;
+}
+
+#taggedList .tagged {
+  display: inline-grid;
+  height: 2em;
+  grid-template-columns: 1.5ch auto;
+  align-items: center;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 8px 0 0 8px;
+}
+
+#taggedList .tagged:before {
+  content: '#';
+}
+
+#taggedList .tagged:hover:before {
+  content: '\00d7';
 }

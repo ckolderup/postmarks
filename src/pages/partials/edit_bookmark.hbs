@@ -8,7 +8,11 @@
       <label> Description </label><br>
       <textarea name="description">{{bookmark.description}}</textarea><br>
       <label> Tags </label><br>
-      <input type="text" name="tags" value="{{bookmark.tags}}" />
+      <label class="small">press tab to autocomplete, press comma or enter to save a new tag.</label>
+      <input id="tagEntry" type="text" list="all-tags"/>
+      <div id="taggedList"></div>
+      <label class="small">click on a tag above to remove it</label>
+      <input type="hidden" id="tags" name="tags" value="{{{bookmark.tagsArray}}}" />
     </p><br><br>
     <p>
       <details>

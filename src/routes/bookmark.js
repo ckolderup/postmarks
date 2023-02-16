@@ -83,6 +83,7 @@ router.get("/:id/edit", basicUserAuth, async (req, res) => {
   params.tags = await bookmarksDb.getTags();
 
   const bookmark = await bookmarksDb.getBookmark(req.params.id);
+  bookmark.tagsArray = encodeURIComponent(JSON.stringify(bookmark.tags?.split(' ').map(b => b.slice(1)) || []));
   const comments = await bookmarksDb.getAllCommentsForBookmark(req.params.id);
 
   if (!bookmark) {
@@ -172,10 +173,16 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
     return;
   }
 
+  console.log(req.body.tags);
+  let tags = JSON.parse(decodeURIComponent(req.body.tags) || '[]')?.map(x => `#${x}`).join(' ');
   const hashtagFormat = new RegExp(/^(#[a-zA-Z0-9.\-_:]+ )*#[a-zA-Z0-9.\-_:]+\s*$/gm);
-  if (!hashtagFormat.test(req.body.tags)) {
-    res.send("invalid tag format: must be in #hashtag #format, tag name supports a-z, A-Z, 0-9 and the following word separators: -_.");
-    return;
+  if (tags.length > 0) {
+    if (!hashtagFormat.test(tags)) {
+      res.send(`invalid tags: ${tags}\nmust be in #hashtag #format, tag name supports a-z, A-Z, 0-9 and the following word separators: -_.`);
+      return;
+    }
+  } else {
+    tags = null;
   }
 
   if (id) {
@@ -188,7 +195,7 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
         url: req.body.url.trim(),
         title: req.body.title.trim(),
         description: req.body.description.trim(),
-        tags: req.body.tags.trim()
+        tags
       });
       await apDb.setPermissionsForBookmark(id, req.body.allowed || "", req.body.blocked || "");
 
@@ -215,7 +222,7 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
       url: mergedObject.url.trim(),
       title: mergedObject.title?.trim() || 'Untitled',
       description: mergedObject.description?.trim() || '',
-      tags: mergedObject.tags?.trim()
+      tags
     });
 
     sendMessage(bookmark, 'create', apDb, account, domain);

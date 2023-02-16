@@ -46,6 +46,11 @@ const hbs = create({
     },
     glitchProjectName() {
       return process.env.PROJECT_DOMAIN;
+    },
+    section(name, options) {
+      if (!this._sections) this._sections = {};
+      this._sections[name] = options.fn(this);
+      return null;
     }
   },
   partialsDir: './src/pages/partials',

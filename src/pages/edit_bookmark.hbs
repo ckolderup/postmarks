@@ -35,3 +35,14 @@
     <button type="submit">Delete</button>
   </form>
 {{/unless}}
+
+
+<datalist id="all-tags">
+{{#each tags}}
+  <option value="{{this}}"/>
+{{/each}}
+</datalist>
+
+{{#section 'script'}}
+  <script src="/tag-autocomplete.js"></script>
+{{/section}}
