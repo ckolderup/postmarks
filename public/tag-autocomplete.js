@@ -102,7 +102,9 @@ tagEntry.addEventListener("keydown", (e) => {
       const tagToAdd = [...e.target.list.children]
         .map((x) => x.value)
         .find((x) => new RegExp(`${strippedInput}`, "i").test(x));
-      addToTags(tagToAdd, false);
+      if (tagToAdd) {
+        addToTags(tagToAdd, false);
+      }
     }
   } else if (e.key === "Enter") {
     if (e.target.value !== "") {
@@ -112,7 +114,14 @@ tagEntry.addEventListener("keydown", (e) => {
   }
 });
 
-// Firefox retains data across a regular refresh, weirdo behavior
+document.querySelector('.edit-bookmark form').addEventListener("submit", (e) => {
+  const tagEntry = document.querySelector("#tagEntry");
+  console.log(tagEntry.value);
+  if (tagEntry.value.length > 0) {
+    addToTags(tagEntry.value, true);
+  }
+});
+
 document.addEventListener("DOMContentLoaded", (e) => {
   const formTagList = document.querySelector("#tags");
   const taggedList = document.querySelector("#taggedList");
