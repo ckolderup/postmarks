@@ -82,7 +82,7 @@ const formTagList = document.querySelector("#tags");
 
 tagEntry.addEventListener("input", (e) => {
   if (e.inputType === "insertText") {
-    if (e.data === ",") {
+    if (e.data === "," || e.data === '#') {
       addToTags(e.target.value.slice(0, -1), true);
     }
   } else if (
