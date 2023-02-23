@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "watch": "nodemon --ignore public/ --exec npm start"
   },
   "dependencies": {
     "body-parser": "^1.20.1",
@@ -38,5 +39,8 @@
     "express",
     "activitypub",
     "mastodon"
-  ]
+  ],
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
 }
