@@ -39,10 +39,7 @@ async function signAndSend(message, name, domain, req, res, targetDomain) {
       body: message
     }, function (error, response){
       if (error) {
-        console.log('Error:', error, response.body);
-      }
-      else {
-        console.log('Response:', response.body);
+        console.log('Error:', error, JSON.stringify(response));
       }
     });
     return res.status(200);
@@ -53,7 +50,7 @@ function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
   const guid = crypto.randomBytes(16).toString('hex');
   let message = {
     '@context': 'https://www.w3.org/ns/activitystreams',
-    'id': `https://${domain}/${guid}`,
+    'id': `https://${domain}/u/${name}/accept/${guid}`,
     'type': 'Accept',
     'actor': `https://${domain}/u/${name}`,
     'object': thebody,
@@ -70,18 +67,17 @@ function parseJSON(text) {
 }
 
 router.post('/', async function (req, res) {
-  // pass in a name for an account, if the account doesn't exist, create it!
+  // console.log(req.body);
   let domain = req.app.get('domain');
   const myURL = new URL(req.body.actor);
   let targetDomain = myURL.hostname;
-  // TODO: add "Undo" follow event
   if (typeof req.body.object === 'string' && req.body.type === 'Follow') {
     let name = req.body.object.replace(`https://${domain}/u/`,'');
     sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
     // Add the user to the DB of accounts that follow the account
     let db = req.app.get('apDb');
     // get the followers JSON for the user
-    const oldFollowersText = await db.getFollowers(`${name}@${domain}`) || '[]';
+    const oldFollowersText = await db.getFollowers() || '[]';
 
     // update followers
     let followers = parseJSON(oldFollowersText);
@@ -96,14 +92,40 @@ router.post('/', async function (req, res) {
     let newFollowersText = JSON.stringify(followers);
     try {
       // update into DB
-      const newFollowers = await db.setFollowers(newFollowersText, `${name}@${domain}`);
+      const newFollowers = await db.setFollowers(newFollowersText);
 
-      console.log('updated followers!', newFollowers);
+      console.log('updated followers!');
     }
     catch(e) {
-      console.log('error', e);
+      console.log('error storing followers after follow', e);
     }
+  } else if (req.body.type === 'Undo' && req.body.object.type === 'Follow') {
+    let name = req.body.object.object.replace(`https://${domain}/u/`,'');
+    sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
+    
+    // Remove the user from the DB of accounts that follow the account
+    let db = req.app.get('apDb');
+    
+    // get the followers JSON for the user
+    const oldFollowersText = await db.getFollowers() || '[]';
 
+    // update followers
+    let followers = parseJSON(oldFollowersText);
+    if (followers) {
+      followers.forEach((follower, idx, followers) => {
+        if (follower === req.body.actor) {
+          followers.splice(idx, 1);
+        }
+      });
+    }
+    
+    let newFollowersText = JSON.stringify(followers);
+
+    try {
+      const updatedFollowers = await db.setFollowers(newFollowersText);
+    } catch (e) {
+      console.log('error storing followers after unfollow', e);
+    }
   } else if (req.body.type === 'Create' && req.body.object.type === 'Note') {
     const apDb = req.app.get('apDb');
     const bookmarksDb = req.app.get('bookmarksDb');

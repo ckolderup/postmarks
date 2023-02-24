@@ -32,8 +32,6 @@ router.get("/popup", basicUserAuth, async (req, res) => {
     try {
       let meta = await ogParser(decodeURI(req.query.url));
 
-
-
       if (req.query?.highlight !== undefined && req.query?.highlight !== '') {
         params.bookmark.description = `"${decodeURI(req.query.highlight)}"`
       } else if (meta.description !== undefined) {
@@ -107,8 +105,11 @@ router.post("/:id/delete", basicUserAuth, async (req, res) => {
   const params = {};
   const { id } = req.params;
   const bookmarksDb = req.app.get('bookmarksDb');
+  const apDb = req.app.get('apDb');
 
   await bookmarksDb.deleteBookmark(id);
+  
+  sendMessage({id}, 'delete', apDb, account, domain);
 
   return req.query.raw
     ? res.send(params)

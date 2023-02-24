@@ -1,7 +1,7 @@
 import request from 'request';
 import crypto from 'crypto';
 
-import { actorMatchesUsername } from './util.js';
+import { actorInfo, actorMatchesUsername } from './util.js';
 
 function getGuidFromPermalink(urlString) {
   return urlString.match(/m\/([a-zA-Z0-9+\/]+)/)[1];
@@ -129,15 +129,37 @@ function createMessage(noteObject, bookmarkId, account, domain, db) {
     'object': noteObject
   };
 
-  db.insertMessage(guidCreate, bookmarkId, JSON.stringify(createMessage));
   db.insertMessage(getGuidFromPermalink(noteObject.id), bookmarkId, JSON.stringify(noteObject));
 
   return createMessage;
 }
 
+async function createDeleteMessage(bookmark, account, domain, db) {
+  const guid = await db.findMessageGuid(bookmark.id);
+  await db.deleteMessage(guid); 
+
+  const deleteMessage = {
+    '@context': ['https://www.w3.org/ns/activitystreams', "https://w3id.org/security/v1"],
+    'id': `https://${domain}/m/${guid}`,
+    'type': 'Delete',
+    'actor': `https://${domain}/u/${account}`,
+    'to': [ `https://${domain}/u/${account}/followers/`,
+        "https://www.w3.org/ns/activitystreams#Public" ],
+    'object': {
+      'type': 'Tombstone',
+      'id': `https://${domain}/m/${guid}`
+    }
+  };
+
+  return deleteMessage;
+}
 
 export async function sendMessage(bookmark, action, db, account, domain) {
-  const result = await db.getFollowers(`${account}@${domain}`);
+  if (actorInfo.disabled) {
+    return; // no fediverse setup, so no purpose trying to send messages
+  }
+  
+  const result = await db.getFollowers();
   const followers = JSON.parse(result);
 
   if (followers === null) {
@@ -156,7 +178,6 @@ export async function sendMessage(bookmark, action, db, account, domain) {
 
       return !matches?.some(x => x)
     });
-    console.log(`removed ${JSON.parse(result).length - result?.length} followers due to blocks that apply to this bookmark (includes global blocks)`);
 
     const noteObject = createNoteObject(await bookmark, account, domain)
     let message;
@@ -166,6 +187,9 @@ export async function sendMessage(bookmark, action, db, account, domain) {
         break;
       case 'update':
         message = await createUpdateMessage(bookmark, account, domain, db);
+        break;
+      case 'delete':
+        message = await createDeleteMessage(bookmark, account, domain, db);
         break;
       default:
         console.log('unsupported action!')
