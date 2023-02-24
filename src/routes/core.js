@@ -34,7 +34,6 @@ router.get("/", async (req, res) => {
   }
 
   params.title = title;
-  params.feedLink = `<link rel="alternate" type="application/atom+xml" href="https://${req.app.get('domain')}/index.xml" />`;
   params.pageInfo = { currentPage, totalPages, offset, limit,
                      hasPreviousPage: currentPage > 1,
                      hasNextPage: currentPage < totalPages,
@@ -128,7 +127,6 @@ router.get("/tagged/:tag", async (req, res) => {
 
   params.tag = req.params.tag;
   params.title = title;
-  params.feedLink = `<link rel="alternate" type="application/atom+xml" href="https://${req.app.get('domain')}/tagged/${params.tag}.xml" />`;
   params.pageInfo = { currentPage, totalPages, offset, limit,
                      hasPreviousPage: currentPage > 1,
                      hasNextPage: currentPage < totalPages,
