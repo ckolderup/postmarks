@@ -4,14 +4,14 @@
 
 ## About this project
 
-I've actually written a bit about Fedimarks. They show up as default bookmarks when you first install or on the
+I've actually already written a handful of posts about Fedimarks. They show up as default bookmarks when you first install or on the
 [demo site](https://fedimarks.glitch.me) but they are:
 
 * [Getting Started](https://casey.kolderup.org/notes/b059694f5064c6c6285075c894a72317.html)
 * [Ethos](https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html)
 * [Future Ideas](https://casey.kolderup.org/notes/9307f6d67bbfedbd215ae2d09caeab39.html) (with any luck, this is already out-of-date! who knows!)
 
-The site __Admin__ page allows the user to add, edit and delete bookmarks–but only if a valid login is provided.
+The site allows the owner to add, edit and delete bookmarks–but only if a valid login is provided.
 Check the setup below to understand how to do that!
 
 ## Setting up your site
@@ -26,7 +26,7 @@ To set your app up:
 * Otherwise:
   * Set up your domain by editing `src/util.js` and making the definition of `export const domain` return a string that is your domain. Fun, huh?
   * Create a `.env` file in the root of the project.
-  * Add the line `ADMIN_KEY={}` to your .env where {} is the password you'll enter when the browser prompts you.
+  * Add the line `ADMIN_KEY=<key>` to your .env where \<key\> is the password you'll enter when the browser prompts you.
   * Make a file called `account.json` in the project root. Copy the contents of `account.json.example` into it and edit the values to set your `@username`, display name, bio, and avatar. (If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@project-name.glitch.me`.)
 * If you're using Glitch, you should be done! If you're running this yourself, run `npm run start` via whatever mechanism you choose to use to host this website.
 * Click on the __Admin__ link in the footer, enter the username "admin" and the password whatever you set above.

@@ -2,9 +2,22 @@ import fs from 'fs';
 import { readFile } from 'fs/promises';
 import chalk from 'chalk';
 
-export const data = JSON.parse(await readFile(new URL('./data.json', import.meta.url)));
-export const actorInfo = JSON.parse(await readFile(new URL('../account.json', import.meta.url)));
+export const data = {
+  "errorMessage": "Whoops! Error connecting to the database–please try again!",
+  "setupMessage": "🚧 Whoops! Looks like the database isn't setup yet! 🚧"
+}
 
+let actorFileData = {};
+try {
+  const accountFile = await readFile(new URL('../account.json', import.meta.url));
+  actorFileData = JSON.parse(accountFile);
+  actorFileData.disabled = false;
+} catch (e) {
+  console.log("no account.json file found, assuming non-fediverse mode for now. restart the app to check again");
+  actorFileData = { disabled: true };
+}
+
+export const actorInfo = actorFileData;
 export const account = actorInfo.username || 'bookmarks';
 export const domain = process.env.PROJECT_DOMAIN ? `${process.env.PROJECT_DOMAIN}.glitch.me` : 'localhost'; // edit this if you have a custom domain
 

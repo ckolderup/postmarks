@@ -12,10 +12,42 @@ import { open } from "sqlite";
 import crypto from "crypto";
 import { account, domain, actorInfo } from "./util.js";
 
-// Initialize the database
 const dbFile = "./.data/activitypub.db";
-const exists = fs.existsSync(dbFile);
 let db;
+
+setup();
+
+function setup() {
+  // activitypub not set up yet, skip until we have the data we need
+  if (actorInfo.disabled) {
+    return;
+  }
+  
+  // Initialize the database
+  const exists = fs.existsSync(dbFile);
+  
+  open({
+    filename: dbFile,
+    driver: sqlite3.Database,
+  }).then(async (dBase) => {
+    db = dBase;
+
+    const actorName = `${account}@${domain}`;
+
+    try {
+      if (!exists) {
+        await firstTimeSetup(actorName);
+      }
+
+      // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
+      const publicKey = await getPublicKey(account);
+      const actorRecord = actorJson(account, domain, actorInfo, publicKey);
+      await db.run(`UPDATE accounts SET name = ?, actor = ?`, actorName, JSON.stringify(actorRecord));
+    } catch (dbError) {
+      console.error(dbError);
+    }
+  });
+}
 
 function actorJson(name, domain, actorInfo, pubkey) {
   return {
@@ -82,7 +114,7 @@ async function firstTimeSetup(actorName) {
   });
 
   await db.run(
-    "CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, followers TEXT, messages TEXT)"
+    "CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, followers TEXT, messages TEXT, blocks TEXT)"
   );
   // if there is no `messages` table in the DB, create an empty table
   // TODO: index messages on bookmark_id
@@ -92,7 +124,7 @@ async function firstTimeSetup(actorName) {
   await db.run(
     "CREATE TABLE IF NOT EXISTS permissions (bookmark_id INTEGER NOT NULL UNIQUE, allowed TEXT, blocked TEXT)"
   );
-
+  
   return new Promise((resolve, reject) => {
     crypto.generateKeyPair(
     "rsa",
@@ -129,37 +161,27 @@ async function firstTimeSetup(actorName) {
   )});
 }
 
-open({
-  filename: dbFile,
-  driver: sqlite3.Database,
-}).then(async (dBase) => {
-  db = dBase;
-
-  const actorName = `${account}@${domain}`;
-
-  try {
-    if (!exists) {
-      await firstTimeSetup(actorName);
-    }
-
-    // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
-    const publicKey = await getPublicKey(account);
-    const actorRecord = actorJson(account, domain, actorInfo, publicKey);
-    await db.run(`UPDATE accounts SET name = ?, actor = ?`, actorName, JSON.stringify(actorRecord));
-  } catch (dbError) {
-    console.error(dbError);
-  }
-});
-
-export async function getFollowers(name) {
+export async function getFollowers() {
   const result = await db.get("select followers from accounts limit 1");
   return result?.followers;
 }
 
-export async function setFollowers(followersJson, name) {
+export async function setFollowers(followersJson) {
   return await db.run(
     "update accounts set followers=?",
     followersJson
+  );
+}
+
+export async function getBlocks() {
+  const result = await db.get("select blocks from accounts limit 1");
+  return result?.blocks;
+}
+
+export async function setBlocks(blocksJson) {
+  return await db.run(
+    "update accounts set blocks=?",
+    blocksJson
   );
 }
 
@@ -189,14 +211,21 @@ export async function getGuidForBookmarkId(id) {
 }
 
 export async function getBookmarkIdFromMessageGuid(guid) {
-  return (await db.get("select bookmark_id from messages where guid = ?", guid))
-    ?.bookmark_id;
+  return (await db.get("select bookmark_id from messages where guid = ?", guid))?.bookmark_id;
 }
 
 export async function getMessage(guid) {
   return await db.get("select message from messages where guid = ?", guid);
 }
 
+export async function findMessageGuid(bookmarkId) {
+  return (await db.get("select guid from messages where bookmark_id = ?", bookmarkId))?.guid;
+}
+
+export async function deleteMessage(guid) {
+  await db.get("delete from messages where guid = ?", guid);
+  return;
+}
 
 export async function getGlobalPermissions() {
   return await db.get("select * from permissions where bookmark_id = 0");
