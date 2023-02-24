@@ -313,3 +313,13 @@ textarea {
 #taggedList .tagged:hover:before {
   content: '\00d7';
 }
+
+.followers .follower {
+  display: grid;
+  grid-template-columns: 50% 40px;
+  align-items: center;
+}
+
+.followers .follower .actions {
+  height: auto;
+}

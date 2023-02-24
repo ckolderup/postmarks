@@ -1,0 +1,14 @@
+<h3>Mass upload bookmarks</h3>
+<p>
+  Input a collection of URLs, one on each line. They'll all be imported and
+  given a title and description where possible. You can go and edit them each
+  individually afterwards to add tags, different descriptions, etc.<br />
+  <b>Note:</b>
+  These won't post as ActivityPub Notes! This is just to quickly seed a set of
+  bookmarks. If you'll want comments on these, you'll have to update them
+  individually.
+</p>
+<form action="/bookmark/multiadd" method="post">
+  <textarea name="urls"></textarea>
+  <button type="submit">Import</button>
+</form>
