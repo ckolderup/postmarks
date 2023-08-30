@@ -1,7 +1,5 @@
 import express from 'express';
-import { data, domain, actorInfo } from "../util.js";
-import { basicUserAuth } from "../basic-auth.js";
-import fs from "fs";
+import { domain, actorInfo } from "../util.js";
 import { isAuthenticated } from "../session-auth.js";
 const DATA_PATH = "/app/.data";
 
