@@ -54,40 +54,41 @@ async function signAndSend(message, name, domain, db, targetDomain, inbox) {
 }
 
 function createNoteObject(bookmark, account, domain) {
-
-  const guidNote = crypto.randomBytes(16).toString('hex');
+  const guidNote = crypto.randomBytes(16).toString("hex");
   const d = new Date();
 
-  const linkedTags = bookmark.tags?.split(' ').map((tag) => {
-     const tagName = tag.slice(1);
-     return `<a href=\"https://${domain}/tagged/${tagName}\" class=\"mention hashtag\" rel=\"tag\">${tag}</a>`
-  }).join(' ');
+  const linkedTags = bookmark.tags
+    ?.split(" ")
+    .map((tag) => {
+      const tagName = tag.slice(1);
+      return `<a href=\"https://${domain}/tagged/${tagName}\" class=\"mention hashtag\" rel=\"tag\">${tag}</a>`;
+    })
+    .join(" ");
 
   const noteMessage = {
-    '@context': 'https://www.w3.org/ns/activitystreams',
-    'id': `https://${domain}/m/${guidNote}`,
-    'type': 'Note',
-    'published': d.toISOString(),
-    'attributedTo': `https://${domain}/u/${account}`,
-    'content': `
+    "@context": "https://www.w3.org/ns/activitystreams",
+    id: `https://${domain}/m/${guidNote}`,
+    type: "Note",
+    published: d.toISOString(),
+    attributedTo: `https://${domain}/u/${account}`,
+    content: `
       <strong><a href="${bookmark.url}">${bookmark.title}</a></strong><br/>
-      ${bookmark.description?.replace("\n", '<br/>') || ''}<br/>
-      ${linkedTags}`,
-    'to': [
+      ${bookmark.description?.replace("\n", "<br/>") || ""}`,
+    to: [
       `https://${domain}/u/${account}/followers/`,
-      "https://www.w3.org/ns/activitystreams#Public"
-     ],
-    'tag': []
+      "https://www.w3.org/ns/activitystreams#Public",
+    ],
+    tag: [],
   };
 
-  bookmark.tags?.split(' ').forEach((tag) => {
+  bookmark.tags?.split(" ").forEach((tag) => {
     const tagName = tag.slice(1);
     noteMessage.tag.push({
-      "type": "Hashtag",
-      "href": `https://${domain}/tagged/${tagName}`,
-      "name": tag,
-    })
-  })
+      type: "Hashtag",
+      href: `https://${domain}/tagged/${tagName}`,
+      name: tag,
+    });
+  });
 
   return noteMessage;
 }
@@ -102,53 +103,70 @@ async function createUpdateMessage(bookmark, account, domain, db) {
     note = createNoteObject(bookmark, account, domain);
     createMessage(note, bookmark.id, account, domain, db);
   } else {
-    note = `https://${domain}/m/${guid}`
+    note = `https://${domain}/m/${guid}`;
   }
 
   const updateMessage = {
-    '@context': ['https://www.w3.org/ns/activitystreams', "https://w3id.org/security/v1"],
-    'summary': `${account} updated the bookmark`,
-    'type': 'Create', // this should be 'Update' but Mastodon does weird things with Updates
-    'actor': `https://${domain}/u/${account}`,
-    'object': note
+    "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      "https://w3id.org/security/v1",
+    ],
+    summary: `${account} updated the bookmark`,
+    type: "Create", // this should be 'Update' but Mastodon does weird things with Updates
+    actor: `https://${domain}/u/${account}`,
+    object: note,
   };
 
   return updateMessage;
 }
 
 function createMessage(noteObject, bookmarkId, account, domain, db) {
-  const guidCreate = crypto.randomBytes(16).toString('hex');
+  const guidCreate = crypto.randomBytes(16).toString("hex");
 
   const createMessage = {
-    '@context': ['https://www.w3.org/ns/activitystreams', "https://w3id.org/security/v1"],
-    'id': `https://${domain}/m/${guidCreate}`,
-    'type': 'Create',
-    'actor': `https://${domain}/u/${account}`,
-    'to': [ `https://${domain}/u/${account}/followers/`,
-        "https://www.w3.org/ns/activitystreams#Public" ],
-    'object': noteObject
+    "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      "https://w3id.org/security/v1",
+    ],
+    id: `https://${domain}/m/${guidCreate}`,
+    type: "Create",
+    actor: `https://${domain}/u/${account}`,
+    to: [
+      `https://${domain}/u/${account}/followers/`,
+      "https://www.w3.org/ns/activitystreams#Public",
+    ],
+    object: noteObject,
   };
 
-  db.insertMessage(getGuidFromPermalink(noteObject.id), bookmarkId, JSON.stringify(noteObject));
+  db.insertMessage(
+    getGuidFromPermalink(noteObject.id),
+    bookmarkId,
+    JSON.stringify(noteObject)
+  );
 
   return createMessage;
 }
 
 async function createDeleteMessage(bookmark, account, domain, db) {
   const guid = await db.findMessageGuid(bookmark.id);
-  await db.deleteMessage(guid); 
+  await db.deleteMessage(guid);
 
   const deleteMessage = {
-    '@context': ['https://www.w3.org/ns/activitystreams', "https://w3id.org/security/v1"],
-    'id': `https://${domain}/m/${guid}`,
-    'type': 'Delete',
-    'actor': `https://${domain}/u/${account}`,
-    'to': [ `https://${domain}/u/${account}/followers/`,
-        "https://www.w3.org/ns/activitystreams#Public" ],
-    'object': {
-      'type': 'Tombstone',
-      'id': `https://${domain}/m/${guid}`
-    }
+    "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      "https://w3id.org/security/v1",
+    ],
+    id: `https://${domain}/m/${guid}`,
+    type: "Delete",
+    actor: `https://${domain}/u/${account}`,
+    to: [
+      `https://${domain}/u/${account}/followers/`,
+      "https://www.w3.org/ns/activitystreams#Public",
+    ],
+    object: {
+      type: "Tombstone",
+      id: `https://${domain}/m/${guid}`,
+    },
   };
 
   return deleteMessage;
@@ -158,48 +176,53 @@ export async function sendMessage(bookmark, action, db, account, domain) {
   if (actorInfo.disabled) {
     return; // no fediverse setup, so no purpose trying to send messages
   }
-  
+
   const result = await db.getFollowers();
   const followers = JSON.parse(result);
 
   if (followers === null) {
     console.log(`No followers for account ${account}@${domain}`);
-  }
-  else {
+  } else {
     const bookmarkPermissions = await db.getPermissionsForBookmark(bookmark.id);
     const globalPermissions = await db.getGlobalPermissions();
-    const blocklist = bookmarkPermissions?.blocked?.split("\n")?.concat(globalPermissions?.blocked?.split("\n")).filter((x) => !x.match(/^@([^@]+)@(.+)$/)) || [];
+    const blocklist =
+      bookmarkPermissions?.blocked
+        ?.split("\n")
+        ?.concat(globalPermissions?.blocked?.split("\n"))
+        .filter((x) => !x.match(/^@([^@]+)@(.+)$/)) || [];
 
     //now let's try to remove the blocked users
     followers.filter((actor) => {
       const matches = blocklist.forEach((username) => {
-        actorMatchesUsername(actor, username)
+        actorMatchesUsername(actor, username);
       });
 
-      return !matches?.some(x => x)
+      return !matches?.some((x) => x);
     });
 
-    const noteObject = createNoteObject(await bookmark, account, domain)
+    const noteObject = createNoteObject(await bookmark, account, domain);
     let message;
     switch (action) {
-      case 'create':
+      case "create":
         message = createMessage(noteObject, bookmark.id, account, domain, db);
         break;
-      case 'update':
+      case "update":
         message = await createUpdateMessage(bookmark, account, domain, db);
         break;
-      case 'delete':
+      case "delete":
         message = await createDeleteMessage(bookmark, account, domain, db);
         break;
       default:
-        console.log('unsupported action!')
+        console.log("unsupported action!");
         return;
     }
 
-    console.log(`sending this message to all followers: ${JSON.stringify(message)}`);
+    console.log(
+      `sending this message to all followers: ${JSON.stringify(message)}`
+    );
 
     for (let follower of followers) {
-      let inbox = follower+'/inbox';
+      let inbox = follower + "/inbox";
       let myURL = new URL(follower);
       let targetDomain = myURL.host;
       signAndSend(message, account, domain, db, targetDomain, inbox);
