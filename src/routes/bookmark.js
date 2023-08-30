@@ -3,15 +3,15 @@ import og from 'open-graph';
 import { promisify } from 'es6-promisify';
 const ogParser = promisify(og);
 
-import { data, account, domain, removeEmpty } from '../util.js';
-import { basicUserAuth } from '../basic-auth.js';
+import { data, account, domain, removeEmpty } from "../util.js";
 import { sendMessage } from '../activitypub.js';
+import { isAuthenticated } from "../session-auth.js";
 
 export const router = express.Router();
 
-router.get("/new", basicUserAuth, async (req, res) => {
+router.get("/new", isAuthenticated, async (req, res) => {
   let params = req.query.raw ? {} : { ephemeral: false };
-  const bookmarksDb = req.app.get('bookmarksDb');
+  const bookmarksDb = req.app.get("bookmarksDb");
 
   params.tags = await bookmarksDb.getTags();
   params.title = `New Bookmark`;
@@ -20,9 +20,9 @@ router.get("/new", basicUserAuth, async (req, res) => {
   return res.render("edit_bookmark", params);
 });
 
-router.get("/popup", basicUserAuth, async (req, res) => {
+router.get("/popup", isAuthenticated, async (req, res) => {
   let params = req.query.raw ? {} : { ephemeral: true };
-  const bookmarksDb = req.app.get('bookmarksDb');
+  const bookmarksDb = req.app.get("bookmarksDb");
 
   if (req.query.url !== undefined) {
     params.bookmark = {
@@ -32,8 +32,8 @@ router.get("/popup", basicUserAuth, async (req, res) => {
     try {
       let meta = await ogParser(decodeURI(req.query.url));
 
-      if (req.query?.highlight !== undefined && req.query?.highlight !== '') {
-        params.bookmark.description = `"${decodeURI(req.query.highlight)}"`
+      if (req.query?.highlight !== undefined && req.query?.highlight !== "") {
+        params.bookmark.description = `"${decodeURI(req.query.highlight)}"`;
       } else if (meta.description !== undefined) {
         params.bookmark.description = `"${meta.description}"`;
       }
@@ -45,7 +45,7 @@ router.get("/popup", basicUserAuth, async (req, res) => {
 
   params.tags = await bookmarksDb.getTags();
   params.title = `New Bookmark`;
-  params.layout = 'popup';
+  params.layout = "popup";
   params.creating = true;
 
   return res.render("edit_bookmark", params);
@@ -53,7 +53,7 @@ router.get("/popup", basicUserAuth, async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   let params = {};
-  const bookmarksDb = req.app.get('bookmarksDb');
+  const bookmarksDb = req.app.get("bookmarksDb");
 
   params.tags = await bookmarksDb.getTags();
 
@@ -68,20 +68,20 @@ router.get("/:id", async (req, res) => {
     params.comments = comments;
   }
 
-  return req.query.raw
-    ? res.send(params)
-    : res.render("bookmark", params);
+  return req.query.raw ? res.send(params) : res.render("bookmark", params);
 });
 
-router.get("/:id/edit", basicUserAuth, async (req, res) => {
+router.get("/:id/edit", isAuthenticated, async (req, res) => {
   let params = req.query.raw ? {} : { ephemeral: false };
-  const bookmarksDb = req.app.get('bookmarksDb');
-  const apDb = req.app.get('apDb');
+  const bookmarksDb = req.app.get("bookmarksDb");
+  const apDb = req.app.get("apDb");
 
   params.tags = await bookmarksDb.getTags();
 
   const bookmark = await bookmarksDb.getBookmark(req.params.id);
-  bookmark.tagsArray = encodeURIComponent(JSON.stringify(bookmark.tags?.split(' ').map(b => b.slice(1)) || []));
+  bookmark.tagsArray = encodeURIComponent(
+    JSON.stringify(bookmark.tags?.split(" ").map((b) => b.slice(1)) || [])
+  );
   const comments = await bookmarksDb.getAllCommentsForBookmark(req.params.id);
 
   if (!bookmark) {
@@ -93,43 +93,43 @@ router.get("/:id/edit", basicUserAuth, async (req, res) => {
 
     params.title = `Edit Bookmark: ${bookmark.title}`;
     params.bookmark = bookmark;
-    params.comments = comments
+    params.comments = comments;
   }
 
-  return req.query.raw
-    ? res.send(params)
-    : res.render("edit_bookmark", params);
+  return req.query.raw ? res.send(params) : res.render("edit_bookmark", params);
 });
 
-router.post("/:id/delete", basicUserAuth, async (req, res) => {
+router.post("/:id/delete", isAuthenticated, async (req, res) => {
   const params = {};
   const { id } = req.params;
-  const bookmarksDb = req.app.get('bookmarksDb');
-  const apDb = req.app.get('apDb');
+  const bookmarksDb = req.app.get("bookmarksDb");
+  const apDb = req.app.get("apDb");
 
   await bookmarksDb.deleteBookmark(id);
-  
-  sendMessage({id}, 'delete', apDb, account, domain);
 
-  return req.query.raw
-    ? res.send(params)
-    : res.redirect("/");
+  sendMessage({ id }, "delete", apDb, account, domain);
+
+  return req.query.raw ? res.send(params) : res.redirect("/");
 });
 
-router.post("/:id/delete_hidden_comments", basicUserAuth, async (req, res) => {
- const params = {};
-  const { id } = req.params;
-  const bookmarksDb = req.app.get('bookmarksDb');
+router.post(
+  "/:id/delete_hidden_comments",
+  isAuthenticated,
+  async (req, res) => {
+    const params = {};
+    const { id } = req.params;
+    const bookmarksDb = req.app.get("bookmarksDb");
 
-  await bookmarksDb.deleteHiddenCommentsForBookmark(id);
+    await bookmarksDb.deleteHiddenCommentsForBookmark(id);
 
-  return req.query.raw
-    ? res.send(params)
-    : res.redirect(`/bookmark/${id}/edit`);
-});
+    return req.query.raw
+      ? res.send(params)
+      : res.redirect(`/bookmark/${id}/edit`);
+  }
+);
 
-router.post("/multiadd", basicUserAuth, async (req, res) => {
-  const bookmarksDb = req.app.get('bookmarksDb');
+router.post("/multiadd", isAuthenticated, async (req, res) => {
+  const bookmarksDb = req.app.get("bookmarksDb");
 
   await req.body.urls.split("\n").forEach(async (url) => {
     try {
@@ -148,19 +148,18 @@ router.post("/multiadd", basicUserAuth, async (req, res) => {
         meta.description = `"${meta.description}"`;
       }
     } catch (e) {
-       console.log(`couldn't fetch opengraph data for ${url}`);
+      console.log(`couldn't fetch opengraph data for ${url}`);
     }
 
     await bookmarksDb.createBookmark({ url, ...meta });
   });
 
   return req.query.raw ? res.sendStatus(200) : res.redirect("/");
-})
+});
 
-
-router.post("/:id?", basicUserAuth, async (req, res) => {
-  const bookmarksDb = req.app.get('bookmarksDb');
-  const apDb = req.app.get('apDb');
+router.post("/:id?", isAuthenticated, async (req, res) => {
+  const bookmarksDb = req.app.get("bookmarksDb");
+  const apDb = req.app.get("apDb");
 
   const params = {};
   const { id } = req.params;
@@ -170,16 +169,22 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
   try {
     new URL(req.body.url);
   } catch {
-    res.send("error: invalid URL")
+    res.send("error: invalid URL");
     return;
   }
 
   console.log(req.body.tags);
-  let tags = JSON.parse(decodeURIComponent(req.body.tags) || '[]')?.map(x => `#${x}`).join(' ');
-  const hashtagFormat = new RegExp(/^(#[a-zA-Z0-9.\-_:]+ )*#[a-zA-Z0-9.\-_:]+\s*$/gm);
+  let tags = JSON.parse(decodeURIComponent(req.body.tags) || "[]")
+    ?.map((x) => `#${x}`)
+    .join(" ");
+  const hashtagFormat = new RegExp(
+    /^(#[a-zA-Z0-9.\-_:]+ )*#[a-zA-Z0-9.\-_:]+\s*$/gm
+  );
   if (tags.length > 0) {
     if (!hashtagFormat.test(tags)) {
-      res.send(`invalid tags: ${tags}\nmust be in #hashtag #format, tag name supports a-z, A-Z, 0-9 and the following word separators: -_.`);
+      res.send(
+        `invalid tags: ${tags}\nmust be in #hashtag #format, tag name supports a-z, A-Z, 0-9 and the following word separators: -_.`
+      );
       return;
     }
   } else {
@@ -191,21 +196,23 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
 
     // We have a bookmark we can update
     if (bookmarkToUpdate) {
-
       bookmark = await bookmarksDb.updateBookmark(id, {
         url: req.body.url.trim(),
         title: req.body.title.trim(),
         description: req.body.description.trim(),
-        tags
+        tags,
       });
-      await apDb.setPermissionsForBookmark(id, req.body.allowed || "", req.body.blocked || "");
+      await apDb.setPermissionsForBookmark(
+        id,
+        req.body.allowed || "",
+        req.body.blocked || ""
+      );
 
-      sendMessage(bookmark, 'update', apDb, account, domain);
+      sendMessage(bookmark, "update", apDb, account, domain);
     }
-
   } else {
-    const noTitle = req.body.title === '';
-    const noDescription = req.body.title === '';
+    const noTitle = req.body.title === "";
+    const noDescription = req.body.title === "";
     let meta = {};
     if (noTitle || noDescription) {
       try {
@@ -218,15 +225,20 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
       }
     }
 
-    const mergedObject = { title: meta?.title, description: meta?.description, ...removeEmpty(req.body) };
-    bookmark = await bookmarksDb.createBookmark({ // STRONG PARAMETERS
+    const mergedObject = {
+      title: meta?.title,
+      description: meta?.description,
+      ...removeEmpty(req.body),
+    };
+    bookmark = await bookmarksDb.createBookmark({
+      // STRONG PARAMETERS
       url: mergedObject.url.trim(),
-      title: mergedObject.title?.trim() || 'Untitled',
-      description: mergedObject.description?.trim() || '',
-      tags
+      title: mergedObject.title?.trim() || "Untitled",
+      description: mergedObject.description?.trim() || "",
+      tags,
     });
 
-    sendMessage(bookmark, 'create', apDb, account, domain);
+    sendMessage(bookmark, "create", apDb, account, domain);
   }
 
   params.bookmarks = bookmark;
@@ -234,8 +246,8 @@ router.post("/:id?", basicUserAuth, async (req, res) => {
 
   // Return the info to the client
   if (req.query.raw) {
-    res.send(params)
-  } else if (req.query.ephemeral === 'true') {
+    res.send(params);
+  } else if (req.query.ephemeral === "true") {
     res.send("<script>window.close();</script>");
   } else {
     res.redirect(`/bookmark/${bookmark.id}`);

@@ -26,7 +26,12 @@
       <div class="menu">
         <a href="/about">About</a>
         <a href="/bookmark/new">Add</a>
-        <a href="/admin">Admin</a>
+        {{#if loggedIn}}
+          <a href="/admin">Admin</a>
+          <a href="/logout">Logout</a>
+          {{else}}
+          <a href="/login">Login</a>
+          {{/if}}
       </div>
     </div>
     <div class="wrapper">
@@ -41,9 +46,16 @@
     <div class="links"></div>
     <a href="/">Home</a>
     <span class="divider">|</span>
-    <a href="/admin">Admin</a>
-    <span class="divider">|</span>
+    {{#if loggedIn}}
     <a href="/bookmark/new">Add</a>
+    <span class="divider">|</span>
+      <a href="/admin">Admin</a>
+      <span class="divider">|</span>
+      <a href="/logout">Logout</a>
+      {{else}}
+      <a href="/login">Login</a>
+      {{/if}}
+
     <a class="btn--remix" target="_top" href="https://glitch.new/github.com/ckolderup/fedimarks">
       <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140"
         alt="" />
