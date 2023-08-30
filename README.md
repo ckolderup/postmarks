@@ -29,8 +29,8 @@ To set your app up:
   * Add the line `ADMIN_KEY=<key>` to your .env where \<key\> is the password you'll enter when the browser prompts you.
   * Make a file called `account.json` in the project root. Copy the contents of `account.json.example` into it and edit the values to set your `@username`, display name, bio, and avatar. (If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@project-name.glitch.me`.)
 * If you're using Glitch, you should be done! If you're running this yourself, run `npm run start` via whatever mechanism you choose to use to host this website.
-* Click on the __Admin__ link in the footer, enter the username "admin" and the password whatever you set above.
-* It should load the admin page and, for as long as your browser caches the login, all POST requests should automatically use the same auth.
+* Click on the __Admin__ link in the footer, and enter the password (whatever you set ADMIN_KEY to in the .env).
+* You should be logged in, at which point you can configure various settings, import bookmarks, and use the "Add" links in the header and footer (as well as the bookmarklet, available in the Admin section) to save new bookmarks.
 
 
 ## We built this with Glitch!
