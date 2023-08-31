@@ -36,7 +36,7 @@ async function signAndSend(message, name, domain, req, res, targetDomain) {
         Signature: header,
       },
       method: "POST",
-      body: message,
+      body: JSON.stringify(message),
     }).catch((error) => {
       console.log("Error:", error.message);
       console.log("Stacktrace:", error.stack);

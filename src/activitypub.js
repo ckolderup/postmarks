@@ -40,11 +40,11 @@ async function signAndSend(message, name, domain, db, targetDomain, inbox) {
         Accept: "application/activity+json",
       },
       method: "POST",
-      body: message,
+      body: JSON.stringify(message),
     })
-      .then((response) => {
+      .then(async (response) => {
         console.log(`Sent message to an inbox at ${targetDomain}!`);
-        console.log("Response Status Code:", response.statusCode);
+        console.log("Response Status Code:", response.status);
       })
       .catch((error) => {
         console.log("Error:", error.message);
