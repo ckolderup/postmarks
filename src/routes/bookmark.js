@@ -1,7 +1,5 @@
 import express from 'express';
-import ogs from "open-graph-scraper";
-import { promisify } from "es6-promisify";
-const ogParser = promisify(ogs);
+import ogScraper from "open-graph-scraper";
 
 import { data, account, domain, removeEmpty } from "../util.js";
 import { sendMessage } from "../activitypub.js";
@@ -30,7 +28,7 @@ router.get("/popup", isAuthenticated, async (req, res) => {
     };
 
     try {
-      let meta = await ogParser({ url: decodeURI(req.query.url) });
+      let meta = await ogScraper({ url: decodeURI(req.query.url) });
 
       if (req.query?.highlight !== undefined && req.query?.highlight !== "") {
         params.bookmark.description = `"${decodeURI(req.query.highlight)}"`;
@@ -143,7 +141,7 @@ router.post("/multiadd", isAuthenticated, async (req, res) => {
 
     let meta = {};
     try {
-      meta = await ogParser({ url });
+      meta = await ogScraper({ url });
       if (meta?.result?.ogDescription !== undefined) {
         meta.result.ogDescription = `"${meta.result.ogDescription}"`;
       }
@@ -220,7 +218,7 @@ router.post("/:id?", isAuthenticated, async (req, res) => {
     let meta = {};
     if (noTitle || noDescription) {
       try {
-        meta = await ogParser({ url: req.body.url });
+        meta = await ogScraper({ url: req.body.url });
         if (meta.result?.ogDescription !== undefined) {
           meta.result.ogDescription = `"${meta.result.ogDescription}"`;
         }
