@@ -1,10 +1,8 @@
 import express from 'express';
-import og from 'open-graph';
-import { promisify } from 'es6-promisify';
-const ogParser = promisify(og);
+import ogScraper from "open-graph-scraper";
 
 import { data, account, domain, removeEmpty } from "../util.js";
-import { sendMessage } from '../activitypub.js';
+import { sendMessage } from "../activitypub.js";
 import { isAuthenticated } from "../session-auth.js";
 
 export const router = express.Router();
@@ -30,14 +28,14 @@ router.get("/popup", isAuthenticated, async (req, res) => {
     };
 
     try {
-      let meta = await ogParser(decodeURI(req.query.url));
+      let meta = await ogScraper({ url: decodeURI(req.query.url) });
 
       if (req.query?.highlight !== undefined && req.query?.highlight !== "") {
         params.bookmark.description = `"${decodeURI(req.query.highlight)}"`;
-      } else if (meta.description !== undefined) {
-        params.bookmark.description = `"${meta.description}"`;
+      } else if (meta?.result?.ogDescription !== undefined) {
+        params.bookmark.description = `"${meta?.result?.ogDescription}"`;
       }
-      params.bookmark.title = meta?.title;
+      params.bookmark.title = meta?.result?.ogTitle;
     } catch (e) {
       console.log(`error fetching opengraph tags: ${e}`);
     }
@@ -143,15 +141,19 @@ router.post("/multiadd", isAuthenticated, async (req, res) => {
 
     let meta = {};
     try {
-      meta = await ogParser(url);
-      if (meta.description !== undefined) {
-        meta.description = `"${meta.description}"`;
+      meta = await ogScraper({ url });
+      if (meta?.result?.ogDescription !== undefined) {
+        meta.result.ogDescription = `"${meta.result.ogDescription}"`;
       }
     } catch (e) {
       console.log(`couldn't fetch opengraph data for ${url}`);
     }
 
-    await bookmarksDb.createBookmark({ url, ...meta });
+    await bookmarksDb.createBookmark({
+      url,
+      title: meta.result.ogTitle,
+      description: meta.result.ogDescription,
+    });
   });
 
   return req.query.raw ? res.sendStatus(200) : res.redirect("/");
@@ -216,9 +218,9 @@ router.post("/:id?", isAuthenticated, async (req, res) => {
     let meta = {};
     if (noTitle || noDescription) {
       try {
-        meta = await ogParser(req.body.url);
-        if (meta.description !== undefined) {
-          meta.description = `"${meta.description}"`;
+        meta = await ogScraper({ url: req.body.url });
+        if (meta.result?.ogDescription !== undefined) {
+          meta.result.ogDescription = `"${meta.result.ogDescription}"`;
         }
       } catch (e) {
         console.log(`couldn't fetch opengraph data for ${req.body.url}: ${e}`);
@@ -226,8 +228,8 @@ router.post("/:id?", isAuthenticated, async (req, res) => {
     }
 
     const mergedObject = {
-      title: meta?.title,
-      description: meta?.description,
+      title: meta?.result?.ogTitle,
+      description: meta?.result?.ogDescription,
       ...removeEmpty(req.body),
     };
     bookmark = await bookmarksDb.createBookmark({
