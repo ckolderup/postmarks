@@ -22,10 +22,10 @@ function setup() {
   if (actorInfo.disabled) {
     return;
   }
-  
+
   // Initialize the database
   const exists = fs.existsSync(dbFile);
-  
+
   open({
     filename: dbFile,
     driver: sqlite3.Database,
@@ -42,7 +42,11 @@ function setup() {
       // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
       const publicKey = await getPublicKey(account);
       const actorRecord = actorJson(account, domain, actorInfo, publicKey);
-      await db.run(`UPDATE accounts SET name = ?, actor = ?`, actorName, JSON.stringify(actorRecord));
+      await db.run(
+        `UPDATE accounts SET name = ?, actor = ?`,
+        actorName,
+        JSON.stringify(actorRecord)
+      );
     } catch (dbError) {
       console.error(dbError);
     }
@@ -124,111 +128,110 @@ async function firstTimeSetup(actorName) {
   await db.run(
     "CREATE TABLE IF NOT EXISTS permissions (bookmark_id INTEGER NOT NULL UNIQUE, allowed TEXT, blocked TEXT)"
   );
-  
+
   return new Promise((resolve, reject) => {
     crypto.generateKeyPair(
-    "rsa",
-    {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
+      "rsa",
+      {
+        modulusLength: 4096,
+        publicKeyEncoding: {
+          type: "spki",
+          format: "pem",
+        },
+        privateKeyEncoding: {
+          type: "pkcs8",
+          format: "pem",
+        },
       },
-      privateKeyEncoding: {
-        type: "pkcs8",
-        format: "pem",
-      },
-    },
-    async (err, publicKey, privateKey) => {
-      if (err) return reject(err);
-      try {
-        const actorRecord = actorJson(account, domain, actorInfo, publicKey);
-        const webfingerRecord = webfingerJson(account, domain);
+      async (err, publicKey, privateKey) => {
+        if (err) return reject(err);
+        try {
+          const actorRecord = actorJson(account, domain, actorInfo, publicKey);
+          const webfingerRecord = webfingerJson(account, domain);
 
-        await db.run(
-          `INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)`,
-          actorName,
-          JSON.stringify(actorRecord),
-          publicKey,
-          privateKey,
-          JSON.stringify(webfingerRecord)
-        );
-        return resolve();
-      } catch (e) {
-        return reject(e)
+          await db.run(
+            `INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)`,
+            actorName,
+            JSON.stringify(actorRecord),
+            publicKey,
+            privateKey,
+            JSON.stringify(webfingerRecord)
+          );
+          return resolve();
+        } catch (e) {
+          return reject(e);
+        }
       }
-    }
-  )});
+    );
+  });
 }
 
 export async function getFollowers() {
-  const result = await db.get("select followers from accounts limit 1");
+  const result = await db?.get("select followers from accounts limit 1");
   return result?.followers;
 }
 
 export async function setFollowers(followersJson) {
-  return await db.run(
-    "update accounts set followers=?",
-    followersJson
-  );
+  return await db?.run("update accounts set followers=?", followersJson);
 }
 
 export async function getBlocks() {
-  const result = await db.get("select blocks from accounts limit 1");
+  const result = await db?.get("select blocks from accounts limit 1");
   return result?.blocks;
 }
 
 export async function setBlocks(blocksJson) {
-  return await db.run(
-    "update accounts set blocks=?",
-    blocksJson
-  );
+  return await db?.run("update accounts set blocks=?", blocksJson);
 }
 
 export async function getActor(name) {
-  const result = await db.get("select actor from accounts limit 1")
+  const result = await db?.get("select actor from accounts limit 1");
   return result?.actor;
 }
 
 export async function getWebfinger(name) {
-  const result = await db.get("select webfinger from accounts limit 1");
-  return result?.webfinger
+  const result = await db?.get("select webfinger from accounts limit 1");
+  return result?.webfinger;
 }
 
 export async function getPublicKey(name) {
-  const result = await db.get("select pubkey from accounts limit 1");
+  const result = await db?.get("select pubkey from accounts limit 1");
   return result?.pubkey;
 }
 
 export async function getPrivateKey(name) {
-  const result = await db.get("select privkey from accounts limit 1");
+  const result = await db?.get("select privkey from accounts limit 1");
   return result?.privkey;
 }
 
 export async function getGuidForBookmarkId(id) {
-  return (await db.get("select guid from messages where bookmark_id = ?", id))
+  return (await db?.get("select guid from messages where bookmark_id = ?", id))
     ?.guid;
 }
 
 export async function getBookmarkIdFromMessageGuid(guid) {
-  return (await db.get("select bookmark_id from messages where guid = ?", guid))?.bookmark_id;
+  return (
+    await db?.get("select bookmark_id from messages where guid = ?", guid)
+  )?.bookmark_id;
 }
 
 export async function getMessage(guid) {
-  return await db.get("select message from messages where guid = ?", guid);
+  return await db?.get("select message from messages where guid = ?", guid);
 }
 
 export async function findMessageGuid(bookmarkId) {
-  return (await db.get("select guid from messages where bookmark_id = ?", bookmarkId))?.guid;
+  return (
+    await db?.get("select guid from messages where bookmark_id = ?", bookmarkId)
+  )?.guid;
 }
 
 export async function deleteMessage(guid) {
-  await db.get("delete from messages where guid = ?", guid);
+  await db?.get("delete from messages where guid = ?", guid);
   return;
 }
 
 export async function getGlobalPermissions() {
-  return await db.get("select * from permissions where bookmark_id = 0");
+  return await db?.get("select * from permissions where bookmark_id = 0");
 }
 
 export async function setGlobalPermissions(allowed, blocked) {
@@ -236,7 +239,7 @@ export async function setGlobalPermissions(allowed, blocked) {
 }
 
 export async function setPermissionsForBookmark(id, allowed, blocked) {
-  return await db.run(
+  return await db?.run(
     "insert or replace into permissions(bookmark_id, allowed, blocked) values (?, ?, ?)",
     id,
     allowed,
@@ -245,11 +248,11 @@ export async function setPermissionsForBookmark(id, allowed, blocked) {
 }
 
 export async function getPermissionsForBookmark(id) {
-  return await db.get("select * from permissions where bookmark_id = ?", id);
+  return await db?.get("select * from permissions where bookmark_id = ?", id);
 }
 
 export async function insertMessage(guid, bookmarkId, json) {
-  return await db.run(
+  return await db?.run(
     "insert or replace into messages(guid, bookmark_id, message) values(?, ?, ?)",
     guid,
     bookmarkId,

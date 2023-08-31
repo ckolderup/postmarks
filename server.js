@@ -19,7 +19,6 @@ app.use(express.json({ type: "application/activity+json" }));
 app.use(session());
 
 app.use((req, res, next) => {
-  console.log(req.session.loggedIn);
   res.locals.loggedIn = req.session.loggedIn;
   return next();
 });
