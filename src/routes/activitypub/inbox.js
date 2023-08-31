@@ -1,59 +1,58 @@
 import express from 'express';
 import crypto from 'crypto';
-import request from 'request';
-import { actorMatchesUsername } from '../../util.js';
+import fetch from "node-fetch";
+import { actorMatchesUsername } from "../../util.js";
 
 export const router = express.Router();
 
 async function signAndSend(message, name, domain, req, res, targetDomain) {
   // get the URI of the actor object and append 'inbox' to it
-  let inbox = message.object.actor+'/inbox';
-  let inboxFragment = inbox.replace('https://'+targetDomain,'');
+  let inbox = message.object.actor + "/inbox";
+  let inboxFragment = inbox.replace("https://" + targetDomain, "");
   // get the private key
-  let db = req.app.get('apDb');
+  let db = req.app.get("apDb");
   const privkey = await db.getPrivateKey(`${name}@${domain}`);
 
   if (privkey === undefined) {
     return res.status(404).send(`No record found for ${name}.`);
-  }
-  else {
-    const digestHash = crypto.createHash('sha256').update(JSON.stringify(message)).digest('base64');
-    const signer = crypto.createSign('sha256');
+  } else {
+    const digestHash = crypto
+      .createHash("sha256")
+      .update(JSON.stringify(message))
+      .digest("base64");
+    const signer = crypto.createSign("sha256");
     let d = new Date();
     let stringToSign = `(request-target): post ${inboxFragment}\nhost: ${targetDomain}\ndate: ${d.toUTCString()}\ndigest: SHA-256=${digestHash}`;
     signer.update(stringToSign);
     signer.end();
     const signature = signer.sign(privkey);
-    const signature_b64 = signature.toString('base64');
+    const signature_b64 = signature.toString("base64");
     let header = `keyId="https://${domain}/u/${name}",headers="(request-target) host date digest",signature="${signature_b64}"`;
-    request({
-      url: inbox,
+    fetch(inbox, {
       headers: {
-        'Host': targetDomain,
-        'Date': d.toUTCString(),
-        'Digest': `SHA-256=${digestHash}`,
-        'Signature': header
+        Host: targetDomain,
+        Date: d.toUTCString(),
+        Digest: `SHA-256=${digestHash}`,
+        Signature: header,
       },
-      method: 'POST',
-      json: true,
-      body: message
-    }, function (error, response){
-      if (error) {
-        console.log('Error:', error, JSON.stringify(response));
-      }
+      method: "POST",
+      body: message,
+    }).catch((error) => {
+      console.log("Error:", error.message);
+      console.log("Stacktrace:", error.stack);
     });
     return res.status(200);
   }
 }
 
 function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
-  const guid = crypto.randomBytes(16).toString('hex');
+  const guid = crypto.randomBytes(16).toString("hex");
   let message = {
-    '@context': 'https://www.w3.org/ns/activitystreams',
-    'id': `https://${domain}/u/${name}/accept/${guid}`,
-    'type': 'Accept',
-    'actor': `https://${domain}/u/${name}`,
-    'object': thebody,
+    "@context": "https://www.w3.org/ns/activitystreams",
+    id: `https://${domain}/u/${name}/accept/${guid}`,
+    type: "Accept",
+    actor: `https://${domain}/u/${name}`,
+    object: thebody,
   };
   signAndSend(message, name, domain, req, res, targetDomain);
 }
@@ -61,23 +60,23 @@ function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
 function parseJSON(text) {
   try {
     return JSON.parse(text);
-  } catch(e) {
+  } catch (e) {
     return null;
   }
 }
 
-router.post('/', async function (req, res) {
+router.post("/", async function (req, res) {
   // console.log(req.body);
-  let domain = req.app.get('domain');
+  let domain = req.app.get("domain");
   const myURL = new URL(req.body.actor);
   let targetDomain = myURL.hostname;
-  if (typeof req.body.object === 'string' && req.body.type === 'Follow') {
-    let name = req.body.object.replace(`https://${domain}/u/`,'');
+  if (typeof req.body.object === "string" && req.body.type === "Follow") {
+    let name = req.body.object.replace(`https://${domain}/u/`, "");
     sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
     // Add the user to the DB of accounts that follow the account
-    let db = req.app.get('apDb');
+    let db = req.app.get("apDb");
     // get the followers JSON for the user
-    const oldFollowersText = await db.getFollowers() || '[]';
+    const oldFollowersText = (await db.getFollowers()) || "[]";
 
     // update followers
     let followers = parseJSON(oldFollowersText);
@@ -85,8 +84,7 @@ router.post('/', async function (req, res) {
       followers.push(req.body.actor);
       // unique items
       followers = [...new Set(followers)];
-    }
-    else {
+    } else {
       followers = [req.body.actor];
     }
     let newFollowersText = JSON.stringify(followers);
@@ -94,20 +92,19 @@ router.post('/', async function (req, res) {
       // update into DB
       const newFollowers = await db.setFollowers(newFollowersText);
 
-      console.log('updated followers!');
+      console.log("updated followers!");
+    } catch (e) {
+      console.log("error storing followers after follow", e);
     }
-    catch(e) {
-      console.log('error storing followers after follow', e);
-    }
-  } else if (req.body.type === 'Undo' && req.body.object.type === 'Follow') {
-    let name = req.body.object.object.replace(`https://${domain}/u/`,'');
+  } else if (req.body.type === "Undo" && req.body.object.type === "Follow") {
+    let name = req.body.object.object.replace(`https://${domain}/u/`, "");
     sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
-    
+
     // Remove the user from the DB of accounts that follow the account
-    let db = req.app.get('apDb');
-    
+    let db = req.app.get("apDb");
+
     // get the followers JSON for the user
-    const oldFollowersText = await db.getFollowers() || '[]';
+    const oldFollowersText = (await db.getFollowers()) || "[]";
 
     // update followers
     let followers = parseJSON(oldFollowersText);
@@ -118,22 +115,24 @@ router.post('/', async function (req, res) {
         }
       });
     }
-    
+
     let newFollowersText = JSON.stringify(followers);
 
     try {
       const updatedFollowers = await db.setFollowers(newFollowersText);
     } catch (e) {
-      console.log('error storing followers after unfollow', e);
+      console.log("error storing followers after unfollow", e);
     }
-  } else if (req.body.type === 'Create' && req.body.object.type === 'Note') {
-    const apDb = req.app.get('apDb');
-    const bookmarksDb = req.app.get('bookmarksDb');
+  } else if (req.body.type === "Create" && req.body.object.type === "Note") {
+    const apDb = req.app.get("apDb");
+    const bookmarksDb = req.app.get("bookmarksDb");
 
-    const domain = req.app.get('domain');
+    const domain = req.app.get("domain");
 
     console.log(JSON.stringify(req.body));
-    const inReplyToGuid = req.body.object.inReplyTo.match(`https://${domain}/m/(.+)`)[1];
+    const inReplyToGuid = req.body.object.inReplyTo.match(
+      `https://${domain}/m/(.+)`
+    )[1];
 
     if (inReplyToGuid === undefined) {
       // TODO: support reply chains, aka normal human conversations
@@ -143,12 +142,14 @@ router.post('/', async function (req, res) {
 
     const bookmarkId = await apDb.getBookmarkIdFromMessageGuid(inReplyToGuid);
 
-    if (typeof bookmarkId !== 'number') {
+    if (typeof bookmarkId !== "number") {
       console.log("couldn't find a bookmark this message is related to");
       res.sendStatus(400);
     }
 
-    const bookmarkPermissions = await apDb.getPermissionsForBookmark(bookmarkId);
+    const bookmarkPermissions = await apDb.getPermissionsForBookmark(
+      bookmarkId
+    );
     const globalPermissions = await apDb.getGlobalPermissions();
 
     const bookmarkBlocks = bookmarkPermissions?.blocked?.split("\n") || [];
@@ -157,28 +158,53 @@ router.post('/', async function (req, res) {
     const bookmarkAllows = bookmarkPermissions?.allowed?.split("\n") || [];
     const globalAllows = globalPermissions?.allowed?.split("\n") || [];
 
-    const blocklist = bookmarkBlocks.concat(globalBlocks).filter(x => x.match(/^@([^@]+)@(.+)$/));
-    const allowlist = bookmarkAllows.concat(globalAllows).filter(x => x.match(/^@([^@]+)@(.+)$/));
+    const blocklist = bookmarkBlocks
+      .concat(globalBlocks)
+      .filter((x) => x.match(/^@([^@]+)@(.+)$/));
+    const allowlist = bookmarkAllows
+      .concat(globalAllows)
+      .filter((x) => x.match(/^@([^@]+)@(.+)$/));
 
-    if (blocklist.length > 0 && blocklist.map((username) => actorMatchesUsername(req.body.actor, username)).some(x => x)) {
-      console.log(`Actor ${req.body.actor} matches a blocklist item, ignoring comment`);
+    if (
+      blocklist.length > 0 &&
+      blocklist
+        .map((username) => actorMatchesUsername(req.body.actor, username))
+        .some((x) => x)
+    ) {
+      console.log(
+        `Actor ${req.body.actor} matches a blocklist item, ignoring comment`
+      );
       return res.sendStatus(403);
     }
     // TODO fetch actor details PS do NOT write your own URL regex
-    const actorDetails = req.body.actor.match(/https?:\/\/([^\/]+)\/users\/([a-zA-Z0-9\_]+)/);
+    const actorDetails = req.body.actor.match(
+      /https?:\/\/([^\/]+)\/users\/([a-zA-Z0-9\_]+)/
+    );
     const actorDomain = actorDetails[1];
     const actorUsername = actorDetails[2];
 
     const actor = `@${actorUsername}@${actorDomain}`;
-    const commentUrl = req.body.object.id
+    const commentUrl = req.body.object.id;
 
     let visible = 0;
-    if (allowlist.map((username) => actorMatchesUsername(req.body.actor, username)).some(x => x)) {
-      console.log(`Actor ${req.body.actor} matches an allowlist item, marking comment visible`);
+    if (
+      allowlist
+        .map((username) => actorMatchesUsername(req.body.actor, username))
+        .some((x) => x)
+    ) {
+      console.log(
+        `Actor ${req.body.actor} matches an allowlist item, marking comment visible`
+      );
       visible = 1;
     }
 
-    bookmarksDb.createComment(bookmarkId, actor, commentUrl, req.body.object.content, visible);
+    bookmarksDb.createComment(
+      bookmarkId,
+      actor,
+      commentUrl,
+      req.body.object.content,
+      visible
+    );
 
     return res.sendStatus(200);
   }

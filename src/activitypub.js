@@ -1,7 +1,7 @@
-import request from 'request';
-import crypto from 'crypto';
+import fetch from "node-fetch";
+import crypto from "crypto";
 
-import { actorInfo, actorMatchesUsername } from './util.js';
+import { actorInfo, actorMatchesUsername } from "./util.js";
 
 function getGuidFromPermalink(urlString) {
   return urlString.match(/m\/([a-zA-Z0-9+\/]+)/)[1];
@@ -9,47 +9,47 @@ function getGuidFromPermalink(urlString) {
 
 async function signAndSend(message, name, domain, db, targetDomain, inbox) {
   // get the private key
-  let inboxFragment = inbox.replace('https://'+targetDomain,'');
+  let inboxFragment = inbox.replace("https://" + targetDomain, "");
   const privkey = await db.getPrivateKey(`${name}@${domain}`);
 
   if (privkey === undefined) {
     console.log(`No private key found for ${name}.`);
-  }
-  else {
-    const digest = crypto.createHash('sha256').update(JSON.stringify(message)).digest('base64');
-    const signer = crypto.createSign('sha256');
+  } else {
+    const digest = crypto
+      .createHash("sha256")
+      .update(JSON.stringify(message))
+      .digest("base64");
+    const signer = crypto.createSign("sha256");
     let d = new Date();
     let stringToSign = `(request-target): post ${inboxFragment}\nhost: ${targetDomain}\ndate: ${d.toUTCString()}\ndigest: SHA-256=${digest}`;
     signer.update(stringToSign);
     signer.end();
     const signature = signer.sign(privkey);
-    const signature_b64 = signature.toString('base64');
+    const signature_b64 = signature.toString("base64");
 
-    const algorithm = 'rsa-sha256';
+    const algorithm = "rsa-sha256";
     let header = `keyId="https://${domain}/u/${name}",algorithm="${algorithm}",headers="(request-target) host date digest",signature="${signature_b64}"`;
-    const requestObject = {
-      url: inbox,
+
+    fetch(inbox, {
       headers: {
-        'Host': targetDomain,
-        'Date': d.toUTCString(),
-        'Digest': `SHA-256=${digest}`,
-        'Signature': header,
-        'Content-Type': 'application/activity+json',
-        'Accept': 'application/activity+json'
+        Host: targetDomain,
+        Date: d.toUTCString(),
+        Digest: `SHA-256=${digest}`,
+        Signature: header,
+        "Content-Type": "application/activity+json",
+        Accept: "application/activity+json",
       },
-      method: 'POST',
-      json: true,
-      body: message
-    }
-    request(requestObject, function (error, response){
-      console.log(`Sent message to an inbox at ${targetDomain}!`);
-      if (error) {
-        console.log('Error:', error, response);
-      }
-      else {
-        console.log('Response Status Code:', response.statusCode);
-      }
-    });
+      method: "POST",
+      body: message,
+    })
+      .then((response) => {
+        console.log(`Sent message to an inbox at ${targetDomain}!`);
+        console.log("Response Status Code:", response.statusCode);
+      })
+      .catch((error) => {
+        console.log("Error:", error.message);
+        console.log("Stacktrace: ", error.stack);
+      });
   }
 }
 
