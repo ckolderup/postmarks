@@ -21,6 +21,7 @@
     "express-session": "^1.17.3",
     "node-fetch": "^3.3.2",
     "open-graph": "^0.2.6",
+    "open-graph-scraper": "^5.2.3",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.5",
     "string-strip-html": "^13.4.2"
