@@ -19,8 +19,8 @@
     "express-basic-auth": "^1.2.1",
     "express-handlebars": "^6.0.7",
     "express-session": "^1.17.3",
+    "node-fetch": "^3.3.2",
     "open-graph": "^0.2.6",
-    "request": "^2.88.2",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.5",
     "string-strip-html": "^13.2.0"
