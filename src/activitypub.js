@@ -189,7 +189,7 @@ export async function sendMessage(bookmark, action, db, account, domain) {
       bookmarkPermissions?.blocked
         ?.split("\n")
         ?.concat(globalPermissions?.blocked?.split("\n"))
-        .filter((x) => !x.match(/^@([^@]+)@(.+)$/)) || [];
+        .filter((x) => !x?.match(/^@([^@]+)@(.+)$/)) || [];
 
     //now let's try to remove the blocked users
     followers.filter((actor) => {

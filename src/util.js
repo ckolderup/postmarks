@@ -61,6 +61,9 @@ export function removeEmpty(obj) {
 // this function takes the two and tries to determine via some terrifying
 // and brittle regex work if they're the same.
 export function actorMatchesUsername(actor, username) {
+    if (!username) {
+      return false;
+    }
     const result = username.match(/^@([^@]+)@(.+)$/);
     if (result?.length !== 3) {
       console.log(`match on ${username} isn't parseable. Blocks should be specified as @username@domain.tld.`);
