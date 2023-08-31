@@ -23,7 +23,7 @@
     "open-graph": "^0.2.6",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.5",
-    "string-strip-html": "^13.2.0"
+    "string-strip-html": "^13.4.2"
   },
   "overrides": {
     "open-graph": {
