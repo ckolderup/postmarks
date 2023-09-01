@@ -9,7 +9,7 @@
       <name>{{account}}</name>
    </author>
    <rights>{{TODO}}</rights>
-  
+
    {{#each bookmarks }}
      <entry>
       <title>{{title}}</title>
@@ -18,7 +18,7 @@
       <updated>{{created_at}}</updated>
       <summary type="html">{{description}}</summary>
       {{#each tag_array}}
-       <category term="{{this}}" scheme="fedimarks:tag"/>
+      <category term="{{this}}" scheme="postmarks:tag" />
       {{/each}}
    </entry>
   {{/each}}

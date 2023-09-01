@@ -1,10 +1,10 @@
-The LICENSE file for any project gives credit to the creator/author of the 
-project, copyright information for the project, and the legal terms under 
+The LICENSE file for any project gives credit to the creator/author of the
+project, copyright information for the project, and the legal terms under
 which it's being shared. In other words, this is us using an MIT license to
 say "we wrote this and you can do whatever you want with it."
 
 ******************************************************************************
-~fedimarks
+Postmarks
 ******************************************************************************
 MIT License
 
@@ -40,7 +40,7 @@ THIRD-PARTY SOFTWARE
 2. fastify/static: Plugin for serving static files as fast as possible.
 3. handlebars.js: Minimal templating on steroids.
 4. fastify/view: Templates rendering plugin support for Fastify.
-5. HK Grotesk: The font we're using. 
+5. HK Grotesk: The font we're using.
 6. SQLite: The database management system.
 
 

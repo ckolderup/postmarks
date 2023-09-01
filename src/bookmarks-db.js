@@ -56,24 +56,24 @@ We're using the sqlite wrapper so that we can make async / await connections
         // Add default choices to table
         const defaults = [
           {
-            title: "Fedimarks - Getting Started",
+            title: "Postmarks - Getting Started",
             url: "https://casey.kolderup.org/notes/b059694f5064c6c6285075c894a72317.html",
             description: "Some notes on setup and acknowledgements",
-            tags: "#fedimarks #default",
+            tags: "#postmarks #default",
           },
           {
-            title: "Fedimarks - Ethos",
+            title: "Postmarks - Ethos",
             url: "https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html",
             description:
-              "A short writeup about the influences and goals that led to the creation of Fedimarks",
-            tags: "#fedimarks #default",
+              "A short writeup about the influences and goals that led to the creation of Postmarks",
+            tags: "#postmarks #default",
           },
           {
-            title: "Fedimarks - Future Ideas",
+            title: "Postmarks - Future Ideas",
             url: "https://casey.kolderup.org/notes/9307f6d67bbfedbd215ae2d09caeab39.html",
             description:
               "Some places I hope to take the platform in the future",
-            tags: "#fedimarks #default",
+            tags: "#postmarks #default",
           },
         ];
 

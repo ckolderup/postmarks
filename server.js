@@ -23,7 +23,7 @@ app.use((req, res, next) => {
   return next();
 });
 
-app.set("site_name", actorInfo.displayName || "Fedimarks");
+app.set("site_name", actorInfo.displayName || "Postmarks");
 app.set("bookmarksDb", bookmarksDb);
 app.set("apDb", apDb);
 app.set("account", account);

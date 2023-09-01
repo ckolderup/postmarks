@@ -1,5 +1,5 @@
 {
-  "name": "fedimarks",
+  "name": "postmarks",
   "version": "0.0.1",
   "description": "A bookmark store and linkblog, powered by Express, sqlite and ActivityPub",
   "main": "server.js",
@@ -29,7 +29,7 @@
     "node": "16.x"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/fedimarks"
+    "url": "https://github.com/ckolderup/postmarks"
   },
   "license": "MIT",
   "keywords": [

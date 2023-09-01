@@ -17,7 +17,7 @@ router.get("/", isAuthenticated, async (req, res) => {
   let params = req.query.raw ? {} : { title: "Admin" };
   params.layout = "admin";
 
-  params.bookmarklet = `javascript:(function(){w=window.open('https://${domain}/bookmark/popup?url='+encodeURIComponent(window.location.href)+'&highlight='+encodeURIComponent(window.getSelection().toString()),'fedimarks','scrollbars=yes,width=550,height=600');})();`;
+  params.bookmarklet = `javascript:(function(){w=window.open('https://${domain}/bookmark/popup?url='+encodeURIComponent(window.location.href)+'&highlight='+encodeURIComponent(window.getSelection().toString()),'postmarks','scrollbars=yes,width=550,height=600');})();`;
 
   return res.render("admin", params);
 });

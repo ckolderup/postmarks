@@ -1,11 +1,11 @@
-# Fedimarks
+# Postmarks
 
 ![](https://cdn.glitch.global/8b08fe2b-99fe-48bd-9a54-d17f87b3df2b/pikaconstruct.gif?v=1669741965488)
 
 ## About this project
 
-I've actually already written a handful of posts about Fedimarks. They show up as default bookmarks when you first install or on the
-[demo site](https://fedimarks.glitch.me) but they are:
+I've actually already written a handful of posts about Postmarks. They show up as default bookmarks when you first install or on the
+[demo site](https://postmarks.glitch.me) but they are:
 
 * [Getting Started](https://casey.kolderup.org/notes/b059694f5064c6c6285075c894a72317.html)
 * [Ethos](https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html)
