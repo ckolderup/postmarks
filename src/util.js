@@ -54,6 +54,14 @@ export function removeEmpty(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null && v !== ''));
 }
 
+export function parseJSON(text) {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
+}
+
 // I like being able to refer to people like I would on Mastodon
 // i.e. @username@instance.tld. But lots of activitypub stuff treats the
 // identifier for an actor as the URL that represents their profile,
@@ -74,7 +82,7 @@ export function actorMatchesUsername(actor, username) {
 
     const actorResult = actor.match(/^https?:\/\/([^\/]+)\/u(ser)?s?\/(.+)$/)
     if (actorResult?.length !== 4) {
-      console.log(`found an unparseable actor: ${actor}. Report this to the project owner!`);
+      console.log(`found an unparseable actor: ${actor}. Report this to https://github.com/ckolderup/postmarks/issues !`);
     }
 
     return (account == actorResult[3] && domain == actorResult[1]);

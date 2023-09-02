@@ -2,7 +2,7 @@ import express from 'express';
 import ogScraper from "open-graph-scraper";
 
 import { data, account, domain, removeEmpty } from "../util.js";
-import { sendMessage } from "../activitypub.js";
+import { broadcastMessage } from "../activitypub.js";
 import { isAuthenticated } from "../session-auth.js";
 
 export const router = express.Router();
@@ -105,7 +105,7 @@ router.post("/:id/delete", isAuthenticated, async (req, res) => {
 
   await bookmarksDb.deleteBookmark(id);
 
-  sendMessage({ id }, "delete", apDb, account, domain);
+  broadcastMessage({ id }, "delete", apDb, account, domain);
 
   return req.query.raw ? res.send(params) : res.redirect("/");
 });
@@ -210,7 +210,7 @@ router.post("/:id?", isAuthenticated, async (req, res) => {
         req.body.blocked || ""
       );
 
-      sendMessage(bookmark, "update", apDb, account, domain);
+      broadcastMessage(bookmark, "update", apDb, account, domain);
     }
   } else {
     const noTitle = req.body.title === "";
@@ -240,7 +240,7 @@ router.post("/:id?", isAuthenticated, async (req, res) => {
       tags,
     });
 
-    sendMessage(bookmark, "create", apDb, account, domain);
+    broadcastMessage(bookmark, "create", apDb, account, domain);
   }
 
   params.bookmarks = bookmark;
