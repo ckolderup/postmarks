@@ -4,8 +4,7 @@
 
 ## About this project
 
-I've actually already written a handful of posts about Postmarks. They show up as default bookmarks when you first install or on the
-[demo site](https://postmarks.glitch.me) but they are:
+There are a handful of posts about Postmarks that exist on the internet! They show up as default bookmarks when you first install Postmarks, or on the [demo site](https://postmarks.glitch.me), but if you're in a hurry they are as follows:
 
 * [Getting Started](https://casey.kolderup.org/notes/b059694f5064c6c6285075c894a72317.html)
 * [Ethos](https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html)
@@ -33,6 +32,13 @@ To set your app up:
 * Click on the __Admin__ link in the footer, and enter the password (whatever you set ADMIN_KEY to in the .env).
 * You should be logged in, at which point you can configure various settings, import bookmarks, and use the "Add" links in the header and footer (as well as the bookmarklet, available in the Admin section) to save new bookmarks.
 
+## Acknowledgments
+
+* The "Postmarks" name is compliments of Casey C (no relation to Casey K), who brainstormed dozens of ideas for the name when Casey was first trying to rename the project. Thank you!
+* Postmarks (in its default configuration) uses an edited version of Eynav Raphael's ["Postmark Stamp"](https://thenounproject.com/icon/postmark-stamp-928917/) icon from The Noun Project.
+* Much of the original form of the site's frontend is lifted from the starter projects available on [Glitch](https://glitch.com). Thank you to all the people who have contributed to those projects over the years!
+* Much of the original backend of the site is based off of Darius Kazemi's [express-activitypub](https://github.com/dariusk/express-activitypub) repo. I made a point not to just clone his repo from the start, but then ended up retyping most of it as I learned how things work. While some pieces have been upgraded, much of Darius' work creates the foundation for Postmarks' ActivityPub functionality.
+* It also makes use of free fonts including [Averia Sans](http://iotic.com/averia/) and [Public Sans](https://public-sans.digital.gov/).
 
 ## We built this with Glitch!
 
