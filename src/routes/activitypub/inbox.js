@@ -1,51 +1,12 @@
-import express from 'express';
-import crypto from 'crypto';
+import express from "express";
+import crypto from "crypto";
 import fetch from "node-fetch";
-import { actorMatchesUsername } from "../../util.js";
+import { actorMatchesUsername, parseJSON } from "../../util.js";
+import { signAndSend } from "../../activitypub.js";
 
 export const router = express.Router();
 
-async function signAndSend(message, name, domain, req, res, targetDomain) {
-  // get the URI of the actor object and append 'inbox' to it
-  let inbox = message.object.actor + "/inbox";
-  let inboxFragment = inbox.replace("https://" + targetDomain, "");
-  // get the private key
-  let db = req.app.get("apDb");
-  const privkey = await db.getPrivateKey(`${name}@${domain}`);
-
-  if (privkey === undefined) {
-    return res.status(404).send(`No record found for ${name}.`);
-  } else {
-    const digestHash = crypto
-      .createHash("sha256")
-      .update(JSON.stringify(message))
-      .digest("base64");
-    const signer = crypto.createSign("sha256");
-    let d = new Date();
-    let stringToSign = `(request-target): post ${inboxFragment}\nhost: ${targetDomain}\ndate: ${d.toUTCString()}\ndigest: SHA-256=${digestHash}`;
-    signer.update(stringToSign);
-    signer.end();
-    const signature = signer.sign(privkey);
-    const signature_b64 = signature.toString("base64");
-    let header = `keyId="https://${domain}/u/${name}",headers="(request-target) host date digest",signature="${signature_b64}"`;
-    fetch(inbox, {
-      headers: {
-        Host: targetDomain,
-        Date: d.toUTCString(),
-        Digest: `SHA-256=${digestHash}`,
-        Signature: header,
-      },
-      method: "POST",
-      body: JSON.stringify(message),
-    }).catch((error) => {
-      console.log("Error:", error.message);
-      console.log("Stacktrace:", error.stack);
-    });
-    return res.status(200);
-  }
-}
-
-function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
+async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
   const guid = crypto.randomBytes(16).toString("hex");
   let message = {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -54,15 +15,8 @@ function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
     actor: `https://${domain}/u/${name}`,
     object: thebody,
   };
-  signAndSend(message, name, domain, req, res, targetDomain);
-}
-
-function parseJSON(text) {
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    return null;
-  }
+  let inbox = message.object.actor + "/inbox";
+  signAndSend(message, name, domain, req, res, targetDomain, inbox);
 }
 
 router.post("/", async function (req, res) {
@@ -72,7 +26,7 @@ router.post("/", async function (req, res) {
   let targetDomain = myURL.hostname;
   if (typeof req.body.object === "string" && req.body.type === "Follow") {
     let name = req.body.object.replace(`https://${domain}/u/`, "");
-    sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
+    await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
     // Add the user to the DB of accounts that follow the account
     let db = req.app.get("apDb");
     // get the followers JSON for the user
@@ -98,7 +52,7 @@ router.post("/", async function (req, res) {
     }
   } else if (req.body.type === "Undo" && req.body.object.type === "Follow") {
     let name = req.body.object.object.replace(`https://${domain}/u/`, "");
-    sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
+    await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
 
     // Remove the user from the DB of accounts that follow the account
     let db = req.app.get("apDb");
@@ -122,6 +76,32 @@ router.post("/", async function (req, res) {
       const updatedFollowers = await db.setFollowers(newFollowersText);
     } catch (e) {
       console.log("error storing followers after unfollow", e);
+    }
+  } else if (req.body.type === "Accept" && req.body.object.type === "Follow") {
+    let db = req.app.get("apDb");
+
+    const oldFollowingText = (await db.getFollowing()) || "[]";
+
+    let follows = parseJSON(oldFollowingText);
+
+    console.log('recording that we are now following ', req.body.actor)
+
+    if (follows) {
+      follows.push(req.body.actor);
+      // unique items
+      follows = [...new Set(follows)];
+    } else {
+      follows = [req.body.actor];
+    }
+    let newFollowingText = JSON.stringify(follows);
+
+    try {
+      // update into DB
+      const newFollowing = await db.setFollowing(newFollowingText);
+
+      console.log("updated following!");
+    } catch (e) {
+      console.log("error storing follows after follow action", e);
     }
   } else if (req.body.type === "Create" && req.body.object.type === "Note") {
     const apDb = req.app.get("apDb");

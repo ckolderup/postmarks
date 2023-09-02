@@ -7,7 +7,14 @@ function getGuidFromPermalink(urlString) {
   return urlString.match(/m\/([a-zA-Z0-9+\/]+)/)[1];
 }
 
-async function signAndSend(message, name, domain, db, targetDomain, inbox) {
+export async function signAndSend(
+  message,
+  name,
+  domain,
+  db,
+  targetDomain,
+  inbox
+) {
   // get the private key
   let inboxFragment = inbox.replace("https://" + targetDomain, "");
   const privkey = await db.getPrivateKey(`${name}@${domain}`);
@@ -30,30 +37,33 @@ async function signAndSend(message, name, domain, db, targetDomain, inbox) {
     const algorithm = "rsa-sha256";
     let header = `keyId="https://${domain}/u/${name}",algorithm="${algorithm}",headers="(request-target) host date digest",signature="${signature_b64}"`;
 
-    fetch(inbox, {
-      headers: {
-        Host: targetDomain,
-        Date: d.toUTCString(),
-        Digest: `SHA-256=${digest}`,
-        Signature: header,
-        "Content-Type": "application/activity+json",
-        Accept: "application/activity+json",
-      },
-      method: "POST",
-      body: JSON.stringify(message),
-    })
-      .then(async (response) => {
-        console.log(`Sent message to an inbox at ${targetDomain}!`);
-        console.log("Response Status Code:", response.status);
-      })
-      .catch((error) => {
-        console.log("Error:", error.message);
-        console.log("Stacktrace: ", error.stack);
+    try {
+      const response = await fetch(inbox, {
+        headers: {
+          Host: targetDomain,
+          Date: d.toUTCString(),
+          Digest: `SHA-256=${digest}`,
+          Signature: header,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(message),
       });
+
+      const data = await response.text();
+
+      console.log(`Sent message to an inbox at ${targetDomain}!`);
+      console.log("Response Status Code:", response.status);
+      console.log("Response body:", data);
+    } catch (error) {
+      console.log("Error:", error.message);
+      console.log("Stacktrace: ", error.stack);
+    }
   }
 }
 
-function createNoteObject(bookmark, account, domain) {
+export function createNoteObject(bookmark, account, domain) {
   const guidNote = crypto.randomBytes(16).toString("hex");
   const d = new Date();
 
@@ -172,7 +182,74 @@ async function createDeleteMessage(bookmark, account, domain, db) {
   return deleteMessage;
 }
 
-export async function sendMessage(bookmark, action, db, account, domain) {
+export async function createFollowMessage(account, domain, target, db) {
+  const guid = crypto.randomBytes(16).toString("hex");
+  const followMessage = {
+    "@context": "https://www.w3.org/ns/activitystreams",
+    id: guid,
+    type: "Follow",
+    actor: `https://${domain}/u/${account}`,
+    object: target,
+  };
+
+  db.insertMessage(guid, null, JSON.stringify(followMessage));
+
+  return followMessage;
+}
+
+export async function createUnfollowMessage(account, domain, target, db) {
+  const undoGuid = crypto.randomBytes(16).toString("hex");
+
+  const messageRows = await db.findMessage(target);
+
+  console.log("result", messageRows)
+
+  const followMessages = messageRows?.filter((row) => {
+    const message = JSON.parse(row.message || "{}");
+    return (
+      message.type === "Follow" && message.object === target
+    );
+  });
+
+  if (followMessages?.length > 0) {
+    const undoMessage = {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "Undo",
+      id: undoGuid,
+      actor: `${domain}/u/${account}`,
+      object: followMessages.slice(-1).message,
+    };
+    return undoMessage;
+  } else {
+    console.log(
+      "tried to find a Follow record in order to unfollow, but failed"
+    );
+    return null;
+  }
+}
+
+// actorUsername format is @username@domain
+export async function lookupActorInfo(actorUsername) {
+  const parsedDomain = actorUsername.split("@").slice(-1);
+  const parsedUsername = actorUsername.split("@").slice(-2, -1);
+  try {
+    const response = await fetch(
+      `https://${parsedDomain}/.well-known/webfinger/?resource=acct:${parsedUsername}@${parsedDomain}`
+    );
+    const data = await response.json();
+    const selfLink = data.links.find((o) => o.rel === "self");
+    if (!selfLink || !selfLink.href) {
+      throw new Error();
+    }
+
+    return selfLink.href;
+  } catch (e) {
+    console.log("couldn't look up canonical actor info");
+    return null;
+  }
+}
+
+export async function broadcastMessage(bookmark, action, db, account, domain) {
   if (actorInfo.disabled) {
     return; // no fediverse setup, so no purpose trying to send messages
   }

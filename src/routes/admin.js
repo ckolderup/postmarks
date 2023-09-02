@@ -1,17 +1,16 @@
-import express from 'express';
-import { domain, actorInfo } from "../util.js";
+import express from "express";
+import fetch from "node-fetch";
+import { domain, actorInfo, parseJSON } from "../util.js";
 import { isAuthenticated } from "../session-auth.js";
+import {
+  lookupActorInfo,
+  createFollowMessage,
+  createUnfollowMessage,
+  signAndSend,
+} from "../activitypub.js";
 const DATA_PATH = "/app/.data";
 
 export const router = express.Router();
-
-function parseJSON(text) {
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    return null;
-  }
-}
 
 router.get("/", isAuthenticated, async (req, res) => {
   let params = req.query.raw ? {} : { title: "Admin" };
@@ -59,6 +58,28 @@ router.get("/followers", isAuthenticated, async (req, res) => {
   params.blocked = permissions?.blocked || "";
 
   return res.render("admin/followers", params);
+});
+
+router.get("/following", isAuthenticated, async (req, res) => {
+  let params = req.query.raw
+    ? {}
+    : { title: "Admin: Manage your federated follows" };
+  params.layout = "admin";
+
+  const apDb = req.app.get("apDb");
+
+  if (actorInfo.disabled) {
+    return res.render("nonfederated", params);
+  }
+
+  try {
+    const following = await apDb.getFollowing();
+    params.following = JSON.parse(following || "[]");
+  } catch (e) {
+    console.log("Error fetching followers for admin page");
+  }
+
+  return res.render("admin/following", params);
 });
 
 router.get("/data", isAuthenticated, async (req, res) => {
@@ -156,6 +177,100 @@ router.post("/followers/unblock", isAuthenticated, async (req, res) => {
   }
 
   res.redirect("/admin/followers");
+});
+
+async function getInboxFromActorProfile(profileUrl) {
+  const response = await fetch(`${profileUrl}.json`);
+  const data = await response.json();
+
+  if (data?.inbox) {
+    return data.inbox
+  } else {
+    throw new Error(`Couldn't find inbox at supplied profile url ${profileUrl}`);
+  }
+}
+
+router.post("/following/follow", isAuthenticated, async (req, res) => {
+  const db = req.app.get("apDb");
+  const account = req.app.get("account");
+  const domain = req.app.get("domain");
+
+  const canonicalUrl = await lookupActorInfo(req.body.actor);
+
+  try {
+    const inbox = await getInboxFromActorProfile(canonicalUrl);
+
+    if (inbox) {
+      const followMessage = await createFollowMessage(
+        account,
+        domain,
+        canonicalUrl,
+        db
+      );
+      signAndSend(
+        followMessage,
+        account,
+        domain,
+        db,
+        req.body.actor.split("@").slice(-1),
+        inbox
+      );
+    }
+
+    return res.redirect("/admin/following");
+  } catch (e) {
+    console.log(e.message);
+    return res.status(500).send("Couldn't process follow request");
+  }
+});
+
+router.post("/following/unfollow", isAuthenticated, async (req, res) => {
+  const db = req.app.get("apDb");
+  const account = req.app.get("account");
+  const domain = req.app.get("domain");
+
+  const oldFollowsText = (await db.getFollowing()) || "[]";
+
+  let follows = parseJSON(oldFollowsText);
+  if (follows) {
+    follows.forEach((follow, idx, follows) => {
+      if (follow === req.body.actor) {
+        follows.splice(idx, 1);
+      }
+    });
+
+    const inbox = await getInboxFromActorProfile(req.body.actor);
+
+    const unfollowMessage = createUnfollowMessage(account, domain, req.body.actor, db);
+
+    signAndSend(
+        unfollowMessage,
+        account,
+        domain,
+        db,
+        new URL(req.body.actor).hostname,
+        inbox
+      );
+
+    const oldFollowsText = (await db.getFollowing()) || "[]";
+
+    follows.forEach((follow, idx, follows) => {
+      if (follow === req.body.actor) {
+        follows.splice(idx, 1);
+      }
+    });
+
+    let newFollowsText = JSON.stringify(follows);
+
+    try {
+      const updatedFollows = await db.setFollowing(newFollowsText);
+    } catch (e) {
+      console.log("error storing follows after unfollow action", e);
+    }
+    res.redirect("/admin/following");
+  } else {
+    return res.status(500).send('Encountered an error processing existing following list');
+  }
 });
 
 router.post("/permissions", isAuthenticated, async (req, res) => {

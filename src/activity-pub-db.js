@@ -71,7 +71,9 @@ function actorJson(name, domain, actorInfo, pubkey) {
       url: actorInfo.avatar,
     },
     inbox: `https://${domain}/api/inbox`,
+    outbox: `https://${domain}/u/${name}/outbox`,
     followers: `https://${domain}/u/${name}/followers`,
+    following: `https://${domain}/u/${name}/following`,
 
     publicKey: {
       id: `https://${domain}/u/${name}#main-key`,
@@ -118,8 +120,9 @@ async function firstTimeSetup(actorName) {
   });
 
   await db.run(
-    "CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, followers TEXT, messages TEXT, blocks TEXT)"
+    "CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, followers TEXT, following TEXT, messages TEXT, blocks TEXT)"
   );
+
   // if there is no `messages` table in the DB, create an empty table
   // TODO: index messages on bookmark_id
   await db.run(
@@ -166,6 +169,7 @@ async function firstTimeSetup(actorName) {
   });
 }
 
+
 export async function getFollowers() {
   const result = await db?.get("select followers from accounts limit 1");
   return result?.followers;
@@ -173,6 +177,15 @@ export async function getFollowers() {
 
 export async function setFollowers(followersJson) {
   return await db?.run("update accounts set followers=?", followersJson);
+}
+
+export async function getFollowing() {
+  const result = await db?.get("select following from accounts limit 1");
+  return result?.following;
+}
+
+export async function setFollowing(followingJson) {
+  return await db?.run("update accounts set following=?", followingJson);
 }
 
 export async function getBlocks() {
@@ -257,5 +270,12 @@ export async function insertMessage(guid, bookmarkId, json) {
     guid,
     bookmarkId,
     json
+  );
+}
+
+export async function findMessage(object) {
+  return await db?.all(
+    "select * from messages where message like ?",
+    `%${object}%`
   );
 }
