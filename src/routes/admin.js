@@ -7,6 +7,7 @@ import {
   createFollowMessage,
   createUnfollowMessage,
   signAndSend,
+  getInboxFromActorProfile
 } from "../activitypub.js";
 const DATA_PATH = "/app/.data";
 
@@ -178,17 +179,6 @@ router.post("/followers/unblock", isAuthenticated, async (req, res) => {
 
   res.redirect("/admin/followers");
 });
-
-async function getInboxFromActorProfile(profileUrl) {
-  const response = await fetch(`${profileUrl}.json`);
-  const data = await response.json();
-
-  if (data?.inbox) {
-    return data.inbox
-  } else {
-    throw new Error(`Couldn't find inbox at supplied profile url ${profileUrl}`);
-  }
-}
 
 router.post("/following/follow", isAuthenticated, async (req, res) => {
   const db = req.app.get("apDb");

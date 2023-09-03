@@ -228,6 +228,17 @@ export async function createUnfollowMessage(account, domain, target, db) {
   }
 }
 
+export async function getInboxFromActorProfile(profileUrl) {
+  const response = await fetch(`${profileUrl}.json`);
+  const data = await response.json();
+
+  if (data?.inbox) {
+    return data.inbox
+  } else {
+    throw new Error(`Couldn't find inbox at supplied profile url ${profileUrl}`);
+  }
+}
+
 // actorUsername format is @username@domain
 export async function lookupActorInfo(actorUsername) {
   const parsedDomain = actorUsername.split("@").slice(-1);
