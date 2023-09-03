@@ -2,11 +2,12 @@ import express from "express";
 import crypto from "crypto";
 import fetch from "node-fetch";
 import { actorMatchesUsername, parseJSON } from "../../util.js";
-import { signAndSend } from "../../activitypub.js";
+import { signAndSend, getInboxFromActorProfile } from "../../activitypub.js";
 
 export const router = express.Router();
 
 async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
+  const db = req.app.get("apDb");
   const guid = crypto.randomBytes(16).toString("hex");
   let message = {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -15,8 +16,10 @@ async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) 
     actor: `https://${domain}/u/${name}`,
     object: thebody,
   };
-  let inbox = message.object.actor + "/inbox";
-  signAndSend(message, name, domain, req, res, targetDomain, inbox);
+
+  const inbox = await getInboxFromActorProfile(message.object.actor);
+
+  signAndSend(message, name, domain, db, targetDomain, inbox);
 }
 
 router.post("/", async function (req, res) {
