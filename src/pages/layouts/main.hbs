@@ -24,8 +24,9 @@
       </div>
       <div class="menu">
         <a href="/about">About</a>
-        <a href="/bookmark/new">Add</a>
         {{#if loggedIn}}
+          <a href="/network">Network</a>
+          <a href="/bookmark/new">Add</a>
           <a href="/admin">Admin</a>
           <a href="/logout">Logout</a>
           {{else}}
@@ -45,7 +46,11 @@
     <div class="links"></div>
     <a href="/">Home</a>
     <span class="divider">|</span>
+    <a href="/about">About</a>
+    <span class="divider">|</span>
     {{#if loggedIn}}
+    <a href="/network">Network</a>
+    <span class="divider">|</span>
     <a href="/bookmark/new">Add</a>
     <span class="divider">|</span>
       <a href="/admin">Admin</a>

@@ -3,10 +3,18 @@ import crypto from "crypto";
 import fetch from "node-fetch";
 import { actorMatchesUsername, parseJSON } from "../../util.js";
 import { signAndSend, getInboxFromActorProfile } from "../../activitypub.js";
+import * as linkify from 'linkifyjs';
 
 export const router = express.Router();
 
-async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
+async function sendAcceptMessage(
+  thebody,
+  name,
+  domain,
+  req,
+  res,
+  targetDomain
+) {
   const db = req.app.get("apDb");
   const guid = crypto.randomBytes(16).toString("hex");
   let message = {
@@ -22,72 +30,83 @@ async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) 
   signAndSend(message, name, domain, db, targetDomain, inbox);
 }
 
-router.post("/", async function (req, res) {
-  // console.log(req.body);
-  let domain = req.app.get("domain");
+async function handleFollowRequest(req, res) {
+  const domain = req.app.get("domain");
+  const apDb = req.app.get("apDb");
+
   const myURL = new URL(req.body.actor);
-  let targetDomain = myURL.hostname;
-  if (typeof req.body.object === "string" && req.body.type === "Follow") {
-    let name = req.body.object.replace(`https://${domain}/u/`, "");
-    await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
-    // Add the user to the DB of accounts that follow the account
-    let db = req.app.get("apDb");
-    // get the followers JSON for the user
-    const oldFollowersText = (await db.getFollowers()) || "[]";
+  const targetDomain = myURL.hostname;
+  const name = req.body.object.replace(`https://${domain}/u/`, "");
 
-    // update followers
-    let followers = parseJSON(oldFollowersText);
-    if (followers) {
-      followers.push(req.body.actor);
-      // unique items
-      followers = [...new Set(followers)];
-    } else {
-      followers = [req.body.actor];
-    }
-    let newFollowersText = JSON.stringify(followers);
-    try {
-      // update into DB
-      const newFollowers = await db.setFollowers(newFollowersText);
+  await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
+  // Add the user to the DB of accounts that follow the account
 
-      console.log("updated followers!");
-    } catch (e) {
-      console.log("error storing followers after follow", e);
-    }
-  } else if (req.body.type === "Undo" && req.body.object.type === "Follow") {
-    let name = req.body.object.object.replace(`https://${domain}/u/`, "");
-    await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
+  // get the followers JSON for the user
+  const oldFollowersText = (await apDb.getFollowers()) || "[]";
 
-    // Remove the user from the DB of accounts that follow the account
-    let db = req.app.get("apDb");
+  // update followers
+  let followers = parseJSON(oldFollowersText);
+  if (followers) {
+    followers.push(req.body.actor);
+    // unique items
+    followers = [...new Set(followers)];
+  } else {
+    followers = [req.body.actor];
+  }
+  let newFollowersText = JSON.stringify(followers);
+  try {
+    // update into DB
+    const newFollowers = await apDb.setFollowers(newFollowersText);
 
-    // get the followers JSON for the user
-    const oldFollowersText = (await db.getFollowers()) || "[]";
+    console.log("updated followers!");
+  } catch (e) {
+    console.log("error storing followers after follow", e);
+  }
 
-    // update followers
-    let followers = parseJSON(oldFollowersText);
-    if (followers) {
-      followers.forEach((follower, idx, followers) => {
-        if (follower === req.body.actor) {
-          followers.splice(idx, 1);
-        }
-      });
-    }
+  return res.status(200);
+}
 
-    let newFollowersText = JSON.stringify(followers);
+async function handleUnfollow(req, res) {
+  const domain = req.app.get("domain");
+  const apDb = req.app.get("apDb");
 
-    try {
-      const updatedFollowers = await db.setFollowers(newFollowersText);
-    } catch (e) {
-      console.log("error storing followers after unfollow", e);
-    }
-  } else if (req.body.type === "Accept" && req.body.object.type === "Follow") {
-    let db = req.app.get("apDb");
+  const myURL = new URL(req.body.actor);
+  const targetDomain = myURL.hostname;
+  const name = req.body.object.replace(`https://${domain}/u/`, "");
 
-    const oldFollowingText = (await db.getFollowing()) || "[]";
+  await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
+
+  // get the followers JSON for the user
+  const oldFollowersText = (await apDb.getFollowers()) || "[]";
+
+  // update followers
+  let followers = parseJSON(oldFollowersText);
+  if (followers) {
+    followers.forEach((follower, idx, followers) => {
+      if (follower === req.body.actor) {
+        followers.splice(idx, 1);
+      }
+    });
+  }
+
+  let newFollowersText = JSON.stringify(followers);
+
+  try {
+    const updatedFollowers = await apDb.setFollowers(newFollowersText);
+    return res.sendStatus(200);
+  } catch (e) {
+    console.log("error storing followers after unfollow", e);
+    return res.status(500);
+  }
+}
+
+async function handleFollowAccepted(req, res) {
+  const domain = req.app.get("domain");
+  const apDb = req.app.get("apDb");
+
+  const oldFollowingText = (await apDb.getFollowing()) || "[]";
 
     let follows = parseJSON(oldFollowingText);
-
-    console.log('recording that we are now following ', req.body.actor)
 
     if (follows) {
       follows.push(req.body.actor);
@@ -100,34 +119,24 @@ router.post("/", async function (req, res) {
 
     try {
       // update into DB
-      const newFollowing = await db.setFollowing(newFollowingText);
+      const newFollowing = await apDb.setFollowing(newFollowingText);
 
       console.log("updated following!");
+      return res.status(200);
     } catch (e) {
       console.log("error storing follows after follow action", e);
+      return res.status(500);
     }
-  } else if (req.body.type === "Create" && req.body.object.type === "Note") {
-    const apDb = req.app.get("apDb");
-    const bookmarksDb = req.app.get("bookmarksDb");
+}
 
-    const domain = req.app.get("domain");
+async function handleCommentOnBookmark(req, res, inReplyToGuid) {
+  const apDb = req.app.get("apDb");
 
-    console.log(JSON.stringify(req.body));
-    const inReplyToGuid = req.body.object.inReplyTo.match(
-      `https://${domain}/m/(.+)`
-    )[1];
-
-    if (inReplyToGuid === undefined) {
-      // TODO: support reply chains, aka normal human conversations
-      console.log("couldn't parse which message this is in reply to");
-      res.sendStatus(422);
-    }
-
-    const bookmarkId = await apDb.getBookmarkIdFromMessageGuid(inReplyToGuid);
+  const bookmarkId = await apDb.getBookmarkIdFromMessageGuid(inReplyToGuid);
 
     if (typeof bookmarkId !== "number") {
       console.log("couldn't find a bookmark this message is related to");
-      res.sendStatus(400);
+      return res.sendStatus(400);
     }
 
     const bookmarkPermissions = await apDb.getPermissionsForBookmark(
@@ -159,16 +168,15 @@ router.post("/", async function (req, res) {
       );
       return res.sendStatus(403);
     }
-    // TODO fetch actor details PS do NOT write your own URL regex
-    const actorDetails = req.body.actor.match(
-      /https?:\/\/([^\/]+)\/users\/([a-zA-Z0-9\_]+)/
-    );
-    const actorDomain = actorDetails[1];
-    const actorUsername = actorDetails[2];
 
+    const response = await fetch(req.body.actor);
+    const data = await response.json();
+
+    const actorDomain = new URL(req.body.actor)?.hostname;
+    const actorUsername = data.preferredUsername;
     const actor = `@${actorUsername}@${actorDomain}`;
-    const commentUrl = req.body.object.id;
 
+    const commentUrl = req.body.object.id;
     let visible = 0;
     if (
       allowlist
@@ -181,6 +189,8 @@ router.post("/", async function (req, res) {
       visible = 1;
     }
 
+    const bookmarksDb = req.app.get("bookmarksDb");
+
     bookmarksDb.createComment(
       bookmarkId,
       actor,
@@ -189,6 +199,60 @@ router.post("/", async function (req, res) {
       visible
     );
 
-    return res.sendStatus(200);
+  return res.status(200);
+}
+
+async function handleFollowedPost(req, res) {
+  const urls = linkify.find(req.body.object.content);
+  if (urls?.length > 0) { // store this for now
+    // TODO: determine if the actor is in your current follow list!
+
+    const response = await fetch(`${req.body.actor}.json`);
+    const data = await response.json();
+
+    const actorDomain = new URL(req.body.actor)?.hostname;
+    const actorUsername = data.preferredUsername;
+    const actor = `@${actorUsername}@${actorDomain}`;
+
+    const commentUrl = req.body.object.id;
+
+    const bookmarksDb = req.app.get("bookmarksDb");
+
+    bookmarksDb.createComment(
+      undefined,
+      actor,
+      commentUrl,
+      req.body.object.content,
+      false
+    );
+
+
+  }
+}
+
+router.post("/", async function (req, res) {
+  // console.log(JSON.stringify(req.body));
+
+  if (typeof req.body.object === "string" && req.body.type === "Follow") {
+    return handleFollowRequest(req, res);
+  } else if (req.body.type === "Undo" && req.body.object?.type === "Follow") {
+    return handleUnfollow(req, res);
+  } else if (req.body.type === "Accept" && req.body.object?.type === "Follow") {
+    return handleFollowAccepted(req, res);
+  } else if (req.body.type === "Create" && req.body.object?.type === "Note") {
+    console.log(JSON.stringify(req.body));
+
+    const domain = req.app.get("domain");
+    const inReplyToGuid = req.body.object?.inReplyTo?.match(
+      `https://${domain}/m/(.+)`
+    )?.[1];
+
+    if (inReplyToGuid) {
+      return handleCommentOnBookmark(req, res, inReplyToGuid);
+    } else {
+      return handleFollowedPost(req, res);
+    }
+
+    return res.sendStatus(400);
   }
 });

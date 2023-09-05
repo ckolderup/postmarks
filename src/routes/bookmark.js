@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import ogScraper from "open-graph-scraper";
 
 import { data, account, domain, removeEmpty } from "../util.js";
@@ -10,6 +10,34 @@ export const router = express.Router();
 router.get("/new", isAuthenticated, async (req, res) => {
   let params = req.query.raw ? {} : { ephemeral: false };
   const bookmarksDb = req.app.get("bookmarksDb");
+
+  if (req.query.url !== undefined) {
+    params.bookmark = {
+      url: decodeURI(req.query.url),
+      description: "",
+    };
+
+    if (req.query?.highlight !== undefined && req.query?.highlight !== "") {
+        params.bookmark.description += `"${decodeURI(req.query.highlight)}"`;
+    }
+    try {
+      let meta = await ogScraper({ url: decodeURI(req.query.url) });
+
+      if (meta?.result?.ogDescription !== undefined) {
+        params.bookmark.description += `"${meta?.result?.ogDescription}"`;
+      }
+      params.bookmark.title = meta?.result?.ogTitle;
+    } catch (e) {
+      console.log(`error fetching opengraph tags: ${e}`);
+    }
+  }
+
+  if (req.query?.via !== undefined) {
+    if (params.bookmark.description !== "") {
+      params.bookmark.description += "\n\n";
+    }
+    params.bookmark.description += `(via ${req.query.via})`;
+  }
 
   params.tags = await bookmarksDb.getTags();
   params.title = `New Bookmark`;

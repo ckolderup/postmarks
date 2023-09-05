@@ -78,6 +78,8 @@ We're using the sqlite wrapper so that we can make async / await connections
         ];
 
         await db.run('CREATE TABLE comments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, url TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, visible integer BOOLEAN DEFAULT 0 NOT NULL CHECK (visible IN (0,1)), bookmark_id INTEGER, FOREIGN KEY(bookmark_id) REFERENCES bookmarks(id) ON DELETE CASCADE);');
+        await db.run('CREATE UNIQUE INDEX comments_url ON comments(url)');
+
 
         const defaultsAsValuesList = defaults.map(b => `('${b.title}', '${b.url}', '${b.description}', '${b.tags}')`).join(', ');
         db.run(`INSERT INTO bookmarks (title, url, description, tags) VALUES ${defaultsAsValuesList}`);
@@ -178,6 +180,16 @@ export async function getTags() {
     return [...new Set(parsedTags)].sort();
   } catch (dbError) {
     // Database connection error
+    console.error(dbError);
+  }
+}
+
+export async function getNetworkPosts() {
+  try {
+    const result = await db.all("SELECT * from comments WHERE bookmark_id IS NULL");
+
+    return result;
+  } catch (dbError) {
     console.error(dbError);
   }
 }
