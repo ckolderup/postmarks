@@ -204,7 +204,8 @@ async function handleCommentOnBookmark(req, res, inReplyToGuid) {
 
 async function handleFollowedPost(req, res) {
   const urls = linkify.find(req.body.object.content);
-  if (urls?.length > 0) { // store this for now
+  if (urls?.length > 0) {
+    // store this for now
     // TODO: determine if the actor is in your current follow list!
 
     const response = await fetch(`${req.body.actor}.json`);
@@ -225,20 +226,36 @@ async function handleFollowedPost(req, res) {
       req.body.object.content,
       false
     );
-
-
   }
+
+  return res.status(200);
+}
+
+async function handleDeleteRequest(req, res) {
+  console.log(JSON.stringify(req.body));
+
+  const bookmarksDb = req.app.get("bookmarksDb");
+
+  const commentId = req.body?.object?.id;
+
+  if (commentId) {
+    await bookmarksDb.deleteComment(commentId);
+  }
+
+  return res.status(200);
 }
 
 router.post("/", async function (req, res) {
   // console.log(JSON.stringify(req.body));
 
   if (typeof req.body.object === "string" && req.body.type === "Follow") {
-    return handleFollowRequest(req, res);
+    return await handleFollowRequest(req, res);
   } else if (req.body.type === "Undo" && req.body.object?.type === "Follow") {
-    return handleUnfollow(req, res);
+    return await handleUnfollow(req, res);
   } else if (req.body.type === "Accept" && req.body.object?.type === "Follow") {
-    return handleFollowAccepted(req, res);
+    return await handleFollowAccepted(req, res);
+  } else if (req.body.type === "Delete") {
+    return await handleDeleteRequest(req, res);
   } else if (req.body.type === "Create" && req.body.object?.type === "Note") {
     console.log(JSON.stringify(req.body));
 

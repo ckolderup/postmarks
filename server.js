@@ -1,7 +1,7 @@
-import * as dotenv from 'dotenv';
-import express from 'express';
-import cors from 'cors';
-import { create } from 'express-handlebars';
+import * as dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import { create } from "express-handlebars";
 import { domain, account, simpleLogger, actorInfo } from "./src/util.js";
 import session, { isAuthenticated } from "./src/session-auth.js";
 import * as bookmarksDb from "./src/bookmarks-db.js";
@@ -63,7 +63,6 @@ const hbs = create({
     account() {
       return app.get("account");
     },
-    isLoggedIn() {},
     feedLink() {
       return `<link rel="alternate" type="application/atom+xml" href="https://${app.get(
         "domain"
@@ -93,12 +92,12 @@ app.use(simpleLogger);
 
 app.use("/admin", isAuthenticated, routes.admin);
 app.use("/", routes.auth);
-app.use('/bookmark', routes.bookmark);
-app.use('/comment', routes.comment);
-app.use('/.well-known/webfinger', cors(), routes.webfinger);
-app.use('/u', cors(), routes.user);
-app.use('/m', cors(), routes.message);
-app.use('/', routes.core);
-app.use('/api/inbox', cors(), routes.inbox);
+app.use("/bookmark", routes.bookmark);
+app.use("/comment", routes.comment);
+app.use("/.well-known/webfinger", cors(), routes.webfinger);
+app.use("/u", cors(), routes.user);
+app.use("/m", cors(), routes.message);
+app.use("/", routes.core);
+app.use("/api/inbox", cors(), routes.inbox);
 
 app.listen(3000, () => console.log(`App listening on port 3000`));
