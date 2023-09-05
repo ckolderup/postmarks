@@ -332,3 +332,7 @@ textarea {
 .followers .follower .actions {
   height: auto;
 }
+
+.network-post {
+  border-bottom: 1px solid #000000;
+}

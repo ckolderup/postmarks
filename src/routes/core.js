@@ -1,5 +1,7 @@
 import express from 'express';
 import { data, actorInfo } from '../util.js';
+import { isAuthenticated } from '../session-auth.js';
+import * as linkify from 'linkifyjs';
 
 export const router = express.Router();
 
@@ -51,6 +53,19 @@ router.get("/about", async (req, res) => {
   res.render("about", { title: 'About', actorInfo, domain: req.app.get('domain')});
 });
 
+router.get("/network", isAuthenticated, async (req, res) => {
+  const bookmarksDb = req.app.get("bookmarksDb");
+
+  const posts = await bookmarksDb.getNetworkPosts();
+
+  // TODO: make quickadd able to select from list of links in post
+  const linksInPosts = posts.map((post) => {
+    return {...post, href: linkify.find(post.content)?.[0]?.href};
+  })
+
+  return res.render("network", {posts: linksInPosts});
+  res.status(200).json(posts);
+})
 router.get("/index.xml", async (req, res) => {
   let params = {};
   const bookmarksDb = req.app.get('bookmarksDb');

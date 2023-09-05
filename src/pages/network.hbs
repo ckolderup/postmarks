@@ -1,0 +1,20 @@
+<h3>
+  Your network
+</h3>
+<div>
+  {{#each posts}}
+    <div class="network-post">
+      <div class="network-post-content">
+        {{{this.content}}}
+      </div>
+      <div class="network-post-credit">
+        by {{this.name}}
+      </div>
+      <div class="network-post-links">
+        <a href="/bookmark/new?url={{this.href}}&via={{this.url}}">(Quickadd)</a>
+        <a href="{{this.url}}">(Permalink)</a>
+      </div>
+
+    </div>
+  {{/each}}
+</div>
