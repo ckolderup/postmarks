@@ -1,6 +1,9 @@
 import fs from 'fs';
 import { readFile } from 'fs/promises';
 import chalk from 'chalk';
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 export const data = {
   "errorMessage": "Whoops! Error connecting to the database–please try again!",
