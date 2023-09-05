@@ -1,16 +1,14 @@
 # Postmarks
 
-![](https://cdn.glitch.global/8b08fe2b-99fe-48bd-9a54-d17f87b3df2b/pikaconstruct.gif?v=1669741965488)
-
 ## About this project
 
-There are a handful of posts about Postmarks that exist on the internet! They show up as default bookmarks when you first install Postmarks, or on the [demo site](https://postmarks.glitch.me), but if you're in a hurry they are as follows:
+Postmarks is a bookmarking site that you own yourself and can connect the Fediverse, interacting with other Postmarks sites as well as Mastodon/FireFish/any text-based ActivityPub platform. You can read more about it here:
 
 * [Getting Started](https://casey.kolderup.org/notes/b059694f5064c6c6285075c894a72317.html)
 * [Ethos](https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html)
-* [Future Ideas](https://casey.kolderup.org/notes/9307f6d67bbfedbd215ae2d09caeab39.html) (with any luck, this is already out-of-date! who knows!)
+* [Future Ideas](https://casey.kolderup.org/notes/9307f6d67bbfedbd215ae2d09caeab39.html)
 
-The site allows the owner to add, edit and delete bookmarks–but only if a valid login is provided.
+The site allows the owner to add, edit and delete bookmarks, but only if a valid login is provided.
 Check the setup below to understand how to do that!
 
 ## Setting up your site
