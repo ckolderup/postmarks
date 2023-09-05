@@ -163,19 +163,25 @@ export async function getBookmarksForTag(tag, limit=10, offset=0) {
 
 export async function getBookmark(id) {
   try {
-    const result =  await db.get("SELECT * from bookmarks WHERE id = ?", id);
+    const result = await db.get(
+      "SELECT bookmarks.*, count(comments.id) as comment_count from bookmarks LEFT OUTER JOIN comments ON bookmarks.id = comments.bookmark_id AND comments.visible = 1 WHERE bookmarks.id = ?",
+      id
+    );
     return massageBookmark(result);
   } catch (dbError) {
     console.error(dbError);
   }
 }
 
-
 export async function getTags() {
   try {
     const allTagFields = await db.all("SELECT tags from bookmarks");
-    const allTags = allTagFields.map(bookmarkTagList => bookmarkTagList.tags?.split(' ')).flat()
-    const parsedTags = allTags.filter(t => t !== undefined).map(t => t.slice(1))
+    const allTags = allTagFields
+      .map((bookmarkTagList) => bookmarkTagList.tags?.split(" "))
+      .flat();
+    const parsedTags = allTags
+      .filter((t) => t !== undefined)
+      .map((t) => t.slice(1));
 
     return [...new Set(parsedTags)].sort();
   } catch (dbError) {
@@ -186,7 +192,9 @@ export async function getTags() {
 
 export async function getNetworkPosts() {
   try {
-    const result = await db.all("SELECT * from comments WHERE bookmark_id IS NULL");
+    const result = await db.all(
+      "SELECT * from comments WHERE bookmark_id IS NULL"
+    );
 
     return result;
   } catch (dbError) {
@@ -196,7 +204,13 @@ export async function getNetworkPosts() {
 
 export async function createBookmark(body) {
   try {
-    const result = await db.run("INSERT INTO bookmarks (title, url, description, tags) VALUES (?, ?, ?, ?)", body.title, body.url, body.description, body.tags);
+    const result = await db.run(
+      "INSERT INTO bookmarks (title, url, description, tags) VALUES (?, ?, ?, ?)",
+      body.title,
+      body.url,
+      body.description,
+      body.tags
+    );
 
     return getBookmark(result.lastID);
   } catch (dbError) {
@@ -206,7 +220,14 @@ export async function createBookmark(body) {
 
 export async function updateBookmark(id, body) {
   try {
-    await db.run("UPDATE bookmarks SET title = ?, url = ?, description = ?, tags = ? WHERE id = ?", body.title, body.url, body.description, body.tags, id);
+    await db.run(
+      "UPDATE bookmarks SET title = ?, url = ?, description = ?, tags = ? WHERE id = ?",
+      body.title,
+      body.url,
+      body.description,
+      body.tags,
+      id
+    );
 
     return await db.get("SELECT * from bookmarks WHERE id = ?", id);
   } catch (dbError) {
@@ -216,15 +237,36 @@ export async function updateBookmark(id, body) {
 
 export async function deleteBookmark(id) {
   try {
-    await db.run("DELETE from bookmarks WHERE id = ?", id)
+    await db.run("DELETE from bookmarks WHERE id = ?", id);
   } catch (dbError) {
     console.error(dbError);
   }
 }
 
-export async function createComment(bookmarkId, name, url, content, visible=0) {
+export async function createComment(
+  bookmarkId,
+  name,
+  url,
+  content,
+  visible = 0
+) {
   try {
-    await db.run("INSERT INTO comments (name, url, content, bookmark_id, visible) VALUES (?, ?, ?, ?, ?)", name, url, content, bookmarkId, visible)
+    await db.run(
+      "INSERT INTO comments (name, url, content, bookmark_id, visible) VALUES (?, ?, ?, ?, ?)",
+      name,
+      url,
+      content,
+      bookmarkId,
+      visible
+    );
+  } catch (dbError) {
+    console.error(dbError);
+  }
+}
+
+export async function deleteComment(url) {
+  try {
+    await db.run("DELETE FROM comments WHERE url = ?", url);
   } catch (dbError) {
     console.error(dbError);
   }
