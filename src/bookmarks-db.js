@@ -193,7 +193,7 @@ export async function getTags() {
 export async function getNetworkPosts() {
   try {
     const result = await db.all(
-      "SELECT * from comments WHERE bookmark_id IS NULL"
+      "SELECT * from comments WHERE bookmark_id IS NULL ORDER BY created_at DESC"
     );
 
     return result;
