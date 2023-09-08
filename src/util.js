@@ -113,10 +113,12 @@ export function simpleLogger(req, res, next) { //middleware function
 
   let log = `[${chalk.blue(formatted_date)}] ${method}:${url} ${status} ${chalk.red(durationInMilliseconds.toLocaleString() + "ms")}`;
   console.log(log);
-  fs.appendFile("request_logs.txt", log + "\n", err => {
-    if (err) {
-      console.log(err);
-    }
-  });
+  if (process.env.LOGGING_ENABLED === "true") {
+    fs.appendFile("request_logs.txt", log + "\n", err => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  }
   next();
 };
