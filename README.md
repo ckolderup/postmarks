@@ -32,7 +32,7 @@ To set your app up:
 
 ## Developing Postmarks
 
-* To automatically log all requests to a text file, set add `LOGGING_ENABLED=true` to your .env file. This will cause all incoming requests to `request_log.txt` in your project folder.
+* To automatically log all requests to a text file, set add `LOGGING_ENABLED=true` to your .env file. This will cause all incoming requests to append to `request_log.txt` in your project folder.
 
 ## Acknowledgments
 
