@@ -30,6 +30,10 @@ To set your app up:
 * Click on the __Admin__ link in the footer, and enter the password (whatever you set ADMIN_KEY to in the .env).
 * You should be logged in, at which point you can configure various settings, import bookmarks, and use the "Add" links in the header and footer (as well as the bookmarklet, available in the Admin section) to save new bookmarks.
 
+## Developing Postmarks
+
+* To automatically log all requests to a text file, set add `LOGGING_ENABLED=true` to your .env file. This will cause all incoming requests to `request_log.txt` in your project folder.
+
 ## Acknowledgments
 
 * The "Postmarks" name is compliments of [Casey C](https://sowe.li) (no relation to Casey K), who brainstormed dozens of ideas for the name when Casey was first trying to rename the project. Thank you!
