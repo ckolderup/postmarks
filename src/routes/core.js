@@ -77,10 +77,12 @@ router.get("/index.xml", async (req, res) => {
     params.setup = data.setupMessage;
   } else {
     params.bookmarks = bookmarks.map((bookmark) => {
-      const tag_array = bookmark.tags.split(' ').map(b => b.slice(1));
-      return {tag_array, ...bookmark};
+      const tag_array = bookmark.tags?.split(' ').map(b => b.slice(1)) ?? [];
+      const created_at = new Date(bookmark.created_at);
+      return {tag_array, ...bookmark, created_at: created_at.toISOString() };
     });
-    params.last_updated = bookmarks[0].created_at;
+    const last_updated = new Date(bookmarks[0].created_at);
+    params.last_updated = last_updated.toISOString();
   }
 
   params.feedTitle = req.app.get('site_name');
