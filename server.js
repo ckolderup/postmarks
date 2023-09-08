@@ -11,6 +11,8 @@ import routes from "./src/routes/index.js";
 
 dotenv.config();
 
+const PORT = process.env.PORT || 3000;
+
 const app = express();
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
@@ -100,4 +102,4 @@ app.use("/m", cors(), routes.message);
 app.use("/", routes.core);
 app.use("/api/inbox", cors(), routes.inbox);
 
-app.listen(3000, () => console.log(`App listening on port 3000`));
+app.listen(PORT, () => console.log(`App listening on port ${ PORT }`));
