@@ -7,6 +7,7 @@ import { router as inbox } from './activitypub/inbox.js';
 import { router as message } from './activitypub/message.js';
 import { router as user } from './activitypub/user.js';
 import { router as webfinger } from './activitypub/webfinger.js';
+import { router as nodeinfo } from './activitypub/nodeinfo.js';
 
 export default {
   admin,
@@ -18,4 +19,5 @@ export default {
   message,
   user,
   webfinger,
+  nodeinfo,
 };
