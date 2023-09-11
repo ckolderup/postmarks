@@ -88,6 +88,7 @@ router.get("/index.xml", async (req, res) => {
   params.feedTitle = req.app.get('site_name');
   params.layout = false;
 
+  res.type('application/atom+xml');
   return res.render("bookmarks-xml", params);
 });
 
@@ -112,6 +113,7 @@ router.get("/tagged/:tag.xml", async (req, res) => {
   params.feedTitle = `${req.app.get('site_name')}: Bookmarks tagged '${req.params.tag}'`;
   params.layout = false;
 
+  res.type('application/atom+xml');
   return res.render("bookmarks-xml", params);
 });
 
