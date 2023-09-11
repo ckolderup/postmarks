@@ -1,7 +1,7 @@
 // implementation of http://nodeinfo.diaspora.software/protocol.html
 
 import express from "express";
-import {instanceType, instanceVersion} from "../../util.js";
+import { instanceType, instanceVersion } from "../../util.js";
 
 export const router = express.Router();
 
@@ -25,12 +25,15 @@ router.get("/", async function (req, res) {
     const bookmarksDb = req.app.get("bookmarksDb");
     let bookmarkCount = await bookmarksDb.getBookmarkCount();
 
+    const repository = process.env.REPOSITORY || 'https://github.com/ckolderup/postmarks';
+
     // TODO: activeMonth and activeHalfyear should be dynamic, currently static
     let nodeInfo = {
       version: 2.0,
       software: {
         name: instanceType,
         version: instanceVersion,
+        repository
       },
       protocols: [
         "activitypub"
