@@ -84,6 +84,9 @@ const hbs = create({
       this._sections[name] = options.fn(this);
       return null;
     },
+    mastodonAccount() {
+      return process.env.MASTODON_ACCOUNT;
+    }
   },
   partialsDir: "./src/pages/partials",
   extname: ".hbs",
