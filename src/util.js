@@ -24,6 +24,16 @@ export const actorInfo = actorFileData;
 export const account = actorInfo.username || 'bookmarks';
 export const domain = process.env.PROJECT_DOMAIN ? `${process.env.PROJECT_DOMAIN}.glitch.me` : 'localhost'; // edit this if you have a custom domain
 
+let instanceData = {};
+try {
+  const pkgFile = await readFile('package.json');
+  instanceData = JSON.parse(pkgFile);
+} catch (e) {
+  console.log("unable to read package info");
+}
+
+export const instanceType = instanceData.name || 'postmarks';
+export const instanceVersion = instanceData.version || 'undefined';
 
 export function timeSince(ms)  {
   var timestamp = new Date(ms);

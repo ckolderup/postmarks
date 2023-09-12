@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { create } from "express-handlebars";
+
 import { domain, account, simpleLogger, actorInfo } from "./src/util.js";
 import session, { isAuthenticated } from "./src/session-auth.js";
 import * as bookmarksDb from "./src/bookmarks-db.js";
@@ -30,6 +31,8 @@ app.set("bookmarksDb", bookmarksDb);
 app.set("apDb", apDb);
 app.set("account", account);
 app.set("domain", domain);
+
+app.disable("x-powered-by");
 
 //force HTTPS in production
 if (process.env.ENVIRONMENT === "production") {
@@ -81,6 +84,9 @@ const hbs = create({
       this._sections[name] = options.fn(this);
       return null;
     },
+    mastodonAccount() {
+      return process.env.MASTODON_ACCOUNT;
+    }
   },
   partialsDir: "./src/pages/partials",
   extname: ".hbs",
@@ -101,5 +107,7 @@ app.use("/u", cors(), routes.user);
 app.use("/m", cors(), routes.message);
 app.use("/", routes.core);
 app.use("/api/inbox", cors(), routes.inbox);
+app.use("/.well-known/nodeinfo", routes.nodeinfo)
+app.use("/nodeinfo/2.0", routes.nodeinfo)
 
 app.listen(PORT, () => console.log(`App listening on port ${ PORT }`));
