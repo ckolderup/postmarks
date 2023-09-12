@@ -15,13 +15,13 @@ import { account, domain, actorInfo } from './util';
 const dbFile = './.data/activitypub.db';
 let db;
 
-function actorJson(name, pubkey) {
+function actorJson(pubkey) {
   return {
     '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
 
-    id: `https://${domain}/u/${name}`,
+    id: `https://${domain}/u/${account}`,
     type: 'Person',
-    preferredUsername: `${name}`,
+    preferredUsername: `${account}`,
     name: actorInfo.displayName,
     summary: actorInfo.description,
     icon: {
@@ -30,27 +30,27 @@ function actorJson(name, pubkey) {
       url: actorInfo.avatar,
     },
     inbox: `https://${domain}/api/inbox`,
-    outbox: `https://${domain}/u/${name}/outbox`,
-    followers: `https://${domain}/u/${name}/followers`,
-    following: `https://${domain}/u/${name}/following`,
+    outbox: `https://${domain}/u/${account}/outbox`,
+    followers: `https://${domain}/u/${account}/followers`,
+    following: `https://${domain}/u/${account}/following`,
 
     publicKey: {
-      id: `https://${domain}/u/${name}#main-key`,
-      owner: `https://${domain}/u/${name}`,
+      id: `https://${domain}/u/${account}#main-key`,
+      owner: `https://${domain}/u/${account}`,
       publicKeyPem: pubkey,
     },
   };
 }
 
-function webfingerJson(name) {
+function webfingerJson() {
   return {
-    subject: `acct:${name}@${domain}`,
+    subject: `acct:${account}@${domain}`,
 
     links: [
       {
         rel: 'self',
         type: 'application/activity+json',
-        href: `https://${domain}/u/${name}`,
+        href: `https://${domain}/u/${account}`,
       },
     ],
   };
@@ -191,8 +191,8 @@ async function firstTimeSetup(actorName) {
       async (err, publicKey, privateKey) => {
         if (err) return reject(err);
         try {
-          const actorRecord = actorJson(account, domain, actorInfo, publicKey);
-          const webfingerRecord = webfingerJson(account, domain);
+          const actorRecord = actorJson(publicKey);
+          const webfingerRecord = webfingerJson();
 
           await db.run(
             'INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)',
@@ -234,8 +234,8 @@ function setup() {
       }
 
       // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
-      const publicKey = await getPublicKey(account);
-      const actorRecord = actorJson(account, domain, actorInfo, publicKey);
+      const publicKey = await getPublicKey();
+      const actorRecord = actorJson(publicKey);
       await db.run('UPDATE accounts SET name = ?, actor = ?', actorName, JSON.stringify(actorRecord));
     } catch (dbError) {
       console.error(dbError);

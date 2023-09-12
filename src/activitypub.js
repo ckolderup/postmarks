@@ -10,7 +10,7 @@ function getGuidFromPermalink(urlString) {
 export async function signAndSend(message, name, domain, db, targetDomain, inbox) {
   // get the private key
   const inboxFragment = inbox.replace(`https://${targetDomain}`, '');
-  const privkey = await db.getPrivateKey(`${name}@${domain}`);
+  const privkey = await db.getPrivateKey();
 
   if (privkey === undefined) {
     console.log(`No private key found for ${name}.`);

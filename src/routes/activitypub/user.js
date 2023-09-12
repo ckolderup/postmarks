@@ -13,7 +13,7 @@ router.get('/:name', async (req, res) => {
   const username = name;
   name = `${name}@${domain}`;
 
-  const actor = await db.getActor(name);
+  const actor = await db.getActor();
 
   if (actor === undefined) {
     return res.status(404).send(`No actor record found for ${name}.`);

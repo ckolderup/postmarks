@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
 
   const name = resource.replace('acct:', '');
   const db = req.app.get('apDb');
-  const webfinger = await db.getWebfinger(name);
+  const webfinger = await db.getWebfinger();
   if (webfinger === undefined) {
     return res.status(404).send(`No webfinger record found for ${name}.`);
   }
