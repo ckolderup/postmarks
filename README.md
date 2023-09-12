@@ -30,6 +30,9 @@ To set your app up:
 * Click on the __Admin__ link in the footer, and enter the password (whatever you set ADMIN_KEY to in the .env).
 * You should be logged in, at which point you can configure various settings, import bookmarks, and use the "Add" links in the header and footer (as well as the bookmarklet, available in the Admin section) to save new bookmarks.
 
+## Mastodon Verification
+
+Setting `MASTODON_ACCOUNT` in the `.env` file will cause a link to be added to the Postmarks home page that can be used for verification with your Mastodon account. See the [Mastodon documentation](https://docs.joinmastodon.org/user/profile/#verification) for more details.
 ## Developing Postmarks
 
 * To automatically log all requests to a text file, set add `LOGGING_ENABLED=true` to your .env file. This will cause all incoming requests to append to `request_log.txt` in your project folder.
