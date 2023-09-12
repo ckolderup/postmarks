@@ -1,9 +1,10 @@
 import express from "express";
 import crypto from "crypto";
-import fetch from "node-fetch";
+import * as linkify from "linkifyjs";
+
 import { actorMatchesUsername, parseJSON } from "../../util.js";
 import { signAndSend, getInboxFromActorProfile } from "../../activitypub.js";
-import * as linkify from 'linkifyjs';
+import { signedFetch } from "../../signature.js";
 
 export const router = express.Router();
 
@@ -169,8 +170,8 @@ async function handleCommentOnBookmark(req, res, inReplyToGuid) {
       return res.sendStatus(403);
     }
 
-    const response = await fetch(req.body.actor);
-    const data = await response.json();
+  const response = await signedFetch(req.body.actor);
+  const data = await response.json();
 
     const actorDomain = new URL(req.body.actor)?.hostname;
     const actorUsername = data.preferredUsername;
@@ -208,7 +209,7 @@ async function handleFollowedPost(req, res) {
     // store this for now
     // TODO: determine if the actor is in your current follow list!
 
-    const response = await fetch(`${req.body.actor}.json`);
+    const response = await signedFetch(`${req.body.actor}.json`);
     const data = await response.json();
 
     const actorDomain = new URL(req.body.actor)?.hostname;
