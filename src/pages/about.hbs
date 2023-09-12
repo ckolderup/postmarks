@@ -1,49 +1,44 @@
 {{#if actorInfo.disabled}}
   <p>
-    This is a bookmarking site running on software called <a href="https://github.com/ckolderup/postmarks">Postmarks</a>.
-    It's currently running in "standalone" mode, meaning it doesn't broadcast any activity to the rest of the internet via
-    the ActivityPub protocol. You can still subscribe to new bookmarks using the <a href="/index.xml">Atom feed</a>, which
-    any modern RSS/feed reader should support.
+    This is a bookmarking site running on software called
+    <a href="https://github.com/ckolderup/postmarks">Postmarks</a>. It's
+    currently running in "standalone" mode, meaning it doesn't broadcast any
+    activity to the rest of the internet via the ActivityPub protocol. You can
+    still subscribe to new bookmarks using the
+    <a href="/index.xml">Atom feed</a>, which any modern RSS/feed reader should
+    support.
   </p>
 {{else}}
   <div class="bio"><img class="avatar" src="{{actorInfo.avatar}}" /><p>
-    {{actorInfo.description}}
-  </p></div>
+      {{actorInfo.description}}
+    </p></div>
   <h2>Follow on the Fediverse</h2>
   <div>
-    <input readonly type="text" id="copy-bookmarklet" value="@{{actorInfo.username}}@{{domain}}" />
+    <input
+      readonly
+      type="text"
+      id="copy-bookmarklet"
+      value="@{{actorInfo.username}}@{{domain}}"
+    />
     <p><small id="copy-status">Click the code above to copy</small></p>
   </div>
 
   <script>
-    document.addEventListener(
-      'click',
-      function (event) {
-        // Only fire if the target has id copy
-        if (!event.target.matches('#copy-bookmarklet')) return;
-
-        if (!navigator.clipboard) {
-          // Clipboard API not available
-          return;
-        }
-        const text = event.target.value;
-        try {
-          navigator.clipboard.writeText(text);
-          document.getElementById('copy-status').innerText = 'Copied to clipboard';
-          setTimeout(function () {
-            document.getElementById('copy-status').innerText = 'Click the text above to copy it to your clipboard';
-          }, 1500);
-        } catch (err) {
-          console.error('Failed to copy!', err);
-        }
-      },
-      false
-    );
+    document.addEventListener( 'click', function (event) { // Only fire if the
+    target has id copy if (!event.target.matches('#copy-bookmarklet')) return;
+    if (!navigator.clipboard) { // Clipboard API not available return; } const
+    text = event.target.value; try { navigator.clipboard.writeText(text);
+    document.getElementById('copy-status').innerText = 'Copied to clipboard';
+    setTimeout(function () { document.getElementById('copy-status').innerText =
+    'Click the text above to copy it to your clipboard'; }, 1500); } catch (err)
+    { console.error('Failed to copy!', err); } }, false );
   </script>
 {{/if}}
-<p>Postmarks (in its default configuration) uses an edited version of Eynav Raphael's <a
-    href="https://thenounproject.com/icon/postmark-stamp-928917/">"Postmark Stamp"</a> icon from The Noun Project. It
-  also makes use of free fonts including <a href="http://iotic.com/averia/">Averia Sans</a> and <a
-    href="https://public-sans.digital.gov/">Public Sans</a>.</p>
-
-
+<p>Postmarks (in its default configuration) uses an edited version of Eynav
+  Raphael's
+  <a href="https://thenounproject.com/icon/postmark-stamp-928917/">"Postmark
+    Stamp"</a>
+  icon from The Noun Project. It also makes use of free fonts including
+  <a href="http://iotic.com/averia/">Averia Sans</a>
+  and
+  <a href="https://public-sans.digital.gov/">Public Sans</a>.</p>

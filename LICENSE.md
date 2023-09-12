@@ -3,9 +3,12 @@ project, copyright information for the project, and the legal terms under
 which it's being shared. In other words, this is us using an MIT license to
 say "we wrote this and you can do whatever you want with it."
 
-******************************************************************************
+---
+
 Postmarks
-******************************************************************************
+
+---
+
 MIT License
 
 Copyright (c) 2021, Glitch, Inc.
@@ -28,13 +31,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-
-
-
-******************************************************************************
+---
 
 THIRD-PARTY SOFTWARE
-
 
 1. fastify: Fastify is a web framework focused on developer experience.
 2. fastify/static: Plugin for serving static files as fast as possible.
@@ -43,12 +42,14 @@ THIRD-PARTY SOFTWARE
 5. HK Grotesk: The font we're using.
 6. SQLite: The database management system.
 
+---
 
-******************************************************************************
 1. fastify (also applies to fastify-formbody)
-URL: https://www.fastify.io/
-     https://github.com/fastify/fastify
-******************************************************************************
+   URL: https://www.fastify.io/
+   https://github.com/fastify/fastify
+
+---
+
 MIT License
 
 Copyright (c) 2016-2020 The Fastify Team
@@ -73,15 +74,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-******************************************************************************
+
+---
+
 END, fastify
-******************************************************************************
 
+---
 
-******************************************************************************
+---
+
 2. fastify/static
-URL: https://github.com/fastify/fastify-static
-******************************************************************************
+   URL: https://github.com/fastify/fastify-static
+
+---
+
 MIT License
 
 Copyright (c) 2017-2018 Fastify
@@ -103,16 +109,21 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-******************************************************************************
+
+---
+
 END, fastify/static
-******************************************************************************
 
+---
 
-******************************************************************************
+---
+
 3. handlebars.js
-URL: https://handlebarsjs.com/
-     https://github.com/handlebars-lang/handlebars.js
-******************************************************************************
+   URL: https://handlebarsjs.com/
+   https://github.com/handlebars-lang/handlebars.js
+
+---
+
 Copyright (C) 2011-2019 by Yehuda Katz
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -132,15 +143,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-******************************************************************************
+
+---
+
 END, fastify-static
-******************************************************************************
 
+---
 
-******************************************************************************
+---
+
 4. fastify/view
-URL: https://github.com/fastify/point-of-view
-******************************************************************************
+   URL: https://github.com/fastify/point-of-view
+
+---
+
 MIT License
 
 Copyright (c) 2017 Fastify
@@ -162,35 +178,47 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-******************************************************************************
+
+---
+
 END, fastify/view
-******************************************************************************
 
+---
 
-******************************************************************************
+---
+
 5. HK Grotesk
-URL: https://hanken.co/products/hk-grotesk
-******************************************************************************
+   URL: https://hanken.co/products/hk-grotesk
+
+---
+
 HK Grotesk was designed by Hanken Design Co. It is shared using a SIL OFL
 license. Full license text can be found at:
 
 https://hanken.co/pages/web-fonts-eula
 
-******************************************************************************
+---
+
 END, HK Grotesk
-******************************************************************************
 
+---
 
-******************************************************************************
+---
+
 6. SQLite
-URL: https://www.sqlite.org
-******************************************************************************
-The author disclaims copyright to this source code.  In place of
+   URL: https://www.sqlite.org
+
+---
+
+The author disclaims copyright to this source code. In place of
 a legal notice, here is a blessing:
 
-  *   May you do good and not evil.
-  *   May you find forgiveness for yourself and forgive others.
-  *   May you share freely, never taking more than you give.
-******************************************************************************
+- May you do good and not evil.
+- May you find forgiveness for yourself and forgive others.
+- May you share freely, never taking more than you give.
+
+---
+
 END, SQLite
-******************************************************************************
+
+---

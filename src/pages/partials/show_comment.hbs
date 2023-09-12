@@ -1,7 +1,11 @@
 <div class="comment">
   <div class="top">
-    <strong>{{{comment.linked_display_name}}}</strong> • 
-    <span class="timestamp" title="{{comment.created_at}}">{{comment.timestamp}}</span>
+    <strong>{{{comment.linked_display_name}}}</strong>
+    •
+    <span
+      class="timestamp"
+      title="{{comment.created_at}}"
+    >{{comment.timestamp}}</span>
   </div>
   <div class="content">
     {{comment.content}}
@@ -16,5 +20,5 @@
         {{/if}}
       </button>
     </form>
-  {{/if}} 
+  {{/if}}
 </div>

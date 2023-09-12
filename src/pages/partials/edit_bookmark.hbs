@@ -1,27 +1,38 @@
 <div class="edit-bookmark">
-  <form action="/bookmark/{{bookmark.id}}?ephemeral={{ephemeral}}" method="POST">
-    <label> URL </label><br>
-    <input type="text" name="url" value="{{bookmark.url}}"/><br>
+  <form
+    action="/bookmark/{{bookmark.id}}?ephemeral={{ephemeral}}"
+    method="POST"
+  >
+    <label> URL </label><br />
+    <input type="text" name="url" value="{{bookmark.url}}" /><br />
     <p>
-      <label> Title </label><br>
-      <input type="text" name="title" value="{{bookmark.title}}"/><br>
-      <label> Description </label><br>
-      <textarea name="description">{{bookmark.description}}</textarea><br>
-      <label> Tags </label><br>
-      <label class="small">press tab to autocomplete, press comma or enter to save a new tag.</label>
-      <input id="tagEntry" type="text" list="all-tags"/>
+      <label> Title </label><br />
+      <input type="text" name="title" value="{{bookmark.title}}" /><br />
+      <label> Description </label><br />
+      <textarea name="description">{{bookmark.description}}</textarea><br />
+      <label> Tags </label><br />
+      <label class="small">press tab to autocomplete, press comma or enter to
+        save a new tag.</label>
+      <input id="tagEntry" type="text" list="all-tags" />
       <div id="taggedList"></div>
       <label class="small">click on a tag above to remove it</label>
-      <input type="hidden" id="tags" name="tags" value="{{{bookmark.tagsArray}}}" />
-    </p><br><br>
+      <input
+        type="hidden"
+        id="tags"
+        name="tags"
+        value="{{{bookmark.tagsArray}}}"
+      />
+    </p><br /><br />
     <p>
       <details>
-        <summary><label> Auto-allow comments from (one username per line)</label></summary>
+        <summary><label>
+            Auto-allow comments from (one username per line)</label></summary>
         <textarea name="allowed">{{allowed}}</textarea>
       </details>
-      <br><br>
+      <br /><br />
       <details>
-        <summary><label> Auto-ignore comments from (one username per line)</label></summary>
+        <summary><label>
+            Auto-ignore comments from (one username per line)</label></summary>
         <textarea name="blocked">{{blocked}}</textarea>
       </details>
     </p>
@@ -33,4 +44,4 @@
       {{/if}}
     </button>
   </form>
-  </div>
+</div>

@@ -8,22 +8,21 @@ to this section's matching END comment to see page-specific styles.
 ******************************************************************************/
 
 @font-face {
-  font-family: 'Public Sans';
-  src: url('/PublicSans-VariableFont_wght.ttf');
+  font-family: "Public Sans";
+  src: url("/PublicSans-VariableFont_wght.ttf");
 }
 
 @font-face {
-  font-family: 'Public Sans';
+  font-family: "Public Sans";
   font-style: italic;
-  src: url('/PublicSans-Italic-VariableFont_wght.ttf');
+  src: url("/PublicSans-Italic-VariableFont_wght.ttf");
 }
-
 
 /* Our default values set as CSS variables */
 :root {
-  --color-bg: #FFE6F8;
+  --color-bg: #ffe6f8;
   --color-text-main: #000000;
-  --color-primary: #D7F5EF;
+  --color-primary: #d7f5ef;
   --wrapper-height: 40vh;
   --image-max-width: 300px;
   --image-margin: 3rem;
@@ -49,7 +48,7 @@ to this section's matching END comment to see page-specific styles.
   height: 2.75rem;
   align-items: center;
   cursor: pointer;
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid #000000;
   box-sizing: border-box;
   border-radius: 4px;
@@ -62,7 +61,7 @@ to this section's matching END comment to see page-specific styles.
   margin-right: 0.5rem;
 }
 .btn--remix:hover {
-  background-color: #D0FFF1;
+  background-color: #d0fff1;
 }
 
 /* Navigation grid */
@@ -135,7 +134,7 @@ label.small {
 
 /* Title h1 style */
 h1 {
-  color: #2800FF;
+  color: #2800ff;
   font-family: "Public Sans", sans-serif;
   font-style: normal;
   font-weight: 600;
@@ -148,7 +147,7 @@ h1 {
 h1 a {
   text-decoration: none;
   font-weight: 600;
-  color: #2800FF !important;
+  color: #2800ff !important;
 }
 
 /* Very light scaling for our illustration */
@@ -165,7 +164,7 @@ h1 a {
 /* Styles for our poll form and its results */
 .poll-form,
 .poll-results {
-  background-color: #FFF3FC;
+  background-color: #fff3fc;
   padding: 0 16px 16px 16px;
   border-radius: 8px;
 }
@@ -177,7 +176,7 @@ button,
 input {
   font-family: inherit;
   font-size: 100%;
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid #000000;
   box-sizing: border-box;
   border-radius: 4px;
@@ -199,18 +198,18 @@ label {
   font-size: 1rem;
 }
 h2 {
-  color: #2800FF;
+  color: #2800ff;
 }
 
 /* Admin page */
 table {
   text-align: left;
   border-collapse: collapse;
-  background-color: #FFF3FC;
+  background-color: #fff3fc;
 }
 td,
 th {
-  border: 2px solid #FFFFFF;
+  border: 2px solid #ffffff;
   padding: 0.5rem;
 }
 a {
@@ -220,7 +219,7 @@ a {
 p.error,
 p.error a:link,
 p.error a:visited {
-  color: #2800FF;
+  color: #2800ff;
 }
 
 .header {
@@ -267,7 +266,8 @@ p.error a:visited {
   margin-bottom: 10px;
 }
 
-.bookmark .tags a, .bookmark .bottom a {
+.bookmark .tags a,
+.bookmark .bottom a {
   font-weight: normal;
 }
 .bookmark .tags {
@@ -316,11 +316,11 @@ textarea {
 }
 
 #taggedList .tagged:before {
-  content: '#';
+  content: "#";
 }
 
 #taggedList .tagged:hover:before {
-  content: '\00d7';
+  content: "\00d7";
 }
 
 .followers .follower {

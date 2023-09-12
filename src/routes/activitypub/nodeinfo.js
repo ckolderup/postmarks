@@ -1,18 +1,18 @@
 // implementation of http://nodeinfo.diaspora.software/protocol.html
 
-import express from "express";
-import {instanceType, instanceVersion} from "../../util.js";
+import express from 'express';
+import { instanceType, instanceVersion } from '../../util';
 
-export const router = express.Router();
+const router = express.Router();
 
-router.get("/", async function (req, res) {
-  let domain = req.app.get("domain");
+router.get('/', async (req, res) => {
+  const domain = req.app.get('domain');
 
-  if (req.originalUrl == "/.well-known/nodeinfo") {
-    let thisNode = {
+  if (req.originalUrl === '/.well-known/nodeinfo') {
+    const thisNode = {
       links: [
         {
-          rel: "http://nodeinfo.diaspora.software/ns/schema/2.0",
+          rel: 'http://nodeinfo.diaspora.software/ns/schema/2.0',
           href: `https://${domain}/nodeinfo/2.0`,
         },
       ],
@@ -20,42 +20,40 @@ router.get("/", async function (req, res) {
     res.json(thisNode);
   }
 
-  if (req.originalUrl == "/nodeinfo/2.0") {
-
-    const bookmarksDb = req.app.get("bookmarksDb");
-    let bookmarkCount = await bookmarksDb.getBookmarkCount();
+  if (req.originalUrl === '/nodeinfo/2.0') {
+    const bookmarksDb = req.app.get('bookmarksDb');
+    const bookmarkCount = await bookmarksDb.getBookmarkCount();
 
     // TODO: activeMonth and activeHalfyear should be dynamic, currently static
-    let nodeInfo = {
+    const nodeInfo = {
       version: 2.0,
       software: {
         name: instanceType,
         version: instanceVersion,
       },
-      protocols: [
-        "activitypub"
-      ],
+      protocols: ['activitypub'],
       services: {
-        outbound: ["atom1.0"],
-        inbound: []
+        outbound: ['atom1.0'],
+        inbound: [],
       },
       usage: {
         users: {
           total: 1,
           activeMonth: 1,
-          activeHalfyear: 1
+          activeHalfyear: 1,
         },
         localPosts: bookmarkCount,
       },
       openRegistrations: false,
-      metadata: {}
+      metadata: {},
     };
 
     // spec requires setting this, majority of implementations
     // appear to not bother with it?
-    res.type('application/json; profile="http://nodeinfo.diaspora.software/ns/schema/2.0#"')
+    res.type('application/json; profile="http://nodeinfo.diaspora.software/ns/schema/2.0#"');
 
     res.json(nodeInfo);
-
   }
 });
+
+export default router;

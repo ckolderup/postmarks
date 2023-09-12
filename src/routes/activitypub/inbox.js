@@ -1,26 +1,20 @@
-import express from "express";
-import crypto from "crypto";
-import fetch from "node-fetch";
-import { actorMatchesUsername, parseJSON } from "../../util.js";
-import { signAndSend, getInboxFromActorProfile } from "../../activitypub.js";
+import express from 'express';
+import crypto from 'crypto';
+import fetch from 'node-fetch';
 import * as linkify from 'linkifyjs';
+import { actorMatchesUsername, parseJSON } from '../../util';
+import { signAndSend, getInboxFromActorProfile } from '../../activitypub';
 
-export const router = express.Router();
+const router = express.Router();
+export default router;
 
-async function sendAcceptMessage(
-  thebody,
-  name,
-  domain,
-  req,
-  res,
-  targetDomain
-) {
-  const db = req.app.get("apDb");
-  const guid = crypto.randomBytes(16).toString("hex");
-  let message = {
-    "@context": "https://www.w3.org/ns/activitystreams",
+async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
+  const db = req.app.get('apDb');
+  const guid = crypto.randomBytes(16).toString('hex');
+  const message = {
+    '@context': 'https://www.w3.org/ns/activitystreams',
     id: `https://${domain}/u/${name}/accept/${guid}`,
-    type: "Accept",
+    type: 'Accept',
     actor: `https://${domain}/u/${name}`,
     object: thebody,
   };
@@ -31,18 +25,18 @@ async function sendAcceptMessage(
 }
 
 async function handleFollowRequest(req, res) {
-  const domain = req.app.get("domain");
-  const apDb = req.app.get("apDb");
+  const domain = req.app.get('domain');
+  const apDb = req.app.get('apDb');
 
   const myURL = new URL(req.body.actor);
   const targetDomain = myURL.hostname;
-  const name = req.body.object.replace(`https://${domain}/u/`, "");
+  const name = req.body.object.replace(`https://${domain}/u/`, '');
 
   await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
   // Add the user to the DB of accounts that follow the account
 
   // get the followers JSON for the user
-  const oldFollowersText = (await apDb.getFollowers()) || "[]";
+  const oldFollowersText = (await apDb.getFollowers()) || '[]';
 
   // update followers
   let followers = parseJSON(oldFollowersText);
@@ -53,151 +47,125 @@ async function handleFollowRequest(req, res) {
   } else {
     followers = [req.body.actor];
   }
-  let newFollowersText = JSON.stringify(followers);
+  const newFollowersText = JSON.stringify(followers);
   try {
     // update into DB
-    const newFollowers = await apDb.setFollowers(newFollowersText);
+    await apDb.setFollowers(newFollowersText);
 
-    console.log("updated followers!");
+    console.log('updated followers!');
   } catch (e) {
-    console.log("error storing followers after follow", e);
+    console.log('error storing followers after follow', e);
   }
 
   return res.status(200);
 }
 
 async function handleUnfollow(req, res) {
-  const domain = req.app.get("domain");
-  const apDb = req.app.get("apDb");
+  const domain = req.app.get('domain');
+  const apDb = req.app.get('apDb');
 
   const myURL = new URL(req.body.actor);
   const targetDomain = myURL.hostname;
-  const name = req.body.object.replace(`https://${domain}/u/`, "");
+  const name = req.body.object.replace(`https://${domain}/u/`, '');
 
   await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
 
   // get the followers JSON for the user
-  const oldFollowersText = (await apDb.getFollowers()) || "[]";
+  const oldFollowersText = (await apDb.getFollowers()) || '[]';
 
   // update followers
-  let followers = parseJSON(oldFollowersText);
+  const followers = parseJSON(oldFollowersText);
   if (followers) {
-    followers.forEach((follower, idx, followers) => {
+    followers.forEach((follower, idx) => {
       if (follower === req.body.actor) {
         followers.splice(idx, 1);
       }
     });
   }
 
-  let newFollowersText = JSON.stringify(followers);
+  const newFollowersText = JSON.stringify(followers);
 
   try {
-    const updatedFollowers = await apDb.setFollowers(newFollowersText);
+    await apDb.setFollowers(newFollowersText);
     return res.sendStatus(200);
   } catch (e) {
-    console.log("error storing followers after unfollow", e);
+    console.log('error storing followers after unfollow', e);
     return res.status(500);
   }
 }
 
 async function handleFollowAccepted(req, res) {
-  const domain = req.app.get("domain");
-  const apDb = req.app.get("apDb");
+  const apDb = req.app.get('apDb');
 
-  const oldFollowingText = (await apDb.getFollowing()) || "[]";
+  const oldFollowingText = (await apDb.getFollowing()) || '[]';
 
-    let follows = parseJSON(oldFollowingText);
+  let follows = parseJSON(oldFollowingText);
 
-    if (follows) {
-      follows.push(req.body.actor);
-      // unique items
-      follows = [...new Set(follows)];
-    } else {
-      follows = [req.body.actor];
-    }
-    let newFollowingText = JSON.stringify(follows);
+  if (follows) {
+    follows.push(req.body.actor);
+    // unique items
+    follows = [...new Set(follows)];
+  } else {
+    follows = [req.body.actor];
+  }
+  const newFollowingText = JSON.stringify(follows);
 
-    try {
-      // update into DB
-      const newFollowing = await apDb.setFollowing(newFollowingText);
+  try {
+    // update into DB
+    await apDb.setFollowing(newFollowingText);
 
-      console.log("updated following!");
-      return res.status(200);
-    } catch (e) {
-      console.log("error storing follows after follow action", e);
-      return res.status(500);
-    }
+    console.log('updated following!');
+    return res.status(200);
+  } catch (e) {
+    console.log('error storing follows after follow action', e);
+    return res.status(500);
+  }
 }
 
 async function handleCommentOnBookmark(req, res, inReplyToGuid) {
-  const apDb = req.app.get("apDb");
+  const apDb = req.app.get('apDb');
 
   const bookmarkId = await apDb.getBookmarkIdFromMessageGuid(inReplyToGuid);
 
-    if (typeof bookmarkId !== "number") {
-      console.log("couldn't find a bookmark this message is related to");
-      return res.sendStatus(400);
-    }
+  if (typeof bookmarkId !== 'number') {
+    console.log("couldn't find a bookmark this message is related to");
+    return res.sendStatus(400);
+  }
 
-    const bookmarkPermissions = await apDb.getPermissionsForBookmark(
-      bookmarkId
-    );
-    const globalPermissions = await apDb.getGlobalPermissions();
+  const bookmarkPermissions = await apDb.getPermissionsForBookmark(bookmarkId);
+  const globalPermissions = await apDb.getGlobalPermissions();
 
-    const bookmarkBlocks = bookmarkPermissions?.blocked?.split("\n") || [];
-    const globalBlocks = globalPermissions?.blocked?.split("\n") || [];
+  const bookmarkBlocks = bookmarkPermissions?.blocked?.split('\n') || [];
+  const globalBlocks = globalPermissions?.blocked?.split('\n') || [];
 
-    const bookmarkAllows = bookmarkPermissions?.allowed?.split("\n") || [];
-    const globalAllows = globalPermissions?.allowed?.split("\n") || [];
+  const bookmarkAllows = bookmarkPermissions?.allowed?.split('\n') || [];
+  const globalAllows = globalPermissions?.allowed?.split('\n') || [];
 
-    const blocklist = bookmarkBlocks
-      .concat(globalBlocks)
-      .filter((x) => x.match(/^@([^@]+)@(.+)$/));
-    const allowlist = bookmarkAllows
-      .concat(globalAllows)
-      .filter((x) => x.match(/^@([^@]+)@(.+)$/));
+  const blocklist = bookmarkBlocks.concat(globalBlocks).filter((x) => x.match(/^@([^@]+)@(.+)$/));
+  const allowlist = bookmarkAllows.concat(globalAllows).filter((x) => x.match(/^@([^@]+)@(.+)$/));
 
-    if (
-      blocklist.length > 0 &&
-      blocklist
-        .map((username) => actorMatchesUsername(req.body.actor, username))
-        .some((x) => x)
-    ) {
-      console.log(
-        `Actor ${req.body.actor} matches a blocklist item, ignoring comment`
-      );
-      return res.sendStatus(403);
-    }
+  if (blocklist.length > 0 && blocklist.map((username) => actorMatchesUsername(req.body.actor, username)).some((x) => x)) {
+    console.log(`Actor ${req.body.actor} matches a blocklist item, ignoring comment`);
+    return res.sendStatus(403);
+  }
 
-    const response = await fetch(req.body.actor);
-    const data = await response.json();
+  const response = await fetch(req.body.actor);
+  const data = await response.json();
 
-    const actorDomain = new URL(req.body.actor)?.hostname;
-    const actorUsername = data.preferredUsername;
-    const actor = `@${actorUsername}@${actorDomain}`;
+  const actorDomain = new URL(req.body.actor)?.hostname;
+  const actorUsername = data.preferredUsername;
+  const actor = `@${actorUsername}@${actorDomain}`;
 
-    const commentUrl = req.body.object.id;
-    let visible = 0;
-    if (
-      allowlist
-        .map((username) => actorMatchesUsername(req.body.actor, username))
-        .some((x) => x)
-    ) {
-      console.log(
-        `Actor ${req.body.actor} matches an allowlist item, marking comment visible`
-      );
-      visible = 1;
-    }
+  const commentUrl = req.body.object.id;
+  let visible = 0;
+  if (allowlist.map((username) => actorMatchesUsername(req.body.actor, username)).some((x) => x)) {
+    console.log(`Actor ${req.body.actor} matches an allowlist item, marking comment visible`);
+    visible = 1;
+  }
 
-    const bookmarksDb = req.app.get("bookmarksDb");
+  const bookmarksDb = req.app.get('bookmarksDb');
 
-    bookmarksDb.createComment(
-      bookmarkId,
-      actor,
-      commentUrl,
-      req.body.object.content,
-      visible
-    );
+  bookmarksDb.createComment(bookmarkId, actor, commentUrl, req.body.object.content, visible);
 
   return res.status(200);
 }
@@ -217,15 +185,9 @@ async function handleFollowedPost(req, res) {
 
     const commentUrl = req.body.object.id;
 
-    const bookmarksDb = req.app.get("bookmarksDb");
+    const bookmarksDb = req.app.get('bookmarksDb');
 
-    bookmarksDb.createComment(
-      undefined,
-      actor,
-      commentUrl,
-      req.body.object.content,
-      false
-    );
+    bookmarksDb.createComment(undefined, actor, commentUrl, req.body.object.content, false);
   }
 
   return res.status(200);
@@ -234,7 +196,7 @@ async function handleFollowedPost(req, res) {
 async function handleDeleteRequest(req, res) {
   console.log(JSON.stringify(req.body));
 
-  const bookmarksDb = req.app.get("bookmarksDb");
+  const bookmarksDb = req.app.get('bookmarksDb');
 
   const commentId = req.body?.object?.id;
 
@@ -245,31 +207,31 @@ async function handleDeleteRequest(req, res) {
   return res.status(200);
 }
 
-router.post("/", async function (req, res) {
+router.post('/', async (req, res) => {
   // console.log(JSON.stringify(req.body));
 
-  if (typeof req.body.object === "string" && req.body.type === "Follow") {
-    return await handleFollowRequest(req, res);
-  } else if (req.body.type === "Undo" && req.body.object?.type === "Follow") {
-    return await handleUnfollow(req, res);
-  } else if (req.body.type === "Accept" && req.body.object?.type === "Follow") {
-    return await handleFollowAccepted(req, res);
-  } else if (req.body.type === "Delete") {
-    return await handleDeleteRequest(req, res);
-  } else if (req.body.type === "Create" && req.body.object?.type === "Note") {
+  if (typeof req.body.object === 'string' && req.body.type === 'Follow') {
+    return handleFollowRequest(req, res);
+  }
+  if (req.body.type === 'Undo' && req.body.object?.type === 'Follow') {
+    return handleUnfollow(req, res);
+  }
+  if (req.body.type === 'Accept' && req.body.object?.type === 'Follow') {
+    return handleFollowAccepted(req, res);
+  }
+  if (req.body.type === 'Delete') {
+    return handleDeleteRequest(req, res);
+  }
+  if (req.body.type === 'Create' && req.body.object?.type === 'Note') {
     console.log(JSON.stringify(req.body));
 
-    const domain = req.app.get("domain");
-    const inReplyToGuid = req.body.object?.inReplyTo?.match(
-      `https://${domain}/m/(.+)`
-    )?.[1];
+    const domain = req.app.get('domain');
+    const inReplyToGuid = req.body.object?.inReplyTo?.match(`https://${domain}/m/(.+)`)?.[1];
 
     if (inReplyToGuid) {
       return handleCommentOnBookmark(req, res, inReplyToGuid);
-    } else {
-      return handleFollowedPost(req, res);
     }
-
-    return res.sendStatus(400);
+    return handleFollowedPost(req, res);
   }
+  return res.sendStatus(400);
 });
