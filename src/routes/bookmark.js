@@ -169,7 +169,7 @@ router.post("/multiadd", isAuthenticated, async (req, res) => {
 
     let meta = {};
     try {
-      meta = await ogScraper({ url });
+      meta = await ogScraper({ url: url.replace(/(\r\n|\n|\r)/gm,"") }); // remove line break from URL value
       if (meta?.result?.ogDescription !== undefined) {
         meta.result.ogDescription = `"${meta.result.ogDescription}"`;
       }
