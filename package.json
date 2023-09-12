@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "watch": "nodemon --ignore public/ --exec npm start"
+    "watch": "nodemon --ignore public/ --exec npm start",
+    "lint": "eslint . --ext .js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -19,12 +20,12 @@
     "express-basic-auth": "^1.2.1",
     "express-handlebars": "^6.0.7",
     "express-session": "^1.17.3",
+    "linkifyjs": "^4.1.1",
     "node-fetch": "^3.3.2",
     "open-graph-scraper": "^5.2.3",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.5",
-    "string-strip-html": "^13.4.2",
-    "linkifyjs": "^4.1.1"
+    "string-strip-html": "^13.4.2"
   },
   "engines": {
     "node": "16.x"
@@ -43,6 +44,9 @@
     "mastodon"
   ],
   "devDependencies": {
+    "eslint": "^8.49.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.28.1",
     "nodemon": "^2.0.20"
   }
 }
