@@ -160,15 +160,21 @@ router.get("/tagged/:tag", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
-  const bookmarksDb = req.app.get('bookmarksDb');
-  let params = { title: 'Search Bookmarks' };
-  if (req.query.query) {
-    params.keywords = req.query.query;
-    params.bookmarks = await bookmarksDb.searchBookmarks(req.query.query.split(' '));
-    if (params.bookmarks.length === 0) {
-      params.error = "No matches...";
+  try {
+    const bookmarksDb = req.app.get('bookmarksDb');
+    let params = { title: 'Search Bookmarks' };
+    if (req.query.query) {
+      params.keywords = req.query.query;
+      params.bookmarks = await bookmarksDb.searchBookmarks(req.query.query.split(' '));
+      if (params.bookmarks.length === 0) {
+        params.error = "No matches...";
+      }
     }
+    params.tags = await bookmarksDb.getTags();
+    return res.render("search", params);
   }
-  params.tags = await bookmarksDb.getTags();
-  return res.render("search", params);
+  catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 });
