@@ -1,8 +1,8 @@
-import crypto from "crypto";
-import fetch from "node-fetch";
+import crypto from 'crypto';
+import fetch from 'node-fetch';
 
-import { account, domain } from "./util.js";
-import { getPrivateKey } from "./activity-pub-db.js";
+import { account, domain } from './util.js';
+import { getPrivateKey } from './activity-pub-db.js';
 
 /**
  * Returns base-64 encoded SHA-256 digest of provided data
@@ -12,7 +12,7 @@ import { getPrivateKey } from "./activity-pub-db.js";
  * @returns {string}
  */
 function getDigest(data) {
-  return crypto.createHash("sha256").update(data).digest("base64");
+  return crypto.createHash('sha256').update(data).digest('base64');
 }
 
 /**
@@ -24,10 +24,10 @@ function getDigest(data) {
  * @returns {string}
  */
 function getSignature(privkey, data) {
-  const signer = crypto.createSign("sha256");
+  const signer = crypto.createSign('sha256');
   signer.update(data);
   signer.end();
-  return signer.sign(privkey).toString("base64");
+  return signer.sign(privkey).toString('base64');
 }
 
 /**
@@ -49,7 +49,7 @@ function getSignatureParams(body, method, url) {
   const dateParam = date.toUTCString();
 
   const params = {
-    "(request-target)": requestTarget,
+    '(request-target)': requestTarget,
     host: hostParam,
     date: dateParam,
   };
@@ -58,7 +58,7 @@ function getSignatureParams(body, method, url) {
   if (body) {
     const digest = getDigest(body);
     const digestParam = `SHA-256=${digest}`;
-    params["digest"] = digestParam;
+    params['digest'] = digestParam;
   }
 
   return params;
@@ -76,9 +76,9 @@ function getSignatureHeader(signature, signatureKeys) {
   return [
     `keyId="https://${domain}/u/${account}"`,
     `algorithm="rsa-sha256"`,
-    `headers="${signatureKeys.join(" ")}"`,
+    `headers="${signatureKeys.join(' ')}"`,
     `signature="${signature}"`,
-  ].join(",");
+  ].join(',');
 }
 
 /**
@@ -96,26 +96,24 @@ export async function signedFetch(url, init = {}) {
   }
 
   const { headers = {}, body = null, ...rest } = init;
-  const { method = body ? "POST" : "GET" } = init; // guess method if not provided
-  const isJSON = body && typeof body === "string"; // assume string body is JSON
+  const { method = body ? 'POST' : 'GET' } = init; // guess method if not provided
+  const isJSON = body && typeof body === 'string'; // assume string body is JSON
 
   const signatureParams = getSignatureParams(body, method, url);
   const signatureKeys = Object.keys(signatureParams);
   const stringToSign = Object.entries(signatureParams)
     .map(([k, v]) => `${k}: ${v}`)
-    .join("\n");
+    .join('\n');
   const signature = getSignature(privkey, stringToSign);
   const signatureHeader = getSignatureHeader(signature, signatureKeys);
 
-  const contentTypeHeader = isJSON
-    ? { "Content-Type": "application/json" }
-    : {};
+  const contentTypeHeader = isJSON ? { 'Content-Type': 'application/json' } : {};
 
   return fetch(url, {
     body,
     method,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
       ...contentTypeHeader,
       ...headers,
       Host: signatureParams.host,
