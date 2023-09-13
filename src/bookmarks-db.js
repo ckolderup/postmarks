@@ -317,3 +317,16 @@ export async function deleteAllBookmarks() {
     console.error(dbError);
   }
 }
+
+export async function searchBookmarks(keywords) {
+  try {
+    const searchFields = ['title', 'description', 'url', 'tags']
+    let where = keywords
+      .map(kw => `(${searchFields.map(f => `${f} like '%${kw}%'`).join(' or ')})`)
+      .join(" and ")
+    const results = await db.all(`SELECT * from bookmarks WHERE ${where} ORDER BY updated_at DESC LIMIT 20`);
+    return results.map(b => massageBookmark(b));
+  } catch (dbError) {
+    console.error(dbError);
+  }
+}
