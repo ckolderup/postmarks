@@ -5,7 +5,7 @@
 {{else}}
   <div class="bookmarks">
     {{#each bookmarks }}
-      {{> show_bookmark bookmark=this }}
+      {{> show_bookmark bookmark=this tagged=true }}
     {{/each}}
   </div>
   {{> pagination url="" pageInfo=pageInfo }}

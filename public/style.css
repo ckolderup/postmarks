@@ -274,6 +274,24 @@ p.error a:visited {
   margin-bottom: 4px;
 }
 
+.bookmark .tags .tag {
+  margin-right: 0.5rem;
+}
+
+.bookmark .tags .tag-op {
+  font-weight: bold;
+}
+
+.bookmark .tags .tag-add {
+  color: green;
+  font-size: 1.1rem;
+}
+
+.bookmark .tags .tag-remove {
+  color: red;
+  font-size: 1.5rem;
+}
+
 textarea {
   display: block;
   height: 192px;
