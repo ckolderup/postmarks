@@ -95,9 +95,7 @@ export async function signedFetch(url, init = {}) {
     throw new Error(`No private key found for ${account}.`);
   }
 
-  const { headers = {}, body = null, ...rest } = init;
-  const { method = body ? 'POST' : 'GET' } = init; // guess method if not provided
-  const isJSON = body && typeof body === 'string'; // assume string body is JSON
+  const { headers = {}, body = null, method = 'GET', ...rest } = init;
 
   const signatureParams = getSignatureParams(body, method, url);
   const signatureKeys = Object.keys(signatureParams);
@@ -107,14 +105,10 @@ export async function signedFetch(url, init = {}) {
   const signature = getSignature(privkey, stringToSign);
   const signatureHeader = getSignatureHeader(signature, signatureKeys);
 
-  const contentTypeHeader = isJSON ? { 'Content-Type': 'application/json' } : {};
-
   return fetch(url, {
     body,
     method,
     headers: {
-      Accept: 'application/json',
-      ...contentTypeHeader,
       ...headers,
       Host: signatureParams.host,
       Date: signatureParams.date,
@@ -123,4 +117,55 @@ export async function signedFetch(url, init = {}) {
     },
     ...rest,
   });
+}
+
+/**
+ * Private: Adds JSON headers before calling {@link signedFetch}
+ *
+ * @private
+ *
+ * @param {string} [method="GET"] - HTTP method
+ * @param {URL | RequestInfo} url - URL
+ * @param {RequestInit} [init={}] - Optional fetch init object
+ *
+ * @returns {Promise<Response>}
+ */
+function _signedFetchJSON(method = 'GET', url, init = {}) {
+  const { body, headers = {}, ...rest } = init;
+  const contentTypeHeader = body ? { 'Content-Type': 'application/json' } : {};
+
+  return signedFetch(url, {
+    body,
+    headers: {
+      ...headers,
+      Accept: 'application/json',
+      ...contentTypeHeader,
+    },
+    ...rest,
+    method, // no override
+  });
+}
+
+/**
+ * Sends a signed GET request, expecting a JSON response, using {@link signedFetch}
+ *
+ * @param {URL | RequestInfo} url - URL
+ * @param {RequestInit} [init={}] - Optional fetch init object
+ *
+ * @returns {Promise<Response>}
+ */
+export function signedGetJSON(url, init = {}) {
+  return _signedFetchJSON('GET', url, init);
+}
+
+/**
+ * Sends a signed POST request, expecting a JSON response, using {@link signedFetch}
+ *
+ * @param {URL | RequestInfo} url - URL
+ * @param {RequestInit} [init={}] - Optional fetch init object
+ *
+ * @returns {Promise<Response>}
+ */
+export function signedPostJSON(url, init = {}) {
+  return _signedFetchJSON('POST', url, init);
 }

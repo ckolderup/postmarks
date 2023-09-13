@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import crypto from 'crypto';
 
-import { signedFetch } from './signature.js';
+import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorInfo, actorMatchesUsername } from './util.js';
 
 function getGuidFromPermalink(urlString) {
@@ -10,9 +10,8 @@ function getGuidFromPermalink(urlString) {
 
 export async function signAndSend(message, name, domain, db, targetDomain, inbox) {
   try {
-    const response = await signedFetch(inbox, {
+    const response = await signedPostJSON(inbox, {
       body: JSON.stringify(message),
-      method: 'POST',
     });
     const data = await response.text();
 
@@ -165,7 +164,7 @@ export async function createUnfollowMessage(account, domain, target, db) {
 }
 
 export async function getInboxFromActorProfile(profileUrl) {
-  const response = await signedFetch(`${profileUrl}.json`);
+  const response = await signedGetJSON(`${profileUrl}.json`);
   const data = await response.json();
 
   if (data?.inbox) {
