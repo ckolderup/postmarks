@@ -22,7 +22,7 @@ try {
 
 export const actorInfo = actorFileData;
 export const account = actorInfo.username || 'bookmarks';
-export const domain = process.env.PROJECT_DOMAIN ? `${process.env.PROJECT_DOMAIN}.glitch.me` : 'localhost'; // edit this if you have a custom domain
+export const domain = process.env.PROJECT_DOMAIN ? `${process.env.PROJECT_DOMAIN}.topher.social` : 'localhost'; // edit this if you have a custom domain
 
 let instanceData = {};
 try {
