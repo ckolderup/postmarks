@@ -53,13 +53,12 @@ function insertRelativeTimestamp(object) {
   };
 }
 
-function addLinkedTags(bookmark) {
-  const linkedTags = bookmark.tags
+function addTags(bookmark) {
+  const tagNames = bookmark.tags
     ?.split(' ')
     .map((t) => t.slice(1))
-    .map((t) => `<a href="/tagged/${t}">#${t}</a>`);
-
-  return { linkedTags, ...bookmark };
+    .sort();
+  return { tagNames, ...bookmark };
 }
 
 function massageBookmark(bookmark) {
@@ -139,11 +138,6 @@ open({
   }
 });
 
-function addTags(bookmark) {
-  const tagNames = bookmark.tags?.split(' ').map(t => t.slice(1)).sort();
-  return { tagNames, ...bookmark };
-}
-
 export async function getBookmarkCount() {
   const result = await db.get('SELECT count(id) as count FROM bookmarks');
   return result?.count;
@@ -166,8 +160,8 @@ export async function getBookmarks(limit = 10, offset = 0) {
 }
 
 export async function getBookmarkCountForTags(tags) {
-  const tagClauses = tags.map(tag => `(tags like ? OR tags like ?)`).join(' AND ');
-  const tagParams = tags.map(tag => [`%${tag}% `, `%${tag}%`]).flat();
+  const tagClauses = tags.map(() => `(tags like ? OR tags like ?)`).join(' AND ');
+  const tagParams = tags.map((tag) => [`%${tag}% `, `%${tag}%`]).flat();
   const result = await db.get.apply(db, [`SELECT count(id) as count from bookmarks WHERE ${tagClauses}`, ...tagParams]);
   return result?.count;
 }
@@ -175,13 +169,15 @@ export async function getBookmarkCountForTags(tags) {
 export async function getBookmarksForTags(tags, limit = 10, offset = 0) {
   // We use a try catch block in case of db errors
   try {
-    const tagClauses = tags.map(tag => `(tags like ? OR tags like ?)`).join(' AND ');
-    const tagParams = tags.map(tag => [`%${tag}% `, `%${tag}%`]).flat();
+    const tagClauses = tags.map(() => `(tags like ? OR tags like ?)`).join(' AND ');
+    const tagParams = tags.map((tag) => [`%${tag}% `, `%${tag}%`]).flat();
     const results = await db.all.apply(db, [
-      `SELECT * from bookmarks WHERE ${tagClauses} ORDER BY updated_at DESC LIMIT ? OFFSET ?`, 
-      ...tagParams, limit, offset
+      `SELECT * from bookmarks WHERE ${tagClauses} ORDER BY updated_at DESC LIMIT ? OFFSET ?`,
+      ...tagParams,
+      limit,
+      offset,
     ]);
-    return results.map(b => massageBookmark(b));
+    return results.map((b) => massageBookmark(b));
   } catch (dbError) {
     // Database connection error
     console.error(dbError);

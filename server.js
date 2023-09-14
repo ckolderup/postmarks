@@ -86,7 +86,10 @@ const hbs = create({
       return array.indexOf(item) >= 0 ? options.fn(this) : options.inverse(this);
     },
     removeTag(tag, path) {
-      return path.split('/').filter(x => x !== tag).join('/');
+      return path
+        .split('/')
+        .filter((x) => x !== tag)
+        .join('/');
     },
     ifThisTag(tag, path, options) {
       return path === `/tagged/${tag}` ? options.fn(this) : options.inverse(this);

@@ -104,10 +104,10 @@ router.get('/index.xml', async (req, res) => {
   return res.render('bookmarks-xml', params);
 });
 
-router.get("/tagged/*.xml", async (req, res) => {
+router.get('/tagged/*.xml', async (req, res) => {
   const tags = req.params[0].split('/');
 
-  let params = {};
+  const params = {};
   const bookmarksDb = req.app.get('bookmarksDb');
 
   const bookmarks = await bookmarksDb.getBookmarksForTags(tags, 20, 0);
@@ -131,10 +131,10 @@ router.get("/tagged/*.xml", async (req, res) => {
   return res.render('bookmarks-xml', params);
 });
 
-router.get("/tagged/*", async (req, res) => {
+router.get('/tagged/*', async (req, res) => {
   const tags = req.params[0].split('/');
 
-  let params = {};
+  const params = {};
   const bookmarksDb = req.app.get('bookmarksDb');
 
   let buildTitle = `Bookmarks tagged ${tags.join(' and ')}`;
