@@ -15,6 +15,10 @@ router.get('/:guid', async (req, res) => {
     return res.status(404).send(`No message found for ${guid}.`);
   }
 
+  if (!req.headers.accept?.includes('json')) {
+    return res.redirect(`/bookmark/${result.bookmark_id}`);
+  }
+
   return res.json(JSON.parse(result.message));
 });
 
