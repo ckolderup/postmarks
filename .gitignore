@@ -1,7 +1,8 @@
 .glitchdotcom.json
 .node-gyp
 node_modules
-.data/*.db
+.data/*
+!.data/.keep
 .env
 .sqlite_history
 *.patch
