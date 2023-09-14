@@ -3,14 +3,16 @@
     "browser": true,
     "es2021": true
   },
-  "extends": ["airbnb-base", "plugin:prettier/recommended", "plugin:node/recommended"],
-  "plugins": ["node", "prettier"],
+  "extends": [
+    "airbnb-base",
+    "plugin:node/recommended",
+    "plugin:prettier/recommended"
+  ],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "rules": {
-    "prettier/prettier": "error",
     "no-unused-vars": "warn",
     "no-console": "off",
     "func-names": "off"
