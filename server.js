@@ -75,8 +75,8 @@ const hbs = create({
       return process.env.PROJECT_DOMAIN;
     },
     section(name, options) {
-      if (!this.sections) this.sections = {};
-      this.sections[name] = options.fn(this);
+      if (!this._sections) this._sections = {};
+      this._sections[name] = options.fn(this);
       return null;
     },
     mastodonAccount() {
