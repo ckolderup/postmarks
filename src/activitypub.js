@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import crypto from 'crypto';
 
+import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorInfo, actorMatchesUsername } from './util.js';
 
 function getGuidFromPermalink(urlString) {
@@ -8,48 +9,18 @@ function getGuidFromPermalink(urlString) {
 }
 
 export async function signAndSend(message, name, domain, db, targetDomain, inbox) {
-  // get the private key
-  const inboxFragment = inbox.replace(`https://${targetDomain}`, '');
-  const privkey = await db.getPrivateKey();
+  try {
+    const response = await signedPostJSON(inbox, {
+      body: JSON.stringify(message),
+    });
+    const data = await response.text();
 
-  if (privkey === undefined) {
-    console.log(`No private key found for ${name}.`);
-  } else {
-    const digest = crypto.createHash('sha256').update(JSON.stringify(message)).digest('base64');
-    const signer = crypto.createSign('sha256');
-    const d = new Date();
-    const stringToSign = `(request-target): post ${inboxFragment}\nhost: ${targetDomain}\ndate: ${d.toUTCString()}\ndigest: SHA-256=${digest}`;
-    signer.update(stringToSign);
-    signer.end();
-    const signature = signer.sign(privkey);
-    const signatureb64 = signature.toString('base64');
-
-    const algorithm = 'rsa-sha256';
-    const header = `keyId="https://${domain}/u/${name}",algorithm="${algorithm}",headers="(request-target) host date digest",signature="${signatureb64}"`;
-
-    try {
-      const response = await fetch(inbox, {
-        headers: {
-          Host: targetDomain,
-          Date: d.toUTCString(),
-          Digest: `SHA-256=${digest}`,
-          Signature: header,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify(message),
-      });
-
-      const data = await response.text();
-
-      console.log(`Sent message to an inbox at ${targetDomain}!`);
-      console.log('Response Status Code:', response.status);
-      console.log('Response body:', data);
-    } catch (error) {
-      console.log('Error:', error.message);
-      console.log('Stacktrace: ', error.stack);
-    }
+    console.log(`Sent message to an inbox at ${targetDomain}!`);
+    console.log('Response Status Code:', response.status);
+    console.log('Response body:', data);
+  } catch (error) {
+    console.log('Error:', error.message);
+    console.log('Stacktrace: ', error.stack);
   }
 }
 
@@ -184,7 +155,7 @@ export async function createUnfollowMessage(account, domain, target, db) {
 }
 
 export async function getInboxFromActorProfile(profileUrl) {
-  const response = await fetch(`${profileUrl}.json`);
+  const response = await signedGetJSON(`${profileUrl}.json`);
   const data = await response.json();
 
   if (data?.inbox) {

@@ -172,3 +172,22 @@ router.get('/tagged/:tag', async (req, res) => {
   // Send the page options or raw JSON data if the client requested it
   return req.query.raw ? res.send(params) : res.render('tagged', params);
 });
+
+router.get('/search', async (req, res) => {
+  try {
+    const bookmarksDb = req.app.get('bookmarksDb');
+    const params = { title: 'Search Bookmarks' };
+    if (req.query.query) {
+      params.keywords = req.query.query;
+      params.bookmarks = await bookmarksDb.searchBookmarks(req.query.query.split(' '));
+      if (params.bookmarks.length === 0) {
+        params.error = 'No matches...';
+      }
+    }
+    params.tags = await bookmarksDb.getTags();
+    return res.render('search', params);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Internal Server Error');
+  }
+});

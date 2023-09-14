@@ -8,14 +8,14 @@ to this section's matching END comment to see page-specific styles.
 ******************************************************************************/
 
 @font-face {
-  font-family: "Public Sans";
-  src: url("/PublicSans-VariableFont_wght.ttf");
+  font-family: 'Public Sans';
+  src: url('/PublicSans-VariableFont_wght.ttf');
 }
 
 @font-face {
-  font-family: "Public Sans";
+  font-family: 'Public Sans';
   font-style: italic;
-  src: url("/PublicSans-Italic-VariableFont_wght.ttf");
+  src: url('/PublicSans-Italic-VariableFont_wght.ttf');
 }
 
 /* Our default values set as CSS variables */
@@ -26,8 +26,8 @@ to this section's matching END comment to see page-specific styles.
   --wrapper-height: 40vh;
   --image-max-width: 300px;
   --image-margin: 3rem;
-  --font-family: "Public Sans", sans-serif;
-  --font-family-header: "Public Sans", sans-serif;
+  --font-family: 'Public Sans', sans-serif;
+  --font-family-header: 'Public Sans', sans-serif;
 }
 
 /* Basic page style resets */
@@ -40,7 +40,7 @@ to this section's matching END comment to see page-specific styles.
 
 /* Our remix on glitch button */
 .btn--remix {
-  font-family: "Public Sans", sans-serif;
+  font-family: 'Public Sans', sans-serif;
   padding: 0.75rem 1rem;
   font-size: 1.1rem;
   line-height: 1rem;
@@ -77,7 +77,7 @@ to this section's matching END comment to see page-specific styles.
 
 .footer a:not(.btn--remix):link,
 a:not(.btn--remix):visited {
-  font-family: "Public Sans", sans-serif;
+  font-family: 'Public Sans', sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 1.1rem;
@@ -101,7 +101,7 @@ END Glitch hello-app default styles
 ******************************************************************************/
 
 body {
-  font-family: "Public Sans", sans-serif;
+  font-family: 'Public Sans', sans-serif;
   background-color: var(--color-bg);
 }
 
@@ -135,7 +135,7 @@ label.small {
 /* Title h1 style */
 h1 {
   color: #2800ff;
-  font-family: "Public Sans", sans-serif;
+  font-family: 'Public Sans', sans-serif;
   font-style: normal;
   font-weight: 600;
   font-size: 48px;
@@ -316,11 +316,11 @@ textarea {
 }
 
 #taggedList .tagged:before {
-  content: "#";
+  content: '#';
 }
 
 #taggedList .tagged:hover:before {
-  content: "\00d7";
+  content: '\00d7';
 }
 
 .followers .follower {
@@ -335,4 +335,8 @@ textarea {
 
 .network-post {
   border-bottom: 1px solid #000000;
+}
+
+.search input[type='submit'] {
+  margin-left: 0.5rem;
 }

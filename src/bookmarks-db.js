@@ -328,3 +328,16 @@ export async function deleteAllBookmarks() {
   }
   return undefined;
 }
+
+export async function searchBookmarks(keywords) {
+  try {
+    const searchFields = ['title', 'description', 'url', 'tags'];
+    const where = keywords.map(() => `(${searchFields.map((f) => `${f} like ?`).join(' or ')})`).join(' and ');
+    const keywordParams = keywords.map((kw) => Array(searchFields.length).fill(`%${kw}%`)).flat();
+    const results = await db.all.apply(db, [`SELECT * from bookmarks WHERE ${where} ORDER BY updated_at DESC LIMIT 20`, ...keywordParams]);
+    return results.map((b) => massageBookmark(b));
+  } catch (dbError) {
+    console.error(dbError);
+  }
+  return undefined;
+}

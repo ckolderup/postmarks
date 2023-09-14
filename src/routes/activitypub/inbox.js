@@ -1,12 +1,12 @@
 import express from 'express';
 import crypto from 'crypto';
-import fetch from 'node-fetch';
 import * as linkify from 'linkifyjs';
 import { actorMatchesUsername, parseJSON } from '../../util.js';
 import { signAndSend, getInboxFromActorProfile } from '../../activitypub.js';
 
+import { signedGetJSON } from '../../signature.js';
+
 const router = express.Router();
-export default router;
 
 async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
   const db = req.app.get('apDb');
@@ -149,7 +149,7 @@ async function handleCommentOnBookmark(req, res, inReplyToGuid) {
     return res.sendStatus(403);
   }
 
-  const response = await fetch(req.body.actor);
+  const response = await signedGetJSON(req.body.actor);
   const data = await response.json();
 
   const actorDomain = new URL(req.body.actor)?.hostname;
@@ -176,7 +176,7 @@ async function handleFollowedPost(req, res) {
     // store this for now
     // TODO: determine if the actor is in your current follow list!
 
-    const response = await fetch(`${req.body.actor}.json`);
+    const response = await signedGetJSON(`${req.body.actor}.json`);
     const data = await response.json();
 
     const actorDomain = new URL(req.body.actor)?.hostname;
@@ -207,12 +207,13 @@ async function handleDeleteRequest(req, res) {
   return res.status(200);
 }
 
-router.post('/', async (req, res) => {
+router.post('/', async function (req, res) {
   // console.log(JSON.stringify(req.body));
 
   if (typeof req.body.object === 'string' && req.body.type === 'Follow') {
     return handleFollowRequest(req, res);
   }
+
   if (req.body.type === 'Undo' && req.body.object?.type === 'Follow') {
     return handleUnfollow(req, res);
   }
@@ -235,3 +236,5 @@ router.post('/', async (req, res) => {
   }
   return res.sendStatus(400);
 });
+
+export default router;
