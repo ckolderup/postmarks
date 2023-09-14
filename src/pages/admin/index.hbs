@@ -1,33 +1,21 @@
 <h3>
-    Bookmarklet
-  </h3>
-  <p>
-    You can use this bookmarklet to quickly add bookmarks around the web! Create
-    a new bookmark in your browser's bookmarks toolbar, then edit the URL for
-    that bookmark and insert this javascript:
-  </p>
-  <input readonly type="text" id="copy-bookmarklet" value="{{{bookmarklet}}}" />
-  <p><small id="copy-status">Click the code above to copy</small></p>
+  Bookmarklet
+</h3>
+<p>
+  You can use this bookmarklet to quickly add bookmarks around the web! Create a
+  new bookmark in your browser's bookmarks toolbar, then edit the URL for that
+  bookmark and insert this javascript:
+</p>
+<input readonly type="text" id="copy-bookmarklet" value="{{{bookmarklet}}}" />
+<p><small id="copy-status">Click the code above to copy</small></p>
 
-  <script>
-    document.querySelector('#copy-bookmarklet').addEventListener(
-      'click',
-      function (event) {
-        if (!navigator.clipboard) {
-          // Clipboard API not available
-          return;
-        }
-        const text = event.target.value;
-        try {
-          navigator.clipboard.writeText(text);
-          document.querySelector('#copy-status').innerText = 'Copied to clipboard!';
-          setTimeout(function () {
-            document.querySelector('#copy-status').innerText = 'Click the code above to copy it to your clipboard';
-          }, 1500);
-        } catch (err) {
-          console.error('Failed to copy!', err);
-        }
-      },
-      false
-    );
-  </script>
+<script>
+  document.querySelector('#copy-bookmarklet').addEventListener( 'click',
+  function (event) { if (!navigator.clipboard) { // Clipboard API not available
+  return; } const text = event.target.value; try {
+  navigator.clipboard.writeText(text);
+  document.querySelector('#copy-status').innerText = 'Copied to clipboard!';
+  setTimeout(function () { document.querySelector('#copy-status').innerText =
+  'Click the code above to copy it to your clipboard'; }, 1500); } catch (err) {
+  console.error('Failed to copy!', err); } }, false );
+</script>

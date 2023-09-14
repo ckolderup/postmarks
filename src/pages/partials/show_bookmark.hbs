@@ -3,7 +3,8 @@
     <a href="{{bookmark.url}}">{{bookmark.title}}</a>
   </div>
   <div class="subhead">
-    <span title="{{bookmark.created_at}}">{{bookmark.timestamp}}</span> •
+    <span title="{{bookmark.created_at}}">{{bookmark.timestamp}}</span>
+    •
     {{bookmark.domain}}
   </div>
   <div class="description">
@@ -15,13 +16,14 @@
   <div class="bottom">
     {{#if bookmark.comment_count includeZero=true}}
       <a href="/bookmark/{{bookmark.id}}">
-        {{bookmark.comment_count}} {{pluralize bookmark.comment_count 'comment' 'comments'}}
+        {{bookmark.comment_count}}
+        {{pluralize bookmark.comment_count "comment" "comments"}}
       </a>
     {{/if}}
     {{#if @root.loggedIn}}
-    {{#if bookmark.comment_count includeZero=true}}
-    •
-    {{/if}}
+      {{#if bookmark.comment_count includeZero=true}}
+        •
+      {{/if}}
     {{/if}}
     {{#if @root.loggedIn}}
       <a href="/bookmark/{{bookmark.id}}/edit">edit</a>

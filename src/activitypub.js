@@ -5,7 +5,7 @@ import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorInfo, actorMatchesUsername } from './util.js';
 
 function getGuidFromPermalink(urlString) {
-  return urlString.match(/m\/([a-zA-Z0-9+\/]+)/)[1];
+  return urlString.match(/m\/([a-zA-Z0-9+/]+)/)[1];
 }
 
 export async function signAndSend(message, name, domain, db, targetDomain, inbox) {
@@ -27,14 +27,6 @@ export async function signAndSend(message, name, domain, db, targetDomain, inbox
 export function createNoteObject(bookmark, account, domain) {
   const guidNote = crypto.randomBytes(16).toString('hex');
   const d = new Date();
-
-  const linkedTags = bookmark.tags
-    ?.split(' ')
-    .map((tag) => {
-      const tagName = tag.slice(1);
-      return `<a href=\"https://${domain}/tagged/${tagName}\" class=\"mention hashtag\" rel=\"tag\">${tag}</a>`;
-    })
-    .join(' ');
 
   const noteMessage = {
     '@context': 'https://www.w3.org/ns/activitystreams',
@@ -61,6 +53,23 @@ export function createNoteObject(bookmark, account, domain) {
   return noteMessage;
 }
 
+function createMessage(noteObject, bookmarkId, account, domain, db) {
+  const guidCreate = crypto.randomBytes(16).toString('hex');
+
+  const message = {
+    '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
+    id: `https://${domain}/m/${guidCreate}`,
+    type: 'Create',
+    actor: `https://${domain}/u/${account}`,
+    to: [`https://${domain}/u/${account}/followers/`, 'https://www.w3.org/ns/activitystreams#Public'],
+    object: noteObject,
+  };
+
+  db.insertMessage(getGuidFromPermalink(noteObject.id), bookmarkId, JSON.stringify(noteObject));
+
+  return message;
+}
+
 async function createUpdateMessage(bookmark, account, domain, db) {
   const guid = await db.getGuidForBookmarkId(bookmark.id);
 
@@ -83,23 +92,6 @@ async function createUpdateMessage(bookmark, account, domain, db) {
   };
 
   return updateMessage;
-}
-
-function createMessage(noteObject, bookmarkId, account, domain, db) {
-  const guidCreate = crypto.randomBytes(16).toString('hex');
-
-  const createMessage = {
-    '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
-    id: `https://${domain}/m/${guidCreate}`,
-    type: 'Create',
-    actor: `https://${domain}/u/${account}`,
-    to: [`https://${domain}/u/${account}/followers/`, 'https://www.w3.org/ns/activitystreams#Public'],
-    object: noteObject,
-  };
-
-  db.insertMessage(getGuidFromPermalink(noteObject.id), bookmarkId, JSON.stringify(noteObject));
-
-  return createMessage;
 }
 
 async function createDeleteMessage(bookmark, account, domain, db) {
@@ -157,10 +149,9 @@ export async function createUnfollowMessage(account, domain, target, db) {
       object: followMessages.slice(-1).message,
     };
     return undoMessage;
-  } else {
-    console.log('tried to find a Follow record in order to unfollow, but failed');
-    return null;
   }
+  console.log('tried to find a Follow record in order to unfollow, but failed');
+  return null;
 }
 
 export async function getInboxFromActorProfile(profileUrl) {
@@ -169,9 +160,8 @@ export async function getInboxFromActorProfile(profileUrl) {
 
   if (data?.inbox) {
     return data.inbox;
-  } else {
-    throw new Error(`Couldn't find inbox at supplied profile url ${profileUrl}`);
   }
+  throw new Error(`Couldn't find inbox at supplied profile url ${profileUrl}`);
 }
 
 // actorUsername format is @username@domain
@@ -212,7 +202,7 @@ export async function broadcastMessage(bookmark, action, db, account, domain) {
         ?.concat(globalPermissions?.blocked?.split('\n'))
         .filter((x) => !x?.match(/^@([^@]+)@(.+)$/)) || [];
 
-    //now let's try to remove the blocked users
+    // now let's try to remove the blocked users
     followers.filter((actor) => {
       const matches = blocklist.forEach((username) => {
         actorMatchesUsername(actor, username);
@@ -240,10 +230,11 @@ export async function broadcastMessage(bookmark, action, db, account, domain) {
 
     console.log(`sending this message to all followers: ${JSON.stringify(message)}`);
 
-    for (let follower of followers) {
-      let inbox = follower + '/inbox';
-      let myURL = new URL(follower);
-      let targetDomain = myURL.host;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const follower of followers) {
+      const inbox = `${follower}/inbox`;
+      const myURL = new URL(follower);
+      const targetDomain = myURL.host;
       signAndSend(message, account, domain, db, targetDomain, inbox);
     }
   }

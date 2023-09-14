@@ -2,8 +2,9 @@
   Set global permissions
 </h3>
 <p>
-  You can set permissions here for specific users to always be allowed to, or blocked from, commenting on posts.
-  Note that the same controls are allowed on a per-bookmark setting on the bookmark edit page.
+  You can set permissions here for specific users to always be allowed to, or
+  blocked from, commenting on posts. Note that the same controls are allowed on
+  a per-bookmark setting on the bookmark edit page.
 </p>
 <form action="/admin/permissions" method="post">
   <label> Auto-allow comments from (one username per line)</label><br />
@@ -18,16 +19,16 @@
 </h3>
 
 <div class="followers">
-  {{#each followers}}  
+  {{#each followers}}
     <div class="follower">
       <div class="info">
-        <a href="{{this}}">{{ this }}</a>
+        <a href="{{this}}">{{this}}</a>
       </div>
       <div class="actions">
         <form action="/admin/followers/block" method="POST">
-          <input type="hidden" name="actor" value="{{this}}"/>
+          <input type="hidden" name="actor" value="{{this}}" />
           <button type="submit">Block</button>
-        </form>      
+        </form>
       </div>
     </div>
   {{/each}}
@@ -41,13 +42,13 @@
   {{#each blocks}}
     <div class="block">
       <div class="info">
-        <a href="{{this}}">{{ this }}</a>
+        <a href="{{this}}">{{this}}</a>
       </div>
       <div class="actions">
         <form action="/admin/followers/unblock" method="POST">
-          <input type="hidden" name="actor" value="{{this}}"/>
+          <input type="hidden" name="actor" value="{{this}}" />
           <button type="submit">Unblock</button>
-        </form>      
+        </form>
       </div>
     </div>
   {{/each}}

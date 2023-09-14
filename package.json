@@ -28,7 +28,7 @@
     "string-strip-html": "^13.4.2"
   },
   "engines": {
-    "node": "16.x"
+    "node": ">=16.x"
   },
   "repository": {
     "url": "https://github.com/ckolderup/postmarks"
@@ -44,9 +44,12 @@
     "mastodon"
   ],
   "devDependencies": {
-    "eslint": "^8.49.0",
+    "eslint": "^8.43.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.28.1",
-    "nodemon": "^2.0.20"
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^3.0.3"
   }
 }

@@ -1,11 +1,11 @@
-import express from "express";
-import { login, logout } from "../session-auth.js";
+import express from 'express';
+import { login, logout } from '../session-auth.js';
 
-export const router = express.Router();
+const router = express.Router();
 
-router.get("/login", (req, res) => {
-  return res.render("login", { sendTo: req.query.sendTo });
-});
+router.get('/login', (req, res) => res.render('login', { sendTo: req.query.sendTo }));
 
-router.post("/login", login);
-router.get("/logout", logout);
+router.post('/login', login);
+router.get('/logout', logout);
+
+export default router;

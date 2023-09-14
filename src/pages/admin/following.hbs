@@ -5,7 +5,12 @@
 <div>
   <form action="/admin/following/follow" method="POST">
     <label for="actor">Enter username to follow</label>
-    <input type="text" id="actor" name="actor" placeholder="@updates@postmarks.glitch.me"/>
+    <input
+      type="text"
+      id="actor"
+      name="actor"
+      placeholder="@updates@postmarks.glitch.me"
+    />
     <button type="submit">
       Follow
     </button>
@@ -16,11 +21,11 @@
   {{#each following}}
     <div class="following">
       <div class="info">
-        <a href="{{this}}">{{ this }}</a>
+        <a href="{{this}}">{{this}}</a>
       </div>
       <div class="actions">
         <form action="/admin/following/unfollow" method="POST">
-          <input type="hidden" name="actor" value="{{this}}"/>
+          <input type="hidden" name="actor" value="{{this}}" />
           <button type="submit">Unfollow</button>
         </form>
       </div>

@@ -16,12 +16,12 @@
 
 ### Object Model
 
-| Object Kind | Description |
-|-------------|-------------|
-| Actor | The single actor associated with the Postmarks instance. |
-| Bookmark | A Postmarks bookmark (`Note`) |
-| Comment | A comment on a bookmark (`Note`) |
-| Message | An ActivityPub `Note` published by the Actor |
+| Object Kind | Description                                              |
+| ----------- | -------------------------------------------------------- |
+| Actor       | The single actor associated with the Postmarks instance. |
+| Bookmark    | A Postmarks bookmark (`Note`)                            |
+| Comment     | A comment on a bookmark (`Note`)                         |
+| Message     | An ActivityPub `Note` published by the Actor             |
 
 ### Actor
 
@@ -122,6 +122,6 @@ This will retrieve a `Note` published using ActivityPub. Currently, the publishe
 
 ## Additional documentation
 
-* [Source Code](https://github.com/ckolderup/postmarks)
-* [Ethos](https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html)
-* [Future Ideas](https://casey.kolderup.org/notes/9307f6d67bbfedbd215ae2d09caeab39.html)
+- [Source Code](https://github.com/ckolderup/postmarks)
+- [Ethos](https://casey.kolderup.org/notes/edf3a659f52528da103ea4dcbb09f66f.html)
+- [Future Ideas](https://casey.kolderup.org/notes/9307f6d67bbfedbd215ae2d09caeab39.html)

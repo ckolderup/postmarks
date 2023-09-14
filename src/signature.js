@@ -58,7 +58,7 @@ function getSignatureParams(body, method, url) {
   if (body) {
     const digest = getDigest(body);
     const digestParam = `SHA-256=${digest}`;
-    params['digest'] = digestParam;
+    params.digest = digestParam;
   }
 
   return params;
@@ -130,7 +130,7 @@ export async function signedFetch(url, init = {}) {
  *
  * @returns {Promise<Response>}
  */
-function _signedFetchJSON(method = 'GET', url, init = {}) {
+function _signedFetchJSON(url, method = 'GET', init = {}) {
   const { body, headers = {}, ...rest } = init;
   const contentTypeHeader = body ? { 'Content-Type': 'application/json' } : {};
 
@@ -155,7 +155,7 @@ function _signedFetchJSON(method = 'GET', url, init = {}) {
  * @returns {Promise<Response>}
  */
 export function signedGetJSON(url, init = {}) {
-  return _signedFetchJSON('GET', url, init);
+  return _signedFetchJSON(url, 'GET', init);
 }
 
 /**
@@ -167,5 +167,5 @@ export function signedGetJSON(url, init = {}) {
  * @returns {Promise<Response>}
  */
 export function signedPostJSON(url, init = {}) {
-  return _signedFetchJSON('POST', url, init);
+  return _signedFetchJSON(url, 'POST', init);
 }

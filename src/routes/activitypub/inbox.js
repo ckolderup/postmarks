@@ -1,17 +1,17 @@
 import express from 'express';
 import crypto from 'crypto';
 import * as linkify from 'linkifyjs';
-
 import { actorMatchesUsername, parseJSON } from '../../util.js';
 import { signAndSend, getInboxFromActorProfile } from '../../activitypub.js';
+
 import { signedGetJSON } from '../../signature.js';
 
-export const router = express.Router();
+const router = express.Router();
 
 async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
   const db = req.app.get('apDb');
   const guid = crypto.randomBytes(16).toString('hex');
-  let message = {
+  const message = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: `https://${domain}/u/${name}/accept/${guid}`,
     type: 'Accept',
@@ -47,10 +47,10 @@ async function handleFollowRequest(req, res) {
   } else {
     followers = [req.body.actor];
   }
-  let newFollowersText = JSON.stringify(followers);
+  const newFollowersText = JSON.stringify(followers);
   try {
     // update into DB
-    const newFollowers = await apDb.setFollowers(newFollowersText);
+    await apDb.setFollowers(newFollowersText);
 
     console.log('updated followers!');
   } catch (e) {
@@ -74,19 +74,19 @@ async function handleUnfollow(req, res) {
   const oldFollowersText = (await apDb.getFollowers()) || '[]';
 
   // update followers
-  let followers = parseJSON(oldFollowersText);
+  const followers = parseJSON(oldFollowersText);
   if (followers) {
-    followers.forEach((follower, idx, followers) => {
+    followers.forEach((follower, idx) => {
       if (follower === req.body.actor) {
         followers.splice(idx, 1);
       }
     });
   }
 
-  let newFollowersText = JSON.stringify(followers);
+  const newFollowersText = JSON.stringify(followers);
 
   try {
-    const updatedFollowers = await apDb.setFollowers(newFollowersText);
+    await apDb.setFollowers(newFollowersText);
     return res.sendStatus(200);
   } catch (e) {
     console.log('error storing followers after unfollow', e);
@@ -95,7 +95,6 @@ async function handleUnfollow(req, res) {
 }
 
 async function handleFollowAccepted(req, res) {
-  const domain = req.app.get('domain');
   const apDb = req.app.get('apDb');
 
   const oldFollowingText = (await apDb.getFollowing()) || '[]';
@@ -109,11 +108,11 @@ async function handleFollowAccepted(req, res) {
   } else {
     follows = [req.body.actor];
   }
-  let newFollowingText = JSON.stringify(follows);
+  const newFollowingText = JSON.stringify(follows);
 
   try {
     // update into DB
-    const newFollowing = await apDb.setFollowing(newFollowingText);
+    await apDb.setFollowing(newFollowingText);
 
     console.log('updated following!');
     return res.status(200);
@@ -212,14 +211,19 @@ router.post('/', async function (req, res) {
   // console.log(JSON.stringify(req.body));
 
   if (typeof req.body.object === 'string' && req.body.type === 'Follow') {
-    return await handleFollowRequest(req, res);
-  } else if (req.body.type === 'Undo' && req.body.object?.type === 'Follow') {
-    return await handleUnfollow(req, res);
-  } else if (req.body.type === 'Accept' && req.body.object?.type === 'Follow') {
-    return await handleFollowAccepted(req, res);
-  } else if (req.body.type === 'Delete') {
-    return await handleDeleteRequest(req, res);
-  } else if (req.body.type === 'Create' && req.body.object?.type === 'Note') {
+    return handleFollowRequest(req, res);
+  }
+
+  if (req.body.type === 'Undo' && req.body.object?.type === 'Follow') {
+    return handleUnfollow(req, res);
+  }
+  if (req.body.type === 'Accept' && req.body.object?.type === 'Follow') {
+    return handleFollowAccepted(req, res);
+  }
+  if (req.body.type === 'Delete') {
+    return handleDeleteRequest(req, res);
+  }
+  if (req.body.type === 'Create' && req.body.object?.type === 'Note') {
     console.log(JSON.stringify(req.body));
 
     const domain = req.app.get('domain');
@@ -227,10 +231,10 @@ router.post('/', async function (req, res) {
 
     if (inReplyToGuid) {
       return handleCommentOnBookmark(req, res, inReplyToGuid);
-    } else {
-      return handleFollowedPost(req, res);
     }
-
-    return res.sendStatus(400);
+    return handleFollowedPost(req, res);
   }
+  return res.sendStatus(400);
 });
+
+export default router;
