@@ -9,6 +9,12 @@ router.get('/:guid', async (req, res) => {
   }
 
   const db = req.app.get('apDb');
+
+  if (!req.headers.accept?.includes('json')) {
+    const bookmarkId = await db.getBookmarkIdFromMessageGuid(guid);
+    return res.redirect(`/bookmark/${bookmarkId}`);
+  }
+
   const result = await db.getMessage(guid);
 
   if (result === undefined) {

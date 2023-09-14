@@ -8,6 +8,10 @@ router.get('/:name', async (req, res) => {
   if (!name) {
     return res.status(400).send('Bad request.');
   }
+  if (!req.headers.accept?.includes('json')) {
+    return res.redirect('/');
+  }
+
   const db = req.app.get('apDb');
   const domain = req.app.get('domain');
   const username = name;
