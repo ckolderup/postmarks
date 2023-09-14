@@ -3,12 +3,12 @@ import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
 
-import { domain, account, simpleLogger, actorInfo } from './src/util';
-import session, { isAuthenticated } from './src/session-auth';
-import * as bookmarksDb from './src/bookmarks-db';
-import * as apDb from './src/activity-pub-db';
+import { domain, account, simpleLogger, actorInfo } from './src/util.js';
+import session, { isAuthenticated } from './src/session-auth.js';
+import * as bookmarksDb from './src/bookmarks-db.js';
+import * as apDb from './src/activity-pub-db.js';
 
-import routes from './src/routes/index';
+import routes from './src/routes/index.js';
 
 dotenv.config();
 

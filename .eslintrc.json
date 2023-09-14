@@ -12,9 +12,16 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
+  "import/extensions": [
+    "error",
+    "ignorePackages",
+    {
+      "js": "never"
+    }
+  ],
   "rules": {
     "no-unused-vars": "warn",
     "no-console": "off",
-    "func-names": "off"
+    "func-names": "off",
   }
 }

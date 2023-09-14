@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, logout } from '../session-auth';
+import { login, logout } from '../session-auth.js';
 
 const router = express.Router();
 

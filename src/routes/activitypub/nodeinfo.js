@@ -1,7 +1,7 @@
 // implementation of http://nodeinfo.diaspora.software/protocol.html
 
 import express from 'express';
-import { instanceType, instanceVersion } from '../../util';
+import { instanceType, instanceVersion } from '../../util.js';
 
 const router = express.Router();
 

@@ -1,9 +1,9 @@
 import express from 'express';
 import ogScraper from 'open-graph-scraper';
 
-import { data, account, domain, removeEmpty } from '../util';
-import { broadcastMessage } from '../activitypub';
-import { isAuthenticated } from '../session-auth';
+import { data, account, domain, removeEmpty } from '../util.js';
+import { broadcastMessage } from '../activitypub.js';
+import { isAuthenticated } from '../session-auth.js';
 
 const router = express.Router();
 export default router;

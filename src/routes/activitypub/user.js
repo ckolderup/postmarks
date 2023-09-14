@@ -1,5 +1,5 @@
 import express from 'express';
-import { createNoteObject } from '../../activitypub';
+import { createNoteObject } from '../../activitypub.js';
 
 const router = express.Router();
 

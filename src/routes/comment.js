@@ -1,5 +1,5 @@
 import express from 'express';
-import { isAuthenticated } from '../session-auth';
+import { isAuthenticated } from '../session-auth.js';
 
 const router = express.Router();
 

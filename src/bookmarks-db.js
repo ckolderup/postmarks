@@ -11,7 +11,7 @@ import { open } from 'sqlite';
 // unclear why eslint can't resolve this package
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { stripHtml } from 'string-strip-html';
-import { timeSince, account, domain } from './util';
+import { timeSince, account, domain } from './util.js';
 
 const ACCOUNT_MENTION_REGEX = new RegExp(`^@${account}@${domain} `);
 

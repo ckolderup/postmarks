@@ -2,8 +2,8 @@ import express from 'express';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 import * as linkify from 'linkifyjs';
-import { actorMatchesUsername, parseJSON } from '../../util';
-import { signAndSend, getInboxFromActorProfile } from '../../activitypub';
+import { actorMatchesUsername, parseJSON } from '../../util.js';
+import { signAndSend, getInboxFromActorProfile } from '../../activitypub.js';
 
 const router = express.Router();
 export default router;

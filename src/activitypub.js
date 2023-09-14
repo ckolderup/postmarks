@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import crypto from 'crypto';
 
-import { actorInfo, actorMatchesUsername } from './util';
+import { actorInfo, actorMatchesUsername } from './util.js';
 
 function getGuidFromPermalink(urlString) {
   return urlString.match(/m\/([a-zA-Z0-9+/]+)/)[1];

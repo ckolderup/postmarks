@@ -1,13 +1,13 @@
-import * as admin from './admin';
-import * as auth from './auth';
-import * as bookmark from './bookmark';
-import * as comment from './comment';
-import * as core from './core';
-import * as inbox from './activitypub/inbox';
-import * as message from './activitypub/message';
-import * as user from './activitypub/user';
-import * as webfinger from './activitypub/webfinger';
-import * as nodeinfo from './activitypub/nodeinfo';
+import admin from './admin.js';
+import auth from './auth.js';
+import bookmark from './bookmark.js';
+import comment from './comment.js';
+import core from './core.js';
+import inbox from './activitypub/inbox.js';
+import message from './activitypub/message.js';
+import user from './activitypub/user.js';
+import webfinger from './activitypub/webfinger.js';
+import nodeinfo from './activitypub/nodeinfo.js';
 
 export default {
   admin,

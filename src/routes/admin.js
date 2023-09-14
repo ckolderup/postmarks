@@ -1,7 +1,7 @@
 import express from 'express';
-import { domain, actorInfo, parseJSON } from '../util';
-import { isAuthenticated } from '../session-auth';
-import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub';
+import { domain, actorInfo, parseJSON } from '../util.js';
+import { isAuthenticated } from '../session-auth.js';
+import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub.js';
 
 const DATA_PATH = '/app/.data';
 

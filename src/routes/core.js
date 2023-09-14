@@ -1,7 +1,7 @@
 import express from 'express';
 import * as linkify from 'linkifyjs';
-import { data, actorInfo } from '../util';
-import { isAuthenticated } from '../session-auth';
+import { data, actorInfo } from '../util.js';
+import { isAuthenticated } from '../session-auth.js';
 
 const router = express.Router();
 export default router;
