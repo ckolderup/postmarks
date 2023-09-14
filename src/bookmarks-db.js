@@ -63,7 +63,7 @@ function addLinkedTags(bookmark) {
 }
 
 function massageBookmark(bookmark) {
-  return addBookmarkDomain(addLinkedTags(insertRelativeTimestamp(bookmark)));
+  return addBookmarkDomain(addTags(insertRelativeTimestamp(bookmark)));
 }
 
 function massageComment(comment) {
@@ -139,6 +139,11 @@ open({
   }
 });
 
+function addTags(bookmark) {
+  const tagNames = bookmark.tags?.split(' ').map(t => t.slice(1)).sort();
+  return { tagNames, ...bookmark };
+}
+
 export async function getBookmarkCount() {
   const result = await db.get('SELECT count(id) as count FROM bookmarks');
   return result?.count;
@@ -160,22 +165,23 @@ export async function getBookmarks(limit = 10, offset = 0) {
   return undefined;
 }
 
-export async function getBookmarkCountForTag(tag) {
-  const result = await db.get('SELECT count(id) as count FROM bookmarks WHERE tags LIKE ? OR tags LIKE ?', `%#${tag} %`, `%#${tag}`);
+export async function getBookmarkCountForTags(tags) {
+  const tagClauses = tags.map(tag => `(tags like ? OR tags like ?)`).join(' AND ');
+  const tagParams = tags.map(tag => [`%${tag}% `, `%${tag}%`]).flat();
+  const result = await db.get.apply(db, [`SELECT count(id) as count from bookmarks WHERE ${tagClauses}`, ...tagParams]);
   return result?.count;
 }
 
-export async function getBookmarksForTag(tag, limit = 10, offset = 0) {
+export async function getBookmarksForTags(tags, limit = 10, offset = 0) {
   // We use a try catch block in case of db errors
   try {
-    const results = await db.all(
-      'SELECT * from bookmarks WHERE tags LIKE ? OR tags LIKE ? ORDER BY updated_at DESC LIMIT ? OFFSET ?',
-      `%#${tag} %`,
-      `%#${tag}`,
-      limit,
-      offset,
-    );
-    return results.map((b) => massageBookmark(b));
+    const tagClauses = tags.map(tag => `(tags like ? OR tags like ?)`).join(' AND ');
+    const tagParams = tags.map(tag => [`%${tag}% `, `%${tag}%`]).flat();
+    const results = await db.all.apply(db, [
+      `SELECT * from bookmarks WHERE ${tagClauses} ORDER BY updated_at DESC LIMIT ? OFFSET ?`, 
+      ...tagParams, limit, offset
+    ]);
+    return results.map(b => massageBookmark(b));
   } catch (dbError) {
     // Database connection error
     console.error(dbError);

@@ -82,6 +82,15 @@ const hbs = create({
     mastodonAccount() {
       return process.env.MASTODON_ACCOUNT;
     },
+    ifIn(item, array, options) {
+      return array.indexOf(item) >= 0 ? options.fn(this) : options.inverse(this);
+    },
+    removeTag(tag, path) {
+      return path.split('/').filter(x => x !== tag).join('/');
+    },
+    ifThisTag(tag, path, options) {
+      return path === `/tagged/${tag}` ? options.fn(this) : options.inverse(this);
+    },
   },
   partialsDir: './src/pages/partials',
   extname: '.hbs',
