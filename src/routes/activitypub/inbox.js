@@ -66,7 +66,7 @@ async function handleUnfollow(req, res) {
 
   const myURL = new URL(req.body.actor);
   const targetDomain = myURL.hostname;
-  const name = req.body.object.replace(`https://${domain}/u/`, '');
+  const name = req.body.object.object.replace(`https://${domain}/u/`, '');
 
   await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
 
