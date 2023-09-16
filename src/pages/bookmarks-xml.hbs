@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
    <title>{{feedTitle}}</title>
-   <subtitle>{{TODO}}</subtitle>
    <link rel="self" href="{{projectUrl}}/index.xml"/>
-   <id>{{projectUrl}}</id>
+   <id>{{projectUrl}}/</id>
    <updated>{{last_updated}}</updated>
    <author>
       <name>{{account}}</name>
    </author>
-   <rights>{{TODO}}</rights>
 
    {{#each bookmarks }}
      <entry>
@@ -16,9 +14,11 @@
       <link rel="alternate" href="{{url}}"/>
       <id>{{projectUrl}}/bookmark/{{id}}</id>
       <updated>{{created_at}}</updated>
-      <summary type="html">{{description}}</summary>
+      {{#if description}}
+         <summary type="html">{{description}}</summary>
+      {{/if}}
       {{#each tag_array}}
-      <category term="{{this}}" scheme="postmarks:tag" />
+      <category term="{{this}}" />
       {{/each}}
    </entry>
   {{/each}}
