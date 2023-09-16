@@ -115,6 +115,14 @@ export async function getMessage(guid) {
   return db?.get('select message from messages where guid = ?', guid);
 }
 
+export async function getMessageCount() {
+  return (await db?.get('select count(message) as count from messages'))?.count;
+}
+
+export async function getMessages(offset = 0, limit = 20) {
+  return db?.all('select message from messages order by bookmark_id desc limit ? offset ?', limit, offset);
+}
+
 export async function findMessageGuid(bookmarkId) {
   return (await db?.get('select guid from messages where bookmark_id = ?', bookmarkId))?.guid;
 }
