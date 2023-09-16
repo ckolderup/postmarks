@@ -156,7 +156,7 @@ open({
       INSERT INTO bookmarks_fts(docid, title, description, url, tags) VALUES(new.rowid, new.title, new.description, new.url, new.tags);
     END`,
     `CREATE TRIGGER IF NOT EXISTS  bookmarks_after_insert AFTER INSERT ON bookmarks BEGIN
-      INSERT INTO bookmarks_fts(docid, ame, description, url, tags) VALUES(new.rowid, new.title, new.description, new.url, new.tags);
+      INSERT INTO bookmarks_fts(docid, title, description, url, tags) VALUES(new.rowid, new.title, new.description, new.url, new.tags);
     END`,
     'INSERT INTO bookmarks_fts(docid, title, description, url, tags) SELECT rowid, title, description, url, tags FROM bookmarks',
   ];
