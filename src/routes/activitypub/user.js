@@ -1,5 +1,5 @@
 import express from 'express';
-import { createNoteObject } from '../../activitypub.js';
+import { synthesizeActivity } from '../../activitypub.js';
 
 const router = express.Router();
 
@@ -96,33 +96,59 @@ router.get('/:name/following', async (req, res) => {
 router.get('/:name/outbox', async (req, res) => {
   const domain = req.app.get('domain');
   const account = req.app.get('account');
-  const bookmarksDb = req.app.get('bookmarksDb');
+  const apDb = req.app.get('apDb');
 
-  const page = req.params.page || 1;
-  if (page < 1) return res.status(400);
+  function pageLink(p) {
+    return `https://${domain}/u/${account}/outbox?page=${p}`;
+  }
 
-  const limit = 20;
-  const offset = (page - 1) * limit;
-  const totalBookmarkCount = await bookmarksDb.getBookmarkCount();
+  const pageSize = 20;
+  const totalCount = await apDb.getMessageCount();
+  const lastPage = Math.ceil(totalCount / pageSize);
 
-  const bookmarks = await bookmarksDb.getBookmarks(limit, offset);
-  const messages = bookmarks.map((b) => createNoteObject(b, account, domain));
+  if (req.query?.page === undefined) {
+    // Send collection
+    const outboxCollection = {
+      type: 'OrderedCollection',
+      totalItems: totalCount,
+      id: `https://${domain}/u/${account}/outbox`,
+      first: pageLink(1),
+      last: pageLink(lastPage),
+      '@context': ['https://www.w3.org/ns/activitystreams'],
+    };
 
-  const outboxCollection = {
-    type: 'OrderedCollection',
-    totalItems: totalBookmarkCount,
-    id: `https://${domain}/u/${account}/outbox`,
-    first: {
-      type: 'OrderedCollectionPage',
-      totalItems: messages.length,
-      partOf: `https://${domain}/u/${account}/outbox`,
-      orderedItems: messages,
-      id: `https://${domain}/u/${account}/outbox?page=${page}`,
-      next: `https://${domain}/u/${account}/outbox?page=${page + 1}`,
-    },
-    '@context': ['https://www.w3.org/ns/activitystreams'],
+    return res.json(outboxCollection);
+  }
+
+  if (!/^\d+$/.test(req.query.page)) {
+    return res.status(400).send('Invalid page number');
+  }
+
+  const page = parseInt(req.query.page, 10);
+  if (page < 1 || page > lastPage) return res.status(400).send('Invalid page number');
+
+  const offset = (page - 1) * pageSize;
+  const notes = await apDb.getMessages(offset, pageSize);
+  const activities = notes.map((n) => synthesizeActivity(JSON.parse(n.message)));
+
+  const collectionPage = {
+    type: 'OrderedCollectionPage',
+    partOf: `https://${domain}/u/${account}/outbox`,
+    orderedItems: activities,
+    id: pageLink(page),
+    first: pageLink(1),
+    last: pageLink(lastPage),
   };
-  return res.json(outboxCollection);
+
+  if (page + 1 <= lastPage) {
+    collectionPage.next = pageLink(page + 1);
+  }
+
+  if (page > 1) {
+    collectionPage.prev = pageLink(page - 1);
+  }
+
+  return res.json(collectionPage);
 });
 
 export default router;

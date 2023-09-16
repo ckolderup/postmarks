@@ -239,3 +239,14 @@ export async function broadcastMessage(bookmark, action, db, account, domain) {
     }
   }
 }
+
+export function synthesizeActivity(note) {
+  return {
+    // Fake activity URI adds a "a-" prefix to the Note/message guid
+    id: note.id.replace('/m/', '/m/a-'),
+    type: 'Create',
+    published: note.published,
+    actor: note.attributedTo,
+    object: note,
+  };
+}
