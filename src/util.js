@@ -22,7 +22,18 @@ try {
 
 export const actorInfo = actorFileData;
 export const account = actorInfo.username || 'bookmarks';
-export const domain = process.env.PROJECT_DOMAIN ? `${process.env.PROJECT_DOMAIN}.glitch.me` : 'localhost'; // edit this if you have a custom domain
+
+export const domain = (() => {
+  if (process.env.HOSTNAME) {
+    return process.env.HOSTNAME;
+  }
+  if (process.env.PROJECT_DOMAIN) {
+    return `${process.env.PROJECT_DOMAIN}.glitch.me`;
+  }
+
+  console.log("didn't find a HOSTNAME or PROJECT_DOMAIN in env, assuming localhost");
+  return 'localhost';
+})();
 
 let instanceData = {};
 try {
