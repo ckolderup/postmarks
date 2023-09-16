@@ -47,8 +47,15 @@ function addBookmarkDomain(bookmark) {
 }
 
 function insertRelativeTimestamp(object) {
+  // timestamps created by SQLite's CURRENT_TIMESTAMP are in UTC regardless
+  // of server setting, but don't actually indicate a timezone in the string
+  // that's returned. Had I known this, I probably would have avoided
+  // CURRENT_TIMESTAMP altogether, but since lots of people already have
+  // databases full of bookmarks, in lieu of a full-on migration to go along
+  // with a code change that sees JS-generated timestamps at the time of
+  // SQLite INSERTs, we can just append the UTC indicator to the string when parsing it.
   return {
-    timestamp: timeSince(new Date(object.created_at).getTime()),
+    timestamp: timeSince(new Date(`${object.created_at}Z`).getTime()),
     ...object,
   };
 }
