@@ -186,7 +186,7 @@ router.get('/search', async (req, res) => {
     const params = { title: 'Search Bookmarks' };
     if (req.query.query) {
       params.keywords = req.query.query;
-      params.bookmarks = await bookmarksDb.searchBookmarks(req.query.query.split(' '));
+      params.bookmarks = await bookmarksDb.searchBookmarks(req.query.query);
       if (params.bookmarks.length === 0) {
         params.error = 'No matches...';
       }

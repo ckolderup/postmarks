@@ -136,6 +136,36 @@ open({
   } catch (dbError) {
     console.error(dbError);
   }
+
+  //
+  // Create the FTS table
+  // Putting it here so it will initialize existing
+  // databases with FTS support.
+  //
+  console.info('Initializing FTS table');
+
+  const ftsStatements = [
+    'CREATE VIRTUAL TABLE IF NOT EXISTS bookmarks_fts USING fts4(content="bookmarks", title, description, url, tags)',
+    `CREATE TRIGGER IF NOT EXISTS bookmarks_before_update BEFORE UPDATE ON bookmarks BEGIN
+      DELETE FROM bookmarks_fts WHERE docid=old.rowid;
+    END`,
+    `CREATE TRIGGER IF NOT EXISTS  bookmarks_before_delete BEFORE DELETE ON bookmarks BEGIN
+      DELETE FROM bookmarks_fts WHERE docid=old.rowid;
+    END`,
+    `CREATE TRIGGER IF NOT EXISTS  bookmarks_after_update AFTER UPDATE ON bookmarks BEGIN
+      INSERT INTO bookmarks_fts(docid, title, description, url, tags) VALUES(new.rowid, new.title, new.description, new.url, new.tags);
+    END`,
+    `CREATE TRIGGER IF NOT EXISTS  bookmarks_after_insert AFTER INSERT ON bookmarks BEGIN
+      INSERT INTO bookmarks_fts(docid, title, description, url, tags) VALUES(new.rowid, new.title, new.description, new.url, new.tags);
+    END`,
+    'INSERT INTO bookmarks_fts(docid, title, description, url, tags) SELECT rowid, title, description, url, tags FROM bookmarks',
+  ];
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const stmt of ftsStatements) {
+    // eslint-disable-next-line no-await-in-loop
+    await db.run(stmt);
+  }
 });
 
 export async function getBookmarkCount() {
@@ -332,14 +362,12 @@ export async function deleteAllBookmarks() {
 }
 
 export async function searchBookmarks(keywords) {
-  try {
-    const searchFields = ['title', 'description', 'url', 'tags'];
-    const where = keywords.map(() => `(${searchFields.map((f) => `${f} like ?`).join(' or ')})`).join(' and ');
-    const keywordParams = keywords.map((kw) => Array(searchFields.length).fill(`%${kw}%`)).flat();
-    const results = await db.all.apply(db, [`SELECT * from bookmarks WHERE ${where} ORDER BY updated_at DESC LIMIT 20`, ...keywordParams]);
-    return results.map((b) => massageBookmark(b));
-  } catch (dbError) {
-    console.error(dbError);
-  }
-  return undefined;
+  const results = await db.all(
+    'SELECT docid as id, * from bookmarks_fts WHERE title MATCH ? or description MATCH ? or url MATCH ? or tags MATCH ?',
+    keywords,
+    keywords,
+    keywords,
+    keywords,
+  );
+  return results.map((b) => massageBookmark(b));
 }
