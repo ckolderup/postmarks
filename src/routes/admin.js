@@ -1,8 +1,10 @@
 import express from 'express';
+/* eslint-disable import/no-unresolved, node/no-missing-import */
+import { stringify as csvStringify } from 'csv-stringify/sync'; // https://github.com/adaltas/node-csv/issues/323
+/* eslint-enable */
 import { domain, actorInfo, parseJSON } from '../util.js';
 import { isAuthenticated } from '../session-auth.js';
 import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub.js';
-import { stringify as csvStringify } from 'csv-stringify/sync';
 
 const DATA_PATH = '/app/.data';
 
