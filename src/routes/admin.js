@@ -2,6 +2,7 @@ import express from 'express';
 import { domain, actorInfo, parseJSON } from '../util.js';
 import { isAuthenticated } from '../session-auth.js';
 import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub.js';
+import { stringify as csvStringify } from 'csv-stringify/sync';
 
 const DATA_PATH = '/app/.data';
 
@@ -89,6 +90,17 @@ router.get('/bookmarks.db', isAuthenticated, async (req, res) => {
   res.setHeader('Content-Disposition', 'attachment; filename="bookmarks.db"');
 
   res.download(filePath);
+});
+
+router.get('/bookmarks.csv', isAuthenticated, async (req, res) => {
+  const bookmarksDb = req.app.get('bookmarksDb');
+  const bookmarks = await bookmarksDb.getBookmarksForCSVExport();
+  const result = csvStringify(bookmarks);
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="bookmarks.csv"');
+
+  res.send(result);
 });
 
 router.get('/activitypub.db', isAuthenticated, async (req, res) => {
