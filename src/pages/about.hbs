@@ -14,17 +14,18 @@
     </p></div>
   <h2>Follow on the Fediverse</h2>
   <div>
-    <input
-      readonly
-      type="text"
-      id="copy-bookmarklet"
-      value="@{{actorInfo.username}}@{{domain}}"
-    />
-    <p><small id="copy-status">Click the code above to copy</small></p>
+    <button
+      class="btn"
+      data-copy="@{{actorInfo.username}}@{{domain}}"
+      data-copy-status=".copy-actor-status"
+    >
+      @{{actorInfo.username}}@{{domain}}
+    </button>
+    <p><small class="copy-actor-status">Click the code above to copy</small></p>
   </div>
 
   {{#section 'script'}}
-    <script src="/copy-bookmarklet.js"></script>
+    <script src="/copy-to-clipboard.js"></script>
   {{/section}}
 {{/if}}
 <p>Postmarks (in its default configuration) uses an edited version of Eynav

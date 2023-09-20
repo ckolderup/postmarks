@@ -6,9 +6,15 @@
   new bookmark in your browser's bookmarks toolbar, then edit the URL for that
   bookmark and insert this javascript:
 </p>
-<input readonly type="text" id="copy-bookmarklet" value="{{{bookmarklet}}}" />
-<p><small id="copy-status">Click the code above to copy</small></p>
+<button
+  class="btn"
+  data-copy="{{{bookmarklet}}}"
+  data-copy-status=".copy-bookmarklet-status-status"
+>
+  {{bookmarkletTruncated}}
+</button>
+<p><small class="copy-bookmarklet-status">Click the code above to copy</small></p>
 
 {{#section 'script'}}
-  <script src="/copy-bookmarklet.js"></script>
+  <script src="/copy-to-clipboard.js"></script>
 {{/section}}
