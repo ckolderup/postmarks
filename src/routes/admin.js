@@ -96,7 +96,7 @@ router.get('/bookmarks.db', isAuthenticated, async (req, res) => {
 router.get('/bookmarks.csv', isAuthenticated, async (req, res) => {
   const bookmarksDb = req.app.get('bookmarksDb');
   const bookmarks = await bookmarksDb.getBookmarksForCSVExport();
-  const result = csvStringify(bookmarks);
+  const result = csvStringify(bookmarks, { quoted: true });
 
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="bookmarks.csv"');
