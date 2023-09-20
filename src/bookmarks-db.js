@@ -192,9 +192,12 @@ export async function getBookmarks(limit = 10, offset = 0) {
 export async function getBookmarksForCSVExport() {
   // We use a try catch block in case of db errors
   try {
-    const results = await db.all('SELECT title,url,description,tags,created_at,updated_at from bookmarks');
-    // These titles should be updated if the query changes above.
-    const columnTitles = { title: 'title', url: 'url', description: 'description', tags: 'tags', created_at: 'created_at', updated_at: 'updated_at' };
+    const headers = ['title', 'url', 'description', 'tags', 'created_at', 'updated_at'];
+    const selectHeaders = headers.join(',');
+    // This will create an object where the keys and values match. This will
+    // allow the csv stringifier to interpret this as a header row.
+    const columnTitles = Object.fromEntries(headers.map((header) => [header, header]));
+    const results = await db.all(`SELECT ${selectHeaders} from bookmarks`);
     return [columnTitles].concat(results);
   } catch (dbError) {
     // Database connection error
