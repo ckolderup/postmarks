@@ -1,48 +1,64 @@
 <div class="bookmark">
   <div class="headline">
-    <a href="{{bookmark.url}}">{{bookmark.title}}</a>
+    <a href="{{bookmark.url}}">
+      {{bookmark.title}}
+    </a>
   </div>
   <div class="subhead">
-    <span title="{{bookmark.created_at}}">{{bookmark.timestamp}}</span>
-    •
-    {{bookmark.domain}}
+    <span class="bookmark-date" title="{{bookmark.created_at}}">
+      {{bookmark.timestamp}}
+    </span>
+    <span class="bookmark-domain">
+      {{bookmark.domain}}
+    </span>
   </div>
   <div class="description">
     {{{htmlize bookmark.description}}}
   </div>
   <div class="tags">
-    {{#if tagged }}
+    {{#if tagged}}
       {{#each bookmark.tagNames}}
-          {{#ifIn this @root.pathTags~}}
-            <span class="tag tag-disabled">#{{this}}
-            {{~#ifThisTag this @root.path }}
-            {{~else}}&nbsp;<a href="{{removeTag this @root.path}}" class="tag-op tag-remove">-</a>
-            {{/ifThisTag~}}
-            </span>
-          {{else~}}
-            <span class="tag"><a href="/tagged/{{this}}">#{{this}}</a>&nbsp;<a href="{{@root.path}}/{{this}}" class="tag-op tag-add">+</a></span>
-          {{/ifIn}}
-        {{/each}}
+        {{#ifIn this @root.pathTags}}
+          <span class="tag tag-disabled">
+            #{{this}}
+            {{^ifThisTag this @root.path}}
+              <a href="{{removeTag this @root.path}}" class="tag-op tag-remove">
+                -
+              </a>
+            {{/ifThisTag}}
+          </span>
+        {{else}}
+          <span class="tag">
+            <a href="/tagged/{{this}}">#{{this}}</a>
+            <a href="{{@root.path}}/{{this}}" class="tag-op tag-add">
+              +
+            </a>
+          </span>
+        {{/ifIn}}
+      {{/each}}
     {{else}}
       {{#each bookmark.tagNames}}
-        <span class="tag"><a href="/tagged/{{this}}">#{{this}}</a></span>
+        <span class="tag">
+          <a href="/tagged/{{this}}">
+            #{{this}}
+          </a>
+        </span>
       {{/each}}
     {{/if}}
   </div>
   <div class="bottom">
-    {{#if bookmark.comment_count includeZero=true}}
+    <span>
       <a href="/bookmark/{{bookmark.id}}">
         {{bookmark.comment_count}}
         {{pluralize bookmark.comment_count "comment" "comments"}}
       </a>
-    {{/if}}
+    </span>
     {{#if @root.loggedIn}}
-      {{#if bookmark.comment_count includeZero=true}}
-        •
-      {{/if}}
-    {{/if}}
-    {{#if @root.loggedIn}}
-      <a href="/bookmark/{{bookmark.id}}/edit">edit</a>
+      <span>
+        <a href="/bookmark/{{bookmark.id}}/edit">
+          edit
+        </a>
+      </span>
     {{/if}}
   </div>
 </div>

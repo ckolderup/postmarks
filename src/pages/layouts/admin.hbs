@@ -1,68 +1,54 @@
 <html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="https://glitch.com/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  {{{feedLink}}}
-
-  <title>{{title}} | {{siteName}}</title>
-
-  <link rel="apple-touch-icon" sizes="180x180"
-    href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-touch-icon-180.png?v=1693611327251" />
-  <link rel="shortcut icon"
-    href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-favicon.ico?v=1693611323474" />
-
-  <!-- Import the webpage's stylesheet -->
-  <link rel="stylesheet" href="/style.css" />
-
-</head>
-
-<body>
-  <div class="header">
-    <div class="logo"><img src="/postmarks-logo-small.png" /></div>
-    <div class="title">
-      <h1><a href="/">{{siteName}}</a></h1>
-    </div>
-    <div class="menu">
-      <a href="/about">About</a>
-      <a href="/bookmark/new">Add</a>
-      {{#if loggedIn}}
-      <a href="/admin">Admin</a>
-      <a href="/logout">Logout</a>
-      {{else}}
-      <a href="/login">Login</a>
-      {{/if}}
-    </div>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://glitch.com/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {{{feedLink}}}
+    <title>{{title}} | {{siteName}}</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-touch-icon-180.png?v=1693611327251" />
+    <link rel="shortcut icon" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-favicon.ico?v=1693611323474" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">
+        <img src="/postmarks-logo-small.png" />
+      </div>
+      <div class="title">
+        <h1><a href="/">{{siteName}}</a></h1>
+      </div>
+      <div class="menu">
+        <a href="/about">About</a>
+        <a href="/bookmark/new">Add</a>
+        {{#if loggedIn}}
+          <a href="/admin">Admin</a>
+          <a href="/logout">Logout</a>
+        {{else}}
+          <a href="/login">Login</a>
+        {{/if}}
+      </div>
     </div>
     <div class="wrapper">
-    {{> admin_subnav }}
-    <div class="content" role="main">
-      <h2>{{title}}</h2>
-      {{{body}}}
+      {{> admin_subnav }}
+      <div class="content" role="main">
+        <h2>{{title}}</h2>
+        {{{body}}}
+      </div>
     </div>
-    </div>
-    <!-- The footer holds our remix button — you can use it for structure or cut it out ✂ -->
-  <footer class="footer">
-    <div class="links"></div>
-    <a href="/">Home</a>
-    <span class="divider">|</span>
-    {{#if loggedIn}}
-    <a href="/bookmark/new">Add</a>
-    <span class="divider">|</span>
-    <a href="/admin">Admin</a>
-    <span class="divider">|</span>
-    <a href="/logout">Logout</a>
-    {{else}}
-    <a href="/login">Login</a>
-    {{/if}}
-
-    <a class="btn--remix" target="_top" href="https://glitch.new/github.com/ckolderup/postmarks">
-      <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140" alt="" />
-      Remix on Glitch
-    </a>
-  </footer>
-  {{{_sections.script}}}
-</body>
-
+    <footer class="footer">
+      <a href="/">Home</a>
+      {{#if loggedIn}}
+        <a href="/bookmark/new">Add</a>
+        <a href="/admin">Admin</a>
+        <a href="/logout">Logout</a>
+      {{else}}
+        <a href="/login">Login</a>
+      {{/if}}
+      <a class="btn--remix" target="_top" href="https://glitch.new/github.com/ckolderup/postmarks">
+        <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140" alt="" />
+        Remix on Glitch
+      </a>
+    </footer>
+    {{{_sections.script}}}
+  </body>
 </html>

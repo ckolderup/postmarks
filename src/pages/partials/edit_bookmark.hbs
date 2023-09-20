@@ -3,45 +3,91 @@
     action="/bookmark/{{bookmark.id}}?ephemeral={{ephemeral}}"
     method="POST"
   >
-    <label> URL </label><br />
-    <input type="text" name="url" value="{{bookmark.url}}" /><br />
-    <p>
-      <label> Title </label><br />
-      <input type="text" name="title" value="{{bookmark.title}}" /><br />
-      <label> Description </label><br />
-      <textarea name="description">{{bookmark.description}}</textarea><br />
-      <label> Tags </label><br />
-      <label class="small">press tab to autocomplete, press comma or enter to
-        save a new tag.</label>
-      <input id="tagEntry" type="text" list="all-tags" />
+    <div class="form-group">
+      <label for="bookmark_url">
+        URL
+      </label>
+      <input
+        id="bookmark_url"
+        type="text"
+        name="url"
+        value="{{bookmark.url}}"
+      />
+    </div>
+    <div class="form-group">
+      <label for="bookmark_title">
+        Title
+      </label>
+      <input
+        id="bookmark_title"
+        type="text"
+        name="title"
+        value="{{bookmark.title}}"
+      />
+    </div>
+      <label for="bookmark_description">
+        Description
+      </label>
+      <textarea
+        id="bookmark_description"
+        name="description"
+      >{{bookmark.description}}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="tagEntry">
+        Tags
+        <small>
+          press tab to autocomplete, press comma or enter to save a new tag.
+        </small>
+      </label>
+      <input
+        id="tagEntry"
+        type="text"
+        list="all-tags"
+      />
       <div id="taggedList"></div>
-      <label class="small">click on a tag above to remove it</label>
+      <p>
+        <small>
+          click on a tag above to remove it
+        </small>
+      </p>
       <input
         type="hidden"
         id="tags"
         name="tags"
         value="{{{bookmark.tagsArray}}}"
       />
-    </p><br /><br />
-    <p>
-      <details>
-        <summary><label>
-            Auto-allow comments from (one username per line)</label></summary>
-        <textarea name="allowed">{{allowed}}</textarea>
-      </details>
-      <br /><br />
-      <details>
-        <summary><label>
-            Auto-ignore comments from (one username per line)</label></summary>
-        <textarea name="blocked">{{blocked}}</textarea>
-      </details>
-    </p>
-    <button type="submit">
-      {{#if bookmark}}
-        Save
-      {{else}}
-        Create
-      {{/if}}
-    </button>
+    </div>
+    <details class="form-group">
+      <summary>
+        <label for="bookmark_allowed">
+          Auto-allow comments from (one username per line)
+        </label>
+      </summary>
+      <textarea
+        id="bookmark_allowed"
+        name="allowed"
+      >{{allowed}}</textarea>
+    </details>
+    <details class="form-group">
+      <summary>
+        <label for="bookmark_blocked">
+          Auto-ignore comments from (one username per line)
+        </label>
+      </summary>
+      <textarea
+        id="bookmark_blocked"
+        name="blocked"
+      >{{blocked}}</textarea>
+    </details>
+    <div class="form-group">
+      <button type="submit">
+        {{#if bookmark}}
+          Save
+        {{else}}
+          Create
+        {{/if}}
+      </button>
+    </div>
   </form>
 </div>

@@ -1,16 +1,17 @@
 <div class="search">
-    <form action="/search">
-        <input name="query" value="{{keywords}}"><input type="submit" value="Search">
-    </form>
+  <form action="/search">
+    <input name="query" value="{{keywords}}">
+    <button>Search</button>
+  </form>
 </div>
 {{#if error}}
-<p class="error">
+  <p class="error">
     {{error}}
-</p>
+  </p>
 {{else}}
-<div class="bookmarks">
+  <div class="bookmarks">
     {{#each bookmarks }}
-    {{> show_bookmark bookmark=this }}
+      {{> show_bookmark bookmark=this }}
     {{/each}}
-</div>
+  </div>
 {{/if}}

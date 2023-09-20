@@ -4,7 +4,9 @@
 
 <div>
   <form action="/admin/following/follow" method="POST">
-    <label for="actor">Enter username to follow</label>
+    <label for="actor">
+      Enter username to follow
+    </label>
     <input
       type="text"
       id="actor"
@@ -21,7 +23,9 @@
   {{#each following}}
     <div class="following">
       <div class="info">
-        <a href="{{this}}">{{this}}</a>
+        <a href="{{this}}">
+          {{this}}
+        </a>
       </div>
       <div class="actions">
         <form action="/admin/following/unfollow" method="POST">

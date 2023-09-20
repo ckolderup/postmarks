@@ -1,8 +1,12 @@
 <div class="login">
   <form method="POST" action="/login">
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" />
-    <input type="hidden" name="sendTo" value={{sendTo}} />
-    <button type="submit">Log in</button>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" />
+    </div>
+    <div class="form-group">
+      <input type="hidden" name="sendTo" value="{{sendTo}}" />
+      <button type="submit">Log in</button>
+    </div>
   </form>
 </div>

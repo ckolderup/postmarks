@@ -7,11 +7,27 @@
   a per-bookmark setting on the bookmark edit page.
 </p>
 <form action="/admin/permissions" method="post">
-  <label> Auto-allow comments from (one username per line)</label><br />
-  <textarea name="allowed">{{allowed}}</textarea><br /><br />
-  <label> Auto-ignore comments from (one username per line)</label><br />
-  <textarea name="blocked">{{blocked}}</textarea>
-  <button type="submit">Save</button>
+  <div class="form-group">
+    <label for="permissions_allowed">
+      Auto-allow comments from (one username per line)
+    </label>
+    <textarea
+      id="permissions_allowed"
+      name="allowed"
+    >{{allowed}}</textarea>
+  </div>
+  <div class="form-group">
+    <label for="permissions_blocked">
+      Auto-ignore comments from (one username per line)
+    </label>
+    <textarea
+      id="permissions_blocked"
+      name="blocked"
+    >{{blocked}}</textarea>
+  </div>
+  <div class="form-group">
+    <button type="submit">Save</button>
+  </div>
 </form>
 
 <h3>
