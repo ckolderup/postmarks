@@ -160,7 +160,7 @@ router.post('/multiadd', isAuthenticated, async (req, res) => {
 
     if (url.length < 3) return;
     // remove line break from URL value
-    let link = url.replace(/(\r\n|\n|\r)/gm, '');
+    const link = url.replace(/(\r\n|\n|\r)/gm, '');
 
     let meta = {};
     try {
