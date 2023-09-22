@@ -159,10 +159,12 @@ router.post('/multiadd', isAuthenticated, async (req, res) => {
     }
 
     if (url.length < 3) return;
+    // remove line break from URL value
+    const link = url.replace(/(\r\n|\n|\r)/gm, '');
 
     let meta = {};
     try {
-      meta = await ogScraper({ url: url.replace(/(\r\n|\n|\r)/gm, '') }); // remove line break from URL value
+      meta = await ogScraper({ url: link });
       if (meta?.result?.ogDescription !== undefined) {
         meta.result.ogDescription = `"${meta.result.ogDescription}"`;
       }
@@ -171,9 +173,9 @@ router.post('/multiadd', isAuthenticated, async (req, res) => {
     }
 
     await bookmarksDb.createBookmark({
-      url,
+      url: link,
       title: meta.result.ogTitle,
-      description: meta.result.ogDescription,
+      description: meta.result.ogDescription || ' ', // add *something*, even if ogDesc is empty (keeps Atom feed validation happy)
     });
   });
 
