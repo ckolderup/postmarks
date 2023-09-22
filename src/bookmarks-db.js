@@ -196,6 +196,23 @@ export async function getBookmarks(limit = 10, offset = 0) {
   return undefined;
 }
 
+export async function getBookmarksForCSVExport() {
+  // We use a try catch block in case of db errors
+  try {
+    const headers = ['title', 'url', 'description', 'tags', 'created_at', 'updated_at'];
+    const selectHeaders = headers.join(',');
+    // This will create an object where the keys and values match. This will
+    // allow the csv stringifier to interpret this as a header row.
+    const columnTitles = Object.fromEntries(headers.map((header) => [header, header]));
+    const results = await db.all(`SELECT ${selectHeaders} from bookmarks`);
+    return [columnTitles].concat(results);
+  } catch (dbError) {
+    // Database connection error
+    console.error(dbError);
+  }
+  return undefined;
+}
+
 export async function getBookmarkCountForTags(tags) {
   const tagClauses = tags.map(() => `(tags like ? OR tags like ?)`).join(' AND ');
   const tagParams = tags.map((tag) => [`%${tag}% `, `%${tag}%`]).flat();

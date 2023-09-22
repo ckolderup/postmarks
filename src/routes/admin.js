@@ -1,4 +1,6 @@
 import express from 'express';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+import { stringify as csvStringify } from 'csv-stringify/sync'; // https://github.com/adaltas/node-csv/issues/323
 import { domain, actorInfo, parseJSON } from '../util.js';
 import { isAuthenticated } from '../session-auth.js';
 import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub.js';
@@ -89,6 +91,17 @@ router.get('/bookmarks.db', isAuthenticated, async (req, res) => {
   res.setHeader('Content-Disposition', 'attachment; filename="bookmarks.db"');
 
   res.download(filePath);
+});
+
+router.get('/bookmarks.csv', isAuthenticated, async (req, res) => {
+  const bookmarksDb = req.app.get('bookmarksDb');
+  const bookmarks = await bookmarksDb.getBookmarksForCSVExport();
+  const result = csvStringify(bookmarks, { quoted: true });
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="bookmarks.csv"');
+
+  res.send(result);
 });
 
 router.get('/activitypub.db', isAuthenticated, async (req, res) => {
