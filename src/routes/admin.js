@@ -14,6 +14,7 @@ router.get('/', isAuthenticated, async (req, res) => {
   params.layout = 'admin';
 
   params.bookmarklet = `javascript:(function(){w=window.open('https://${domain}/bookmark/popup?url='+encodeURIComponent(window.location.href)+'&highlight='+encodeURIComponent(window.getSelection().toString()),'postmarks','scrollbars=yes,width=550,height=600');})();`;
+  params.bookmarkletTruncated = `${params.bookmarklet.substr(0, 30)}…`;
 
   return res.render('admin', params);
 });

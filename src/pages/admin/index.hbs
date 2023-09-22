@@ -6,16 +6,15 @@
   new bookmark in your browser's bookmarks toolbar, then edit the URL for that
   bookmark and insert this javascript:
 </p>
-<input readonly type="text" id="copy-bookmarklet" value="{{{bookmarklet}}}" />
-<p><small id="copy-status">Click the code above to copy</small></p>
+<button
+  class="btn"
+  data-copy="{{{bookmarklet}}}"
+  data-copy-status=".copy-bookmarklet-status"
+>
+  {{bookmarkletTruncated}}
+</button>
+<p><small class="copy-bookmarklet-status">Click the code above to copy</small></p>
 
-<script>
-  document.querySelector('#copy-bookmarklet').addEventListener( 'click',
-  function (event) { if (!navigator.clipboard) { // Clipboard API not available
-  return; } const text = event.target.value; try {
-  navigator.clipboard.writeText(text);
-  document.querySelector('#copy-status').innerText = 'Copied to clipboard!';
-  setTimeout(function () { document.querySelector('#copy-status').innerText =
-  'Click the code above to copy it to your clipboard'; }, 1500); } catch (err) {
-  console.error('Failed to copy!', err); } }, false );
-</script>
+{{#section 'script'}}
+  <script src="/copy-to-clipboard.js"></script>
+{{/section}}
