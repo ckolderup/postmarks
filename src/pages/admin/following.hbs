@@ -1,9 +1,5 @@
-<h3>
-  Manage your federated follows
-</h3>
-
-<div>
-  <form action="/admin/following/follow" method="POST">
+<form action="/admin/following/follow" method="POST">
+  <div class="form-group">
     <label for="actor">
       Enter username to follow
     </label>
@@ -13,26 +9,26 @@
       name="actor"
       placeholder="@updates@postmarks.glitch.me"
     />
+  </div>
+  <div class="form-group">
     <button type="submit">
       Follow
     </button>
-  </form>
-</div>
+  </div>
+</form>
 
-<div>
-  {{#each following}}
-    <div class="following">
-      <div class="info">
-        <a href="{{this}}">
-          {{this}}
-        </a>
-      </div>
-      <div class="actions">
-        <form action="/admin/following/unfollow" method="POST">
-          <input type="hidden" name="actor" value="{{this}}" />
-          <button type="submit">Unfollow</button>
-        </form>
-      </div>
+{{#each following}}
+  <div class="following">
+    <div class="info">
+      <a href="{{this}}">
+        {{this}}
+      </a>
     </div>
-  {{/each}}
-</div>
+    <div class="actions">
+      <form action="/admin/following/unfollow" method="POST">
+        <input type="hidden" name="actor" value="{{this}}" />
+        <button type="submit">Unfollow</button>
+      </form>
+    </div>
+  </div>
+{{/each}}

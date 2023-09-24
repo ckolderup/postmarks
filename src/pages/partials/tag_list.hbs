@@ -1,7 +1,9 @@
-<div class="tag-list">
-  <ul>
-    {{#each tags}}
-      <li><a href="/tagged/{{this}}">#{{this}}</a></li>
-    {{/each}}
-  </ul>
-</div>
+<ul class="tag-list">
+  {{#each tags}}
+    <li>
+      <a href="/tagged/{{this}}">
+        #{{this}}
+      </a>
+    </li>
+  {{/each}}
+</ul>

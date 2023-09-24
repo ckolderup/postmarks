@@ -1,7 +1,15 @@
-<ul>
-  <li><a href="/admin/">Admin home/Bookmarklet</a></li>
-  <li><a href="/admin/bookmarks">Import bookmarks</a></li>
-  <li><a href="/admin/followers">Permissions &amp; followers</a></li>
-  <li><a href="/admin/following">Manage your federated follows</a></li>
-  <li><a href="/admin/data">Data export</a></li>
-</ul>
+{{#if links}}
+  <ul class="admin-links">
+    {{#each links}}
+      <li>
+        {{#eq href ../currentPath}}
+          {{label}}
+        {{else}}
+          <a href="{{href}}">
+            {{label}}
+          </a>
+        {{/eq}}
+      </li>
+    {{/each}}
+  </ul>
+{{/if}}

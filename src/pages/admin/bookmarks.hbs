@@ -11,6 +11,13 @@
   individually.
 </p>
 <form action="/bookmark/multiadd" method="post">
-  <textarea name="urls"></textarea>
-  <button type="submit">Import</button>
+  <div class="form-group">
+    <label for="multiadd_urls">
+      URLs (one per line)
+    </label>
+    <textarea id="multiadd_urls" name="urls"></textarea>
+  </div>
+  <div class="form-group">
+    <button type="submit">Import</button>
+  </div>
 </form>
