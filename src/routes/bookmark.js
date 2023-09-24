@@ -82,15 +82,14 @@ router.get('/:id', async (req, res) => {
   const params = {};
   const bookmarksDb = req.app.get('bookmarksDb');
 
-  params.tags = await bookmarksDb.getTags();
-
   const bookmark = await bookmarksDb.getBookmark(req.params.id);
   const comments = await bookmarksDb.getVisibleCommentsForBookmark(bookmark.id);
 
   if (!bookmark) {
     params.error = data.errorMessage;
   } else {
-    params.title = `Bookmark: ${bookmark.title}`;
+    params.title = bookmark.title;
+    params.hideTitle = true;
     params.bookmark = bookmark;
     params.comments = comments;
   }
@@ -103,8 +102,6 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
   const bookmarksDb = req.app.get('bookmarksDb');
   const apDb = req.app.get('apDb');
 
-  params.tags = await bookmarksDb.getTags();
-
   const bookmark = await bookmarksDb.getBookmark(req.params.id);
   bookmark.tagsArray = encodeURIComponent(JSON.stringify(bookmark.tags?.split(' ').map((b) => b.slice(1)) || []));
   const comments = await bookmarksDb.getAllCommentsForBookmark(req.params.id);
@@ -116,7 +113,7 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
     params.allowed = permissions?.allowed;
     params.blocked = permissions?.blocked;
 
-    params.title = `Edit Bookmark: ${bookmark.title}`;
+    params.title = 'Edit Bookmark';
     params.bookmark = bookmark;
     params.comments = comments;
   }

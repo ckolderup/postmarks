@@ -1,8 +1,18 @@
-{{> show_bookmark bookmark=bookmark }}
+<h1 class="bookmark-permalink-title">
+  <a href="{{bookmark.url}}">
+    {{bookmark.title}} <span class="external-link">↗</span>
+  </a>
+</h1>
 
-<h2>Comments</h2>
-{{#each comments }}
-  {{> show_comment comment=this }}
-{{else }}
-  No comments yet!
-{{/each}}
+{{> show_bookmark bookmark=bookmark permalink=true}}
+
+{{#if comments}}
+  <h2>
+    {{bookmark.comment_count}}
+    {{pluralize bookmark.comment_count "comment" "comments"}}
+  </h2>
+
+  {{#each comments }}
+    {{> show_comment comment=this }}
+  {{/each}}
+{{/if}}

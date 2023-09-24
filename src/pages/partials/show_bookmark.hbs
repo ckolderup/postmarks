@@ -1,13 +1,21 @@
 <div class="bookmark">
-  <div class="headline">
-    <a href="{{bookmark.url}}">
-      {{bookmark.title}}
-    </a>
-  </div>
+  {{^if permalink}}
+    <div class="headline">
+      <a href="{{bookmark.url}}">
+        {{bookmark.title}}
+      </a>
+    </div>
+  {{/if}}
   <div class="subhead">
-    <span class="bookmark-date" title="{{bookmark.created_at}}">
-      {{bookmark.timestamp}}
-    </span>
+    {{#if permalink}}
+      <span class="bookmark-date" title="{{bookmark.created_at}}">
+        {{bookmark.timestamp}}
+      </span>
+    {{else}}
+      <a href="/bookmark/{{bookmark.id}}" class="bookmark-date" title="{{bookmark.created_at}}">
+        {{bookmark.timestamp}}
+      </a>
+    {{/if}}
     <span class="bookmark-domain">
       {{bookmark.domain}}
     </span>
@@ -47,12 +55,16 @@
     {{/if}}
   </div>
   <div class="bottom">
-    <span>
-      <a href="/bookmark/{{bookmark.id}}">
-        {{bookmark.comment_count}}
-        {{pluralize bookmark.comment_count "comment" "comments"}}
-      </a>
-    </span>
+    {{^if permalink}}
+      {{#if bookmark.comment_count}}
+        <span>
+          <a href="/bookmark/{{bookmark.id}}">
+            {{bookmark.comment_count}}
+            {{pluralize bookmark.comment_count "comment" "comments"}}
+          </a>
+        </span>
+      {{/if}}
+    {{/if}}
     {{#if @root.loggedIn}}
       <span>
         <a href="/bookmark/{{bookmark.id}}/edit">

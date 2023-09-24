@@ -71,7 +71,7 @@ router.get('/network', isAuthenticated, async (req, res) => {
     href: linkify.find(post.content)?.[0]?.href,
   }));
 
-  return res.render('network', { posts: linksInPosts });
+  return res.render('network', { title: 'Your network', posts: linksInPosts });
 });
 
 router.get('/index.xml', async (req, res) => {

@@ -10,9 +10,8 @@ const DATA_PATH = '/app/.data';
 const router = express.Router();
 
 router.get('/', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Admin' };
-  params.layout = 'admin';
-
+  const params = req.query.raw ? {} : { title: 'Bookmarklet' };
+  params.admin = true;
   params.bookmarklet = `javascript:(function(){w=window.open('https://${domain}/bookmark/popup?url='+encodeURIComponent(window.location.href)+'&highlight='+encodeURIComponent(window.getSelection().toString()),'postmarks','scrollbars=yes,width=550,height=600');})();`;
   params.bookmarkletTruncated = `${params.bookmarklet.substr(0, 30)}…`;
 
@@ -20,15 +19,15 @@ router.get('/', isAuthenticated, async (req, res) => {
 });
 
 router.get('/bookmarks', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Admin: Import bookmarks' };
-  params.layout = 'admin';
+  const params = req.query.raw ? {} : { title: 'Import bookmarks' };
+  params.admin = true;
 
   return res.render('admin/bookmarks', params);
 });
 
 router.get('/followers', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Admin: Permissions & followers' };
-  params.layout = 'admin';
+  const params = req.query.raw ? {} : { title: 'Permissions & followers' };
+  params.admin = true;
 
   const apDb = req.app.get('apDb');
 
@@ -59,8 +58,8 @@ router.get('/followers', isAuthenticated, async (req, res) => {
 });
 
 router.get('/following', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Admin: Manage your federated follows' };
-  params.layout = 'admin';
+  const params = req.query.raw ? {} : { title: 'Federated follows' };
+  params.admin = true;
 
   const apDb = req.app.get('apDb');
 
@@ -79,8 +78,8 @@ router.get('/following', isAuthenticated, async (req, res) => {
 });
 
 router.get('/data', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Admin: Data export' };
-  params.layout = 'admin';
+  const params = req.query.raw ? {} : { title: 'Data export' };
+  params.admin = true;
 
   return res.render('admin/data', params);
 });

@@ -1,7 +1,14 @@
 <div class="search">
   <form action="/search">
-    <input name="query" value="{{keywords}}">
-    <button>Search</button>
+    <div class="form-group">
+      <label for="query" class="visually-hidden">
+        Query
+      </label>
+      <input id="query" name="query" value="{{keywords}}">
+    </div>
+    <div class="form-group">
+      <button>Search</button>
+    </div>
   </form>
 </div>
 {{#if error}}
