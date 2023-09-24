@@ -1,18 +1,23 @@
 {{#if actorInfo.disabled}}
   <p>
     This is a bookmarking site running on software called
-    <a href="https://github.com/ckolderup/postmarks">Postmarks</a>. It's
-    currently running in "standalone" mode, meaning it doesn't broadcast any
+    <a href="https://github.com/ckolderup/postmarks">Postmarks</a>. It’s
+    currently running in “standalone” mode, meaning it doesn't broadcast any
     activity to the rest of the internet via the ActivityPub protocol. You can
     still subscribe to new bookmarks using the
     <a href="/index.xml">Atom feed</a>, which any modern RSS/feed reader should
     support.
   </p>
 {{else}}
-  <div class="bio"><img class="avatar" src="{{actorInfo.avatar}}" /><p>
+  <div class="bio">
+    <img class="avatar" src="{{actorInfo.avatar}}" />
+    <p>
       {{actorInfo.description}}
-    </p></div>
-  <h2>Follow on the Fediverse</h2>
+    </p>
+  </div>
+  <h2>
+    Follow on the Fediverse
+  </h2>
   <div>
     <button
       class="btn"
@@ -21,18 +26,28 @@
     >
       @{{actorInfo.username}}@{{domain}}
     </button>
-    <p><small class="copy-actor-status">Click the code above to copy</small></p>
+    <p>
+      <small class="copy-actor-status">
+        Click the code above to copy
+      </small>
+    </p>
   </div>
 
   {{#section 'script'}}
     <script src="/copy-to-clipboard.js"></script>
   {{/section}}
 {{/if}}
-<p>Postmarks (in its default configuration) uses an edited version of Eynav
-  Raphael's
-  <a href="https://thenounproject.com/icon/postmark-stamp-928917/">"Postmark
-    Stamp"</a>
+<p>
+  Postmarks (in its default configuration) uses an edited version of Eynav
+  Raphael’s
+  <a href="https://thenounproject.com/icon/postmark-stamp-928917/">
+    “Postmark Stamp”
+  </a>
   icon from The Noun Project. It also makes use of free fonts including
-  <a href="http://iotic.com/averia/">Averia Sans</a>
+  <a href="http://iotic.com/averia/">
+    Averia Sans
+  </a>
   and
-  <a href="https://public-sans.digital.gov/">Public Sans</a>.</p>
+  <a href="https://public-sans.digital.gov/">
+    Public Sans</a>.
+  </p>

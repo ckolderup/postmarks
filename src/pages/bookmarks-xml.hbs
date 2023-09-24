@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-   <title>{{feedTitle}}</title>
-   <link rel="self" href="{{projectUrl}}/index.xml"/>
-   <id>{{projectUrl}}/</id>
-   <updated>{{last_updated}}</updated>
-   <author>
-      <name>{{account}}</name>
-   </author>
-
-   {{#each bookmarks }}
-     <entry>
+  <title>{{feedTitle}}</title>
+  <link rel="self" href="{{projectUrl}}/index.xml"/>
+  <id>{{projectUrl}}/</id>
+  <updated>{{last_updated}}</updated>
+  <author>
+    <name>{{account}}</name>
+  </author>
+  {{#each bookmarks}}
+    <entry>
       <title>{{title}}</title>
       <link rel="alternate" href="{{url}}"/>
       <id>{{projectUrl}}/bookmark/{{id}}</id>
       <updated>{{created_at}}</updated>
       {{#if description}}
-         <summary type="html">{{description}}</summary>
+        <summary type="html">{{description}}</summary>
       {{/if}}
       {{#each tag_array}}
-      <category term="{{this}}" />
+        <category term="{{this}}" />
       {{/each}}
-   </entry>
+    </entry>
   {{/each}}
 </feed>

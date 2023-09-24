@@ -1,15 +1,25 @@
 {{#with pageInfo}}
-<div class="pagination">
+  <div class="pagination">
     {{#if hasPreviousPage }}
-      <a href="{{url}}?offset={{previousOffset}}">Previous</a>
+      <a href="{{url}}?offset={{previousOffset}}">
+        Previous
+      </a>
     {{else}}
-      Previous
+      <span>
+        Previous
+      </span>
     {{/if}}
-    • Page {{currentPage}} of {{totalPages}} •
-    {{#if hasNextPage }}
-      <a href="{{../url}}?offset={{nextOffset}}">Next</a>
+    <span>
+      Page {{currentPage}} of {{totalPages}}
+    </span>
+    {{#if hasNextPage}}
+      <a href="{{../url}}?offset={{nextOffset}}">
+        Next
+      </a>
     {{else}}
-      Next
+      <span>
+        Next
+      </span>
     {{/if}}
-</div>
+  </div>
 {{/with}}
