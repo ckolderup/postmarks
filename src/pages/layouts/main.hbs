@@ -40,8 +40,8 @@
         {{/if}}
         {{{body}}}
       </div>
-      {{#if admin}}
-        {{> admin_subnav}}
+      {{#if adminLinks}}
+        {{> admin_subnav links=adminLinks currentPath=currentPath}}
       {{else}}
         {{> tag_list tags=tags}}
       {{/if}}

@@ -7,11 +7,20 @@ import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSen
 
 const DATA_PATH = '/app/.data';
 
+const ADMIN_LINKS = [
+  { href: '/admin', label: 'Bookmarklet' },
+  { href: '/admin/bookmarks', label: 'Import bookmarks' },
+  { href: '/admin/followers', label: 'Permissions & followers' },
+  { href: '/admin/following', label: 'Federated follows' },
+  { href: '/admin/data', label: 'Data export' },
+];
+
 const router = express.Router();
 
 router.get('/', isAuthenticated, async (req, res) => {
   const params = req.query.raw ? {} : { title: 'Bookmarklet' };
-  params.admin = true;
+  params.adminLinks = ADMIN_LINKS;
+  params.currentPath = req.originalUrl;
   params.bookmarklet = `javascript:(function(){w=window.open('https://${domain}/bookmark/popup?url='+encodeURIComponent(window.location.href)+'&highlight='+encodeURIComponent(window.getSelection().toString()),'postmarks','scrollbars=yes,width=550,height=600');})();`;
   params.bookmarkletTruncated = `${params.bookmarklet.substr(0, 30)}…`;
 
@@ -20,14 +29,16 @@ router.get('/', isAuthenticated, async (req, res) => {
 
 router.get('/bookmarks', isAuthenticated, async (req, res) => {
   const params = req.query.raw ? {} : { title: 'Import bookmarks' };
-  params.admin = true;
+  params.adminLinks = ADMIN_LINKS;
+  params.currentPath = req.originalUrl;
 
   return res.render('admin/bookmarks', params);
 });
 
 router.get('/followers', isAuthenticated, async (req, res) => {
   const params = req.query.raw ? {} : { title: 'Permissions & followers' };
-  params.admin = true;
+  params.adminLinks = ADMIN_LINKS;
+  params.currentPath = req.originalUrl;
 
   const apDb = req.app.get('apDb');
 
@@ -59,7 +70,8 @@ router.get('/followers', isAuthenticated, async (req, res) => {
 
 router.get('/following', isAuthenticated, async (req, res) => {
   const params = req.query.raw ? {} : { title: 'Federated follows' };
-  params.admin = true;
+  params.adminLinks = ADMIN_LINKS;
+  params.currentPath = req.originalUrl;
 
   const apDb = req.app.get('apDb');
 
@@ -79,7 +91,8 @@ router.get('/following', isAuthenticated, async (req, res) => {
 
 router.get('/data', isAuthenticated, async (req, res) => {
   const params = req.query.raw ? {} : { title: 'Data export' };
-  params.admin = true;
+  params.adminLinks = ADMIN_LINKS;
+  params.currentPath = req.originalUrl;
 
   return res.render('admin/data', params);
 });
