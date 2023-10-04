@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 
-import { account, domain } from './util.js';
+import { getActorInfo, domain } from './util.js';
 import { getPrivateKey } from './activity-pub-db.js';
 
 /**
@@ -67,12 +67,13 @@ function getSignatureParams(body, method, url) {
 /**
  * Returns the full "Signature" header to be included in the signed request
  *
+ * @param {string} account - The actor's username
  * @param {string} signature - Base-64 encoded request signature
  * @param {string[]} signatureKeys - Array of param names used when generating the signature
  *
  * @returns {string}
  */
-function getSignatureHeader(signature, signatureKeys) {
+function getSignatureHeader(account, signature, signatureKeys) {
   return [
     `keyId="https://${domain}/u/${account}"`,
     `algorithm="rsa-sha256"`,
@@ -90,6 +91,8 @@ function getSignatureHeader(signature, signatureKeys) {
  * @returns {Promise<Response>}
  */
 export async function signedFetch(url, init = {}) {
+  const { username: account } = await getActorInfo();
+
   const privkey = await getPrivateKey(`${account}@${domain}`);
   if (!privkey) {
     throw new Error(`No private key found for ${account}.`);
@@ -103,7 +106,7 @@ export async function signedFetch(url, init = {}) {
     .map(([k, v]) => `${k}: ${v}`)
     .join('\n');
   const signature = getSignature(privkey, stringToSign);
-  const signatureHeader = getSignatureHeader(signature, signatureKeys);
+  const signatureHeader = getSignatureHeader(account, signature, signatureKeys);
 
   return fetch(url, {
     body,

@@ -10,18 +10,18 @@ import fs from 'fs';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import crypto from 'crypto';
-import { account, domain, actorInfo } from './util.js';
+import { getActorInfo, domain } from './util.js';
 
 const dbFile = './.data/activitypub.db';
 let db;
 
-function actorJson(pubkey) {
+function actorJson(actorInfo, pubkey) {
   return {
     '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
 
-    id: `https://${domain}/u/${account}`,
+    id: `https://${domain}/u/${actorInfo.username}`,
     type: 'Person',
-    preferredUsername: `${account}`,
+    preferredUsername: actorInfo.username,
     name: actorInfo.displayName,
     summary: actorInfo.description,
     icon: {
@@ -30,19 +30,19 @@ function actorJson(pubkey) {
       url: actorInfo.avatar,
     },
     inbox: `https://${domain}/api/inbox`,
-    outbox: `https://${domain}/u/${account}/outbox`,
-    followers: `https://${domain}/u/${account}/followers`,
-    following: `https://${domain}/u/${account}/following`,
+    outbox: `https://${domain}/u/${actorInfo.username}/outbox`,
+    followers: `https://${domain}/u/${actorInfo.username}/followers`,
+    following: `https://${domain}/u/${actorInfo.username}/following`,
 
     publicKey: {
-      id: `https://${domain}/u/${account}#main-key`,
-      owner: `https://${domain}/u/${account}`,
+      id: `https://${domain}/u/${actorInfo.username}#main-key`,
+      owner: `https://${domain}/u/${actorInfo.username}`,
       publicKeyPem: pubkey,
     },
   };
 }
 
-function webfingerJson() {
+function webfingerJson(account) {
   return {
     subject: `acct:${account}@${domain}`,
 
@@ -199,8 +199,9 @@ async function firstTimeSetup(actorName) {
       async (err, publicKey, privateKey) => {
         if (err) return reject(err);
         try {
-          const actorRecord = actorJson(publicKey);
-          const webfingerRecord = webfingerJson();
+          const actorInfo = await getActorInfo();
+          const actorRecord = actorJson(actorInfo, publicKey);
+          const webfingerRecord = webfingerJson(account);
 
           await db.run(
             'INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)',
@@ -221,7 +222,7 @@ async function firstTimeSetup(actorName) {
 
 function setup() {
   // activitypub not set up yet, skip until we have the data we need
-  if (actorInfo.disabled) {
+  if (false) {
     return;
   }
 
@@ -234,7 +235,8 @@ function setup() {
   }).then(async (dBase) => {
     db = dBase;
 
-    const actorName = `${account}@${domain}`;
+    const actorInfo = await getActorInfo();
+    const actorName = `${actorInfo.username}@${domain}`;
 
     try {
       if (!exists) {
@@ -243,7 +245,7 @@ function setup() {
 
       // re-run the profile portion of the actor setup every time in case the avatar, description, etc have changed
       const publicKey = await getPublicKey();
-      const actorRecord = actorJson(publicKey);
+      const actorRecord = actorJson(actorInfo, publicKey);
       await db.run('UPDATE accounts SET name = ?, actor = ?', actorName, JSON.stringify(actorRecord));
     } catch (dbError) {
       console.error(dbError);

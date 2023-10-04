@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import escapeHTML from 'escape-html';
 
 import { signedGetJSON, signedPostJSON } from './signature.js';
-import { actorInfo, actorMatchesUsername, replaceEmptyText } from './util.js';
+import { actorMatchesUsername, replaceEmptyText } from './util.js';
 
 function getGuidFromPermalink(urlString) {
   return urlString.match(/(?:\/m\/)([a-zA-Z0-9+/]+)/)[1];
@@ -211,7 +211,7 @@ export async function lookupActorInfo(actorUsername) {
 }
 
 export async function broadcastMessage(bookmark, action, db, account, domain) {
-  if (actorInfo.disabled) {
+  if (false /* TODO actorInfo.disabled */) {
     return; // no fediverse setup, so no purpose trying to send messages
   }
 

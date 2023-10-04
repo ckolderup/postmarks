@@ -1,7 +1,7 @@
 import express from 'express';
 import ogScraper from 'open-graph-scraper';
 
-import { data, account, domain, removeEmpty } from '../util.js';
+import { data, getActorInfo, domain, removeEmpty } from '../util.js';
 import { broadcastMessage } from '../activitypub.js';
 import { isAuthenticated } from '../session-auth.js';
 
@@ -129,6 +129,8 @@ router.post('/:id/delete', isAuthenticated, async (req, res) => {
 
   await bookmarksDb.deleteBookmark(id);
 
+  const { username: account } = await getActorInfo();
+
   broadcastMessage({ id }, 'delete', apDb, account, domain);
 
   return req.query.raw ? res.send(params) : res.redirect('/');
@@ -223,6 +225,8 @@ router.post('/:id?', isAuthenticated, async (req, res) => {
       });
       await apDb.setPermissionsForBookmark(id, req.body.allowed || '', req.body.blocked || '');
 
+      const { username: account } = await getActorInfo();
+
       broadcastMessage(bookmark, 'update', apDb, account, domain);
     }
   } else {
@@ -252,6 +256,8 @@ router.post('/:id?', isAuthenticated, async (req, res) => {
       description: mergedObject.description?.trim() || '',
       tags,
     });
+
+    const { username: account } = await getActorInfo();
 
     broadcastMessage(bookmark, 'create', apDb, account, domain);
   }

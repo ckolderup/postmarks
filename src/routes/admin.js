@@ -1,7 +1,7 @@
 import express from 'express';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { stringify as csvStringify } from 'csv-stringify/sync'; // https://github.com/adaltas/node-csv/issues/323
-import { domain, actorInfo, parseJSON } from '../util.js';
+import { domain, getActorInfo, parseJSON } from '../util.js';
 import { isAuthenticated } from '../session-auth.js';
 import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub.js';
 
@@ -42,7 +42,7 @@ router.get('/followers', isAuthenticated, async (req, res) => {
 
   const apDb = req.app.get('apDb');
 
-  if (actorInfo.disabled) {
+  if (false /* TODO actorinfo.disabled */) {
     return res.render('nonfederated', params);
   }
 
@@ -75,7 +75,7 @@ router.get('/following', isAuthenticated, async (req, res) => {
 
   const apDb = req.app.get('apDb');
 
-  if (actorInfo.disabled) {
+  if (false /* TODO actorinfo.disabled */) {
     return res.render('nonfederated', params);
   }
 
@@ -200,7 +200,7 @@ router.post('/followers/unblock', isAuthenticated, async (req, res) => {
 
 router.post('/following/follow', isAuthenticated, async (req, res) => {
   const db = req.app.get('apDb');
-  const account = req.app.get('account');
+  const { username: account } = await getActorInfo();
 
   const canonicalUrl = await lookupActorInfo(req.body.actor);
 
@@ -221,7 +221,7 @@ router.post('/following/follow', isAuthenticated, async (req, res) => {
 
 router.post('/following/unfollow', isAuthenticated, async (req, res) => {
   const db = req.app.get('apDb');
-  const account = req.app.get('account');
+  const { username: account } = await getActorInfo();
 
   const oldFollowsText = (await db.getFollowing()) || '[]';
 

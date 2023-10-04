@@ -1,5 +1,6 @@
 import express from 'express';
 import { synthesizeActivity } from '../../activitypub.js';
+import { getActorInfo } from '../../util.js';
 
 const router = express.Router();
 
@@ -95,7 +96,7 @@ router.get('/:name/following', async (req, res) => {
 
 router.get('/:name/outbox', async (req, res) => {
   const domain = req.app.get('domain');
-  const account = req.app.get('account');
+  const { username: account } = await getActorInfo();
   const apDb = req.app.get('apDb');
 
   function pageLink(p) {
