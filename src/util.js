@@ -6,7 +6,7 @@ import * as db from './database.js';
 
 dotenv.config();
 
-const ACTOR_SETTING_NAMES = ['username', 'avatar', 'displayName', 'description']
+const ACTOR_SETTING_NAMES = ['username', 'avatar', 'displayName', 'description'];
 const IS_ACCOUNT_FILE_IMPORTED = 'isAccountFileImported';
 
 export const data = {
@@ -19,18 +19,17 @@ try {
   const accountFileData = JSON.parse(accountFile);
   const isAccountFileImported = await db.getSetting(IS_ACCOUNT_FILE_IMPORTED);
   if (isAccountFileImported) {
-    console.log('Postmarks detected an account.json file that will no longer be read. You should remove this file.')
+    console.log('Postmarks detected an account.json file that will no longer be read. You should remove this file.');
   } else {
-    for (const name of ACTOR_SETTING_NAMES) {
-      if (accountFileData.hasOwnProperty(name)) {
-        await db.setSetting(name, accountFileData[name]);
-      }
-    }
-    await db.setSetting(IS_ACCOUNT_FILE_IMPORTED, true);
-    console.log('Your account.json file has been imported to the database. You should now remove this file.')
+    await db.setSettings({
+      ...Object.fromEntries(Object.entries(accountFileData).filter(([name]) => ACTOR_SETTING_NAMES.includes(name))),
+      [IS_ACCOUNT_FILE_IMPORTED]: true,
+    });
+    console.log('Your account.json file has been imported to the database. You should now remove this file.');
   }
 } catch (e) {
-  console.log('uhhh', e)
+  // TODO: Check for existence of account.json instead of catching error
+  console.log('Failed to read account.json', e);
 }
 
 export const getActorInfo = () => db.getSettings(ACTOR_SETTING_NAMES);

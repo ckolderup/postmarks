@@ -7,7 +7,7 @@ const connect = new Promise((resolve, reject) => {
     if (error) {
       reject(error);
     } else {
-      console.log('i have hereby connected :)')
+      console.log('i have hereby connected :)');
       result.exec(schema, (execError) => {
         if (execError) {
           reject(execError);
@@ -19,18 +19,20 @@ const connect = new Promise((resolve, reject) => {
   });
 });
 
-const query = (method) => async (...args) => {
-  const db = await connect;
-  return new Promise((resolve, reject) => {
-    db[method](...args, (error, result) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
+const query =
+  (method) =>
+  async (...args) => {
+    const db = await connect;
+    return new Promise((resolve, reject) => {
+      db[method](...args, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
     });
-  });
-}
+  };
 
 const run = query('run');
 const get = query('get');
@@ -50,7 +52,7 @@ export const getSetting = async (name) => {
   }
 
   return null;
-}
+};
 
 export const getSettings = async (names) => {
   // TODO: There must be a way to get node-sqlite3 to accept parameters for an
@@ -59,30 +61,47 @@ export const getSettings = async (names) => {
   // enforcing elsewhere in business logic, and this exact bit of code will
   // likely like to weird bugs in the future, but for now it's maybe better to
   // be safe!
-  if (!names.every(name => name.match(/^[a-z0-9-_ .\/]+$/i))) {
+  if (!names.every((name) => name.match(/^[a-z0-9-_ ./]+$/i))) {
     throw new Error('Names contain unexpected characters');
   }
 
   const rows = await all(`
     select name, value
     from settings
-    where name in (${names.map(n => `'${n}'`).join(',')})
+    where name in (${names.map((n) => `'${n}'`).join(',')})
   `);
 
   return Object.fromEntries(rows.map(({ name, value }) => [name, JSON.parse(value)]));
-}
+};
+
+export const setSettings = async (obj) => {
+  // TODO: See caveat in getSettings
+  if (!Object.keys(obj).every((name) => name.match(/^[a-z0-9-_ ./]+$/i))) {
+    throw new Error('Names contain unexpected characters');
+  }
+
+  const values = Object.entries(obj).map(
+    ([name, value]) =>
+      // TODO: Escape this properly
+      `('${name}', '${JSON.stringify(value).replace("'", "\\'")}')`,
+  );
+
+  await run(`
+     insert into settings
+     (name, value)
+     values ${values.join(',')}
+     on conflict (name) do update set value = excluded.value
+   `);
+};
 
 export const setSetting = async (name, value) => {
-  const serializedValue = JSON.stringify(value);
-
   return run(
     `
       insert into settings (name, value)
       values (?, ?)
-      on conflict (name) do update set value = ?
+      on conflict (name) do update set value = excluded.value
     `,
     name,
-    serializedValue,
-    serializedValue
+    JSON.stringify(value),
   );
 };

@@ -201,7 +201,7 @@ async function firstTimeSetup(actorName) {
         try {
           const actorInfo = await getActorInfo();
           const actorRecord = actorJson(actorInfo, publicKey);
-          const webfingerRecord = webfingerJson(account);
+          const webfingerRecord = webfingerJson(actorInfo.username);
 
           await db.run(
             'INSERT OR REPLACE INTO accounts (name, actor, pubkey, privkey, webfinger) VALUES (?, ?, ?, ?, ?)',
@@ -221,11 +221,6 @@ async function firstTimeSetup(actorName) {
 }
 
 function setup() {
-  // activitypub not set up yet, skip until we have the data we need
-  if (false) {
-    return;
-  }
-
   // Initialize the database
   const exists = fs.existsSync(dbFile);
 

@@ -42,7 +42,9 @@ router.get('/followers', isAuthenticated, async (req, res) => {
 
   const apDb = req.app.get('apDb');
 
-  if (false /* TODO actorinfo.disabled */) {
+  const { actorInfo } = await getActorInfo();
+  // TODO
+  if (actorInfo.disabled) {
     return res.render('nonfederated', params);
   }
 
@@ -75,7 +77,9 @@ router.get('/following', isAuthenticated, async (req, res) => {
 
   const apDb = req.app.get('apDb');
 
-  if (false /* TODO actorinfo.disabled */) {
+  const { actorInfo } = await getActorInfo();
+  // TODO
+  if (actorInfo.disabled) {
     return res.render('nonfederated', params);
   }
 

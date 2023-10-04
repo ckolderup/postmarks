@@ -10,7 +10,6 @@ router.get('/', async (req, res) => {
   const params = {};
 
   const bookmarksDb = req.app.get('bookmarksDb');
-  const db = req.app.get('db');
 
   const limit = Math.max(req.query?.limit || 10, 1);
   const offset = Math.max(req.query?.offset || 0, 0);

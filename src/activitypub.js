@@ -211,9 +211,7 @@ export async function lookupActorInfo(actorUsername) {
 }
 
 export async function broadcastMessage(bookmark, action, db, account, domain) {
-  if (false /* TODO actorInfo.disabled */) {
-    return; // no fediverse setup, so no purpose trying to send messages
-  }
+  // TODO bail if activitypub not set up
 
   const result = await db.getFollowers();
   const followers = JSON.parse(result);
