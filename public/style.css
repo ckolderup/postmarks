@@ -112,7 +112,7 @@ a {
   min-height: 40vh;
   margin: 2rem 0;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 
 @media (min-width: 600px) {
@@ -126,6 +126,10 @@ a {
 .wrapper > *:first-child:not(.content) {
   grid-row: 1;
   grid-column: 1;
+}
+
+.wrapper > * {
+  order: 2;
 }
 
 .content {
@@ -446,6 +450,7 @@ a.bookmark-date {
   font-size: .875rem;
   line-height: 1.25rem;
   color: var(--color-dimmed);
+  order: 1;
 }
 
 .admin-links a {
