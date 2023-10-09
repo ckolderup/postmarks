@@ -5,7 +5,7 @@ import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorInfo, actorMatchesUsername } from './util.js';
 
 function getGuidFromPermalink(urlString) {
-  return urlString.match(/m\/([a-zA-Z0-9+/]+)/)[1];
+  return urlString.match(/(?:\/m\/)([a-zA-Z0-9+/]+)/)[1];
 }
 
 export async function signAndSend(message, name, domain, db, targetDomain, inbox) {
