@@ -116,6 +116,13 @@ export function actorMatchesUsername(actor, username) {
   return actorAccount === actorResult[3] && actorDomain === actorResult[1];
 }
 
+export function replaceEmptyText(currentValue, defaultValue) {
+  if (!currentValue || currentValue?.trim().replace(/\n/g, '') === '') {
+    return defaultValue;
+  }
+  return currentValue;
+}
+
 export function simpleLogger(req, res, next) {
   // middleware function
   const currentDatetime = new Date();
