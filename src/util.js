@@ -117,7 +117,7 @@ export function actorMatchesUsername(actor, username) {
 }
 
 export function replaceEmptyText(currentValue, defaultValue) {
-  if (!currentValue || currentValue?.trim().replace(/\n/g, '') == '') {
+  if (!currentValue || currentValue?.trim().replace(/\n/g, '') === '') {
     return defaultValue;
   }
   return currentValue;
