@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
 
-import { domain, account, simpleLogger, actorInfo } from './src/util.js';
+import { domain, account, simpleLogger, actorInfo, replaceEmptyText } from './src/util.js';
 import session, { isAuthenticated } from './src/session-auth.js';
 import * as bookmarksDb from './src/bookmarks-db.js';
 import * as apDb from './src/activity-pub-db.js';
@@ -96,6 +96,9 @@ const hbs = create({
     },
     eq(a, b, options) {
       return a === b ? options.fn(this) : options.inverse(this);
+    },
+    setTitle(item) {
+      return replaceEmptyText(item.title, item.url);
     },
   },
   partialsDir: './src/pages/partials',

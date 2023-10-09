@@ -171,8 +171,8 @@ router.post('/multiadd', isAuthenticated, async (req, res) => {
 
     await bookmarksDb.createBookmark({
       url: link,
-      title: meta.result.ogTitle,
-      description: meta.result.ogDescription || ' ', // add *something*, even if ogDesc is empty (keeps Atom feed validation happy)
+      title: meta.result?.ogTitle,
+      description: (meta.result && meta.result.ogDescription) || ' ', // add *something*, even if ogDesc is empty (keeps Atom feed validation happy)
     });
   });
 
@@ -248,7 +248,7 @@ router.post('/:id?', isAuthenticated, async (req, res) => {
     bookmark = await bookmarksDb.createBookmark({
       // STRONG PARAMETERS
       url: mergedObject.url.trim(),
-      title: mergedObject.title?.trim() || 'Untitled',
+      title: mergedObject.title?.trim(),
       description: mergedObject.description?.trim() || '',
       tags,
     });

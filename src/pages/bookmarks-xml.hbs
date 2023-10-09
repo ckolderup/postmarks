@@ -9,12 +9,14 @@
   </author>
   {{#each bookmarks}}
     <entry>
-      <title>{{title}}</title>
+      <title>{{setTitle this}}</title>
       <link rel="alternate" href="{{url}}"/>
       <id>{{projectUrl}}/bookmark/{{id}}</id>
       <updated>{{created_at}}</updated>
-      {{#if description}}
+      {{#if description }}
         <summary type="html">{{description}}</summary>
+      {{ else }}
+        <summary type="html"> </summary>
       {{/if}}
       {{#each tag_array}}
         <category term="{{this}}" />
