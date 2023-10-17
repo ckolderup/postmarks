@@ -7,3 +7,4 @@ node_modules
 .sqlite_history
 *.patch
 request_logs.txt
+.DS_Store
