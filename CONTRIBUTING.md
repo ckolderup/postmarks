@@ -66,8 +66,9 @@ by has been made available in the root of the project repo at
 full before becoming involved with the project.
 
 To report any witnessed instances of behavior that you believe violates the
-code, please send an email to [Casey Kolderup](mailto:casey@kolderup.org). Your
-report will be handled confidentially.
+code, please send an email to [Casey Kolderup](mailto:casey@kolderup.org) and/or
+[Andy Piper](mailto:andypiper@imap.cc). Your report will be handled
+confidentially.
 
 ## Technical Philosophy (Important things to understand)
 
@@ -78,7 +79,7 @@ associated protocols and specs, things like ActivityStreams and Webfinger.
 - Many other ActivityPub apps trade off complexity and heavy
 resource usage with the ability to host a large number of users. Postmarks takes
 the opposite approach: a Postmarks instance hosts one user, and should be very
-simple to install
+simple to install.
 
 ## Operations (How to develop Postmarks)
 
