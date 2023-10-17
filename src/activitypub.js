@@ -29,8 +29,11 @@ export function createNoteObject(bookmark, account, domain) {
   const guidNote = crypto.randomBytes(16).toString('hex');
   const d = new Date();
 
-  bookmark.title = escapeHTML(bookmark.title);
-  bookmark.description = escapeHTML(bookmark.description);
+  var newTitle = escapeHTML(bookmark.title);
+  var newdescription = escapeHTML(bookmark.description);
+
+  bookmark.title = newTitle;
+  bookmark.description = newdescription;
 
   const noteMessage = {
     '@context': 'https://www.w3.org/ns/activitystreams',

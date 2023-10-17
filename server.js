@@ -58,8 +58,9 @@ const hbs = create({
     },
     htmlize(text) {
       // uh-oh. ohhhh no.
-      text = escapeHTML(text);
-      return text?.replace('\n', '<br/>');
+      var returnText = escapeHTML(text);
+      returnText = escapeHTML(text);
+      return returnText?.replace('\n', '<br/>');
     },
     siteName() {
       return app.get('site_name');
