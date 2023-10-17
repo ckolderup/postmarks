@@ -28,9 +28,8 @@ export async function signAndSend(message, name, domain, db, targetDomain, inbox
 export function createNoteObject(bookmark, account, domain) {
   const guidNote = crypto.randomBytes(16).toString('hex');
   const d = new Date();
-
-  var newTitle = escapeHTML(bookmark.title);
-  var newdescription = escapeHTML(bookmark.description);
+  const newTitle = escapeHTML(bookmark.title);
+  const newdescription = escapeHTML(bookmark.description);
 
   bookmark.title = newTitle;
   bookmark.description = newdescription;
