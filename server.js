@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
+import escapeHTML from 'escape-html';
 
 import { domain, account, simpleLogger, actorInfo, replaceEmptyText } from './src/util.js';
 import session, { isAuthenticated } from './src/session-auth.js';
@@ -57,7 +58,8 @@ const hbs = create({
     },
     htmlize(text) {
       // uh-oh. ohhhh no.
-      return text?.replace('\n', '<br/>');
+      const returnText = escapeHTML(text);
+      return returnText?.replace('\n', '<br/>');
     },
     siteName() {
       return app.get('site_name');
