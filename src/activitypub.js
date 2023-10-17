@@ -28,11 +28,11 @@ export async function signAndSend(message, name, domain, db, targetDomain, inbox
 export function createNoteObject(bookmark, account, domain) {
   const guidNote = crypto.randomBytes(16).toString('hex');
   const d = new Date();
-  const newTitle = escapeHTML(bookmark.title);
-  const newdescription = escapeHTML(bookmark.description);
 
-  bookmark.title = newTitle;
-  bookmark.description = newdescription;
+  const updatedBookmark = bookmark;
+
+  updatedBookmark.title = escapeHTML(bookmark.title);
+  updatedBookmark.description = escapeHTML(bookmark.description);
 
   const noteMessage = {
     '@context': 'https://www.w3.org/ns/activitystreams',
@@ -40,15 +40,15 @@ export function createNoteObject(bookmark, account, domain) {
     type: 'Note',
     published: d.toISOString(),
     attributedTo: `https://${domain}/u/${account}`,
-    content: `<strong><a href="${bookmark.url}" rel="nofollow noopener noreferrer" target="_blank">${replaceEmptyText(
-      bookmark.title,
-      bookmark.url,
-    )}</a></strong><br/>${bookmark.description?.trim().replace('\n', '<br/>') || ''}`,
+    content: `<strong><a href="${updatedBookmark.url}" rel="nofollow noopener noreferrer" target="_blank">${replaceEmptyText(
+      updatedBookmark.title,
+      updatedBookmark.url,
+    )}</a></strong><br/>${updatedBookmark.description?.trim().replace('\n', '<br/>') || ''}`,
     to: [`https://${domain}/u/${account}/followers/`, 'https://www.w3.org/ns/activitystreams#Public'],
     tag: [],
   };
 
-  bookmark.tags?.split(' ').forEach((tag) => {
+  updatedBookmark.tags?.split(' ').forEach((tag) => {
     const tagName = tag.slice(1);
     noteMessage.tag.push({
       type: 'Hashtag',
