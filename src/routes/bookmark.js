@@ -248,7 +248,7 @@ router.post('/:id?', isAuthenticated, async (req, res) => {
     bookmark = await bookmarksDb.createBookmark({
       // STRONG PARAMETERS
       url: mergedObject.url.trim(),
-      title: mergedObject.title?.trim(),
+      title: mergedObject.title?.trim() || '',
       description: mergedObject.description?.trim() || '',
       tags,
     });

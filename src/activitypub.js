@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import crypto from 'crypto';
+import escapeHTML from 'escape-html';
 
 import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorInfo, actorMatchesUsername, replaceEmptyText } from './util.js';
@@ -27,6 +28,9 @@ export async function signAndSend(message, name, domain, db, targetDomain, inbox
 export function createNoteObject(bookmark, account, domain) {
   const guidNote = crypto.randomBytes(16).toString('hex');
   const d = new Date();
+
+  bookmark.title = escapeHTML(bookmark.title);
+  bookmark.description = escapeHTML(bookmark.description);
 
   const noteMessage = {
     '@context': 'https://www.w3.org/ns/activitystreams',
