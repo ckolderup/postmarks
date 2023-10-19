@@ -43,6 +43,13 @@ html {
   font-size: var(--font-size);
 }
 
+.btn-section{
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .btn--remix {
   font-family: 'Public Sans', sans-serif;
   padding: 0.75rem 1rem;
@@ -68,6 +75,11 @@ html {
 
 .btn--remix:hover {
   background-color: #d0fff1;
+}
+
+.btn--github img, .btn--feed img{
+  width: 2rem;
+  aspect-ratio: 1;
 }
 
 .footer {
