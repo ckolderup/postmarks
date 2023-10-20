@@ -215,7 +215,7 @@ export async function getBookmarksForCSVExport() {
 
 export async function getBookmarkCountForTags(tags) {
   const tagClauses = tags.map(() => `(tags like ? OR tags like ?)`).join(' AND ');
-  const tagParams = tags.map((tag) => [`%${tag}% `, `%${tag}%`]).flat();
+  const tagParams = tags.map((tag) => [`%#${tag} %`, `%#${tag}`]).flat();
   const result = await db.get.apply(db, [`SELECT count(id) as count from bookmarks WHERE ${tagClauses}`, ...tagParams]);
   return result?.count;
 }
@@ -224,7 +224,7 @@ export async function getBookmarksForTags(tags, limit = 10, offset = 0) {
   // We use a try catch block in case of db errors
   try {
     const tagClauses = tags.map(() => `(tags like ? OR tags like ?)`).join(' AND ');
-    const tagParams = tags.map((tag) => [`%${tag}% `, `%${tag}%`]).flat();
+    const tagParams = tags.map((tag) => [`%#${tag} %`, `%#${tag}`]).flat();
     const results = await db.all.apply(db, [
       `SELECT * from bookmarks WHERE ${tagClauses} ORDER BY updated_at DESC LIMIT ? OFFSET ?`,
       ...tagParams,

@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
+import escapeHTML from 'escape-html';
 
 import { domain, account, simpleLogger, actorInfo, replaceEmptyText } from './src/util.js';
 import session, { isAuthenticated } from './src/session-auth.js';
@@ -57,7 +58,8 @@ const hbs = create({
     },
     htmlize(text) {
       // uh-oh. ohhhh no.
-      return text?.replace('\n', '<br/>');
+      const returnText = escapeHTML(text);
+      return returnText?.replace('\n', '<br/>');
     },
     siteName() {
       return app.get('site_name');
@@ -83,16 +85,17 @@ const hbs = create({
       return process.env.MASTODON_ACCOUNT;
     },
     ifIn(item, array, options) {
-      return array.indexOf(item) >= 0 ? options.fn(this) : options.inverse(this);
+      const lowercased = array.map((tag) => tag.toLowerCase());
+      return lowercased.indexOf(item.toLowerCase()) >= 0 ? options.fn(this) : options.inverse(this);
     },
     removeTag(tag, path) {
       return path
         .split('/')
-        .filter((x) => x !== tag)
+        .filter((x) => x.toLowerCase() !== tag.toLowerCase())
         .join('/');
     },
     ifThisTag(tag, path, options) {
-      return path === `/tagged/${tag}` ? options.fn(this) : options.inverse(this);
+      return path.toLowerCase() === `/tagged/${tag}`.toLowerCase() ? options.fn(this) : options.inverse(this);
     },
     eq(a, b, options) {
       return a === b ? options.fn(this) : options.inverse(this);

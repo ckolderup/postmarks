@@ -35,9 +35,10 @@ To set your app up:
 
 Setting `MASTODON_ACCOUNT` in the `.env` file will cause a link to be added to the Postmarks home page that can be used for verification with your Mastodon account. See the [Mastodon documentation](https://docs.joinmastodon.org/user/profile/#verification) for more details.
 
-## Developing Postmarks
+## Development & Contributions
 
-- To automatically log all requests to a text file, set add `LOGGING_ENABLED=true` to your .env file. This will cause all incoming requests to append to `request_log.txt` in your project folder.
+See [CONTRIBUTING.md](/CONTRIBUTING.md) for more information on how to work with Postmarks' development environment as well
+as how to submit your changes for
 
 ## Acknowledgments
 

@@ -26,7 +26,8 @@
     "open-graph-scraper": "^5.2.3",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.5",
-    "string-strip-html": "^13.4.2"
+    "string-strip-html": "^13.4.2",
+    "escape-html": "^1.0.3"
   },
   "engines": {
     "node": ">=16.x"
