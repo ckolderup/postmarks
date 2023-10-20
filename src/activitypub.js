@@ -36,7 +36,7 @@ export function createNoteObject(bookmark, account, domain) {
 
   let linkedTags = '';
 
-  if (!bookmark.tags === undefined && bookmark.tags?.trim().length > 0) {
+  if (bookmark.tags && bookmark.tags.length > 0) {
     linkedTags = bookmark.tags
       ?.split(' ')
       .map((tag) => {
@@ -46,9 +46,7 @@ export function createNoteObject(bookmark, account, domain) {
       .join(' ');
   }
 
-  console.log('linkedTags', linkedTags);
-
-  if (linkedTags && linkedTags?.trim().length > 0) {
+  if (linkedTags.trim().length > 0) {
     linkedTags = `<p>${linkedTags}</p>`;
   }
 
@@ -66,7 +64,7 @@ export function createNoteObject(bookmark, account, domain) {
     tag: [],
   };
 
-  updatedBookmark.tags?.split(' ').forEach((tag) => {
+  bookmark.tags?.split(' ').forEach((tag) => {
     const tagName = tag.slice(1);
     noteMessage.tag.push({
       type: 'Hashtag',
