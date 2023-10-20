@@ -38,7 +38,7 @@ export function createNoteObject(bookmark, account, domain) {
     ?.split(' ')
     .map((tag) => {
       const tagName = tag.slice(1);
-      return `<a href="https://${domain}/tagged/${tagName}" class="mention hashtag" rel="tag nofollow noopener noreferrer">${tag}<</a>`;
+      return `<a href="https://${domain}/tagged/${tagName}" class="mention hashtag" rel="tag nofollow noopener noreferrer">${tag}</a>`;
     })
     .join(' ');
 
