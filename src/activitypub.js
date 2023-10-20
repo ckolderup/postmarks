@@ -34,15 +34,21 @@ export function createNoteObject(bookmark, account, domain) {
   updatedBookmark.title = escapeHTML(bookmark.title);
   updatedBookmark.description = escapeHTML(bookmark.description);
 
-  let linkedTags = bookmark.tags
-    ?.split(' ')
-    .map((tag) => {
-      const tagName = tag.slice(1);
-      return `<a href="https://${domain}/tagged/${tagName}" class="mention hashtag" rel="tag nofollow noopener noreferrer">${tag}</a>`;
-    })
-    .join(' ');
+  let linkedTags = '';
 
-  if (linkedTags?.trim().length > 0) {
+  if (!bookmark.tags === undefined && bookmark.tags?.trim().length > 0) {
+    linkedTags = bookmark.tags
+      ?.split(' ')
+      .map((tag) => {
+        const tagName = tag.slice(1);
+        return `<a href="https://${domain}/tagged/${tagName}" class="mention hashtag" rel="tag nofollow noopener noreferrer">${tag}</a>`;
+      })
+      .join(' ');
+  }
+
+  console.log('linkedTags', linkedTags);
+
+  if (linkedTags && linkedTags?.trim().length > 0) {
     linkedTags = `<p>${linkedTags}</p>`;
   }
 
