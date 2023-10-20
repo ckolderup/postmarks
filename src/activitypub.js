@@ -65,8 +65,6 @@ export function createNoteObject(bookmark, account, domain) {
     });
   });
 
-  console.log('noteMesage', noteMessage);
-
   return noteMessage;
 }
 
