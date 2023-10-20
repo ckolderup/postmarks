@@ -65,9 +65,6 @@ const hbs = create({
     account() {
       return app.get('account');
     },
-    feedLink() {
-      return `<link rel="alternate" type="application/atom+xml" href="https://${app.get('domain')}/index.xml" />`;
-    },
     feedUrl() {
       return `https://${app.get('domain')}/index.xml`;
     },
