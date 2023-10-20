@@ -67,8 +67,8 @@ const hbs = create({
     account() {
       return app.get('account');
     },
-    feedLink() {
-      return `<link rel="alternate" type="application/atom+xml" href="https://${app.get('domain')}/index.xml" />`;
+    feedUrl() {
+      return `https://${app.get('domain')}/index.xml`;
     },
     projectUrl() {
       return `https://${app.get('domain')}`;
@@ -85,16 +85,17 @@ const hbs = create({
       return process.env.MASTODON_ACCOUNT;
     },
     ifIn(item, array, options) {
-      return array.indexOf(item) >= 0 ? options.fn(this) : options.inverse(this);
+      const lowercased = array.map((tag) => tag.toLowerCase());
+      return lowercased.indexOf(item.toLowerCase()) >= 0 ? options.fn(this) : options.inverse(this);
     },
     removeTag(tag, path) {
       return path
         .split('/')
-        .filter((x) => x !== tag)
+        .filter((x) => x.toLowerCase() !== tag.toLowerCase())
         .join('/');
     },
     ifThisTag(tag, path, options) {
-      return path === `/tagged/${tag}` ? options.fn(this) : options.inverse(this);
+      return path.toLowerCase() === `/tagged/${tag}`.toLowerCase() ? options.fn(this) : options.inverse(this);
     },
     eq(a, b, options) {
       return a === b ? options.fn(this) : options.inverse(this);
