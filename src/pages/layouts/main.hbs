@@ -6,7 +6,7 @@
     {{#if (mastodonAccount)}}
       <link rel="me" href="{{ mastodonAccount }}" />
     {{/if}}
-    {{{feedLink}}}
+    <link rel="alternate" type="application/atom+xml" href="{{{feedUrl}}}" />
     <title>{{title}} | {{siteName}}</title>
     <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-touch-icon-180.png?v=1693611327251" />
     <link rel="shortcut icon" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-favicon.ico?v=1693611323474" />
@@ -58,10 +58,18 @@
       {{else}}
         <a href="/login">Login</a>
       {{/if}}
+      <div class="btn-section">
+        <a class="btn--feed" href="{{{feedUrl}}}" target="_blank">
+        <img src="/feed-icon.png" alt="feed-icon">
+      </a>
+         <a class="btn--github" href="https://github.com/ckolderup/postmarks" target="_blank">
+        <img src="/github-icon.svg" alt="github-icon">
+      </a>
       <a class="btn--remix" target="_top" href="https://glitch.new/github.com/ckolderup/postmarks">
         <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140" alt="" />
         Remix on Glitch
       </a>
+      </div>
     </footer>
     {{{_sections.script}}}
   </body>
