@@ -1,12 +1,12 @@
 @font-face {
   font-family: 'Public Sans';
-  src: url('/PublicSans-VariableFont_wght.ttf');
+  src: url('/PublicSans-VariableFont_wght.woff2');
 }
 
 @font-face {
   font-family: 'Public Sans';
   font-style: italic;
-  src: url('/PublicSans-Italic-VariableFont_wght.ttf');
+  src: url('/PublicSans-Italic-VariableFont_wght.woff2');
 }
 
 :root {
