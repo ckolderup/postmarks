@@ -46,6 +46,10 @@ export function createNoteObject(bookmark, account, domain) {
       .join(' ');
   }
 
+  if (updatedBookmark.description?.trim().length > 0) {
+    updatedBookmark.description = `<br/>${updatedBookmark.description?.trim().replace('\n', '<br/>') || ''}`;
+  }
+
   if (linkedTags.trim().length > 0) {
     linkedTags = `<p>${linkedTags}</p>`;
   }
@@ -59,7 +63,7 @@ export function createNoteObject(bookmark, account, domain) {
     content: `<p><strong><a href="${updatedBookmark.url}" rel="nofollow noopener noreferrer">${replaceEmptyText(
       updatedBookmark.title,
       updatedBookmark.url,
-    )}</a></strong><br/>${updatedBookmark.description?.trim().replace('\n', '<br/>') || ''}</p>${linkedTags}`,
+    )}</a></strong>${updatedBookmark.description}</p>${linkedTags}`,
     to: [`https://${domain}/u/${account}/followers/`, 'https://www.w3.org/ns/activitystreams#Public'],
     tag: [],
   };
