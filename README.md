@@ -38,7 +38,7 @@ Setting `MASTODON_ACCOUNT` in the `.env` file will cause a link to be added to t
 ## Development & Contributions
 
 See [CONTRIBUTING.md](/CONTRIBUTING.md) for more information on how to work with Postmarks' development environment as well
-as how to submit your changes for
+as how to submit your changes for review.
 
 ## Acknowledgments
 
