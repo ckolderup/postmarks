@@ -46,9 +46,9 @@ try {
 export const instanceType = instanceData.name || 'postmarks';
 export const instanceVersion = instanceData.version || 'undefined';
 
-export function timeSince(ms) {
+export function timeSince(ms, fromDate = null) {
   const timestamp = new Date(ms);
-  const now = new Date(new Date().toUTCString());
+  const now = fromDate || new Date();
   const secondsPast = (now - timestamp) / 1000;
   if (secondsPast < 60) {
     return `${parseInt(secondsPast, 10)}s ago`;
