@@ -1,57 +1,60 @@
 import express from 'express';
+import path from 'path';
 import { synthesizeActivity } from '../../activitypub.js';
-import { getActorInfo } from '../../util.js';
+import { getActorInfo, domain } from '../../util.js';
+import * as db from '../../database.js';
 
 const router = express.Router();
 
 router.get('/:name', async (req, res) => {
-  let { name } = req.params;
-  if (!name) {
-    return res.status(400).send('Bad request.');
-  }
+  const { name } = req.params;
+
   if (!req.headers.accept?.includes('json')) {
     return res.redirect('/');
   }
 
-  const db = req.app.get('apDb');
-  const domain = req.app.get('domain');
-  const username = name;
-  name = `${name}@${domain}`;
+  const { username, avatar, displayName, description, publicKey } = await getActorInfo();
 
-  const actor = await db.getActor();
-
-  if (actor === undefined) {
+  if (username !== name) {
     return res.status(404).send(`No actor record found for ${name}.`);
   }
-  const tempActor = JSON.parse(actor);
-  // Added this followers URI for Pleroma compatibility, see https://github.com/dariusk/rss-to-activitypub/issues/11#issuecomment-471390881
-  // New Actors should have this followers URI but in case of migration from an old version this will add it in on the fly
-  if (tempActor.followers === undefined) {
-    tempActor.followers = `https://${domain}/u/${username}/followers`;
-  }
-  if (tempActor.outbox === undefined) {
-    tempActor.outbox = `https://${domain}/u/${username}/outbox`;
-  }
-  return res.json(tempActor);
+
+  return res.json({
+    '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
+
+    id: `https://${domain}/u/${username}`,
+    type: 'Person',
+    preferredUsername: username,
+    name: displayName,
+    summary: description,
+    icon: {
+      type: 'Image',
+      mediaType: `image/${path.extname(avatar).slice(1)}`,
+      url: avatar,
+    },
+    inbox: `https://${domain}/api/inbox`,
+    outbox: `https://${domain}/u/${username}/outbox`,
+    followers: `https://${domain}/u/${username}/followers`,
+    following: `https://${domain}/u/${username}/following`,
+
+    publicKey: {
+      id: `https://${domain}/u/${username}#main-key`,
+      owner: `https://${domain}/u/${username}`,
+      publicKeyPem: publicKey,
+    },
+  });
 });
 
 router.get('/:name/followers', async (req, res) => {
   const { name } = req.params;
+
   if (!name) {
     return res.status(400).send('Bad request.');
   }
-  const db = req.app.get('apDb');
-  const domain = req.app.get('domain');
 
-  let followers = await db.getFollowers();
+  const followers = (await db.all('select actor from followers')).map(({ actor }) => actor);
 
-  if (followers === undefined) {
-    followers = [];
-  } else {
-    followers = JSON.parse(followers);
-  }
-
-  const followersCollection = {
+  return res.json({
     type: 'OrderedCollection',
     totalItems: followers?.length || 0,
     id: `https://${domain}/u/${name}/followers`,
@@ -63,48 +66,42 @@ router.get('/:name/followers', async (req, res) => {
       id: `https://${domain}/u/${name}/followers?page=1`,
     },
     '@context': ['https://www.w3.org/ns/activitystreams'],
-  };
-  return res.json(followersCollection);
+  });
 });
 
 router.get('/:name/following', async (req, res) => {
   const { name } = req.params;
+
   if (!name) {
     return res.status(400).send('Bad request.');
   }
-  const db = req.app.get('apDb');
-  const domain = req.app.get('domain');
 
-  const followingText = (await db.getFollowing()) || '[]';
-  const following = JSON.parse(followingText);
+  const following = (await db.all('select actor from following')).map(({ actor }) => actor);
 
-  const followingCollection = {
+  return res.json({
     type: 'OrderedCollection',
-    totalItems: following?.length || 0,
+    totalItems: following.length,
     id: `https://${domain}/u/${name}/following`,
     first: {
       type: 'OrderedCollectionPage',
-      totalItems: following?.length || 0,
+      totalItems: following.length,
       partOf: `https://${domain}/u/${name}/following`,
       orderedItems: following,
       id: `https://${domain}/u/${name}/following?page=1`,
     },
     '@context': ['https://www.w3.org/ns/activitystreams'],
-  };
-  return res.json(followingCollection);
+  });
 });
 
 router.get('/:name/outbox', async (req, res) => {
-  const domain = req.app.get('domain');
   const { username: account } = await getActorInfo();
-  const apDb = req.app.get('apDb');
 
   function pageLink(p) {
     return `https://${domain}/u/${account}/outbox?page=${p}`;
   }
 
   const pageSize = 20;
-  const totalCount = await apDb.getMessageCount();
+  const totalCount = (await db.get('select count(message) as count from messages')).count;
   const lastPage = Math.ceil(totalCount / pageSize);
 
   if (req.query?.page === undefined) {
@@ -129,7 +126,17 @@ router.get('/:name/outbox', async (req, res) => {
   if (page < 1 || page > lastPage) return res.status(400).send('Invalid page number');
 
   const offset = (page - 1) * pageSize;
-  const notes = await apDb.getMessages(offset, pageSize);
+  const notes = await db.all(
+    `
+      select message
+      from messages
+      order by bookmark_id desc
+      limit ?
+      offset ?
+    `,
+    pageSize,
+    offset,
+  );
   const activities = notes.map((n) => synthesizeActivity(JSON.parse(n.message)));
 
   const collectionPage = {

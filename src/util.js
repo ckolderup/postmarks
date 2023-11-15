@@ -1,38 +1,16 @@
+import chalk from 'chalk';
 import fs from 'fs';
 import { readFile } from 'fs/promises';
-import chalk from 'chalk';
-import * as dotenv from 'dotenv';
 import * as db from './database.js';
 
-dotenv.config();
-
-const ACTOR_SETTING_NAMES = ['username', 'avatar', 'displayName', 'description'];
-const IS_ACCOUNT_FILE_IMPORTED = 'isAccountFileImported';
+export const ACTOR_SETTING_NAMES = ['username', 'avatar', 'displayName', 'description', 'publicKey'];
 
 export const data = {
   errorMessage: 'Whoops! Error connecting to the database–please try again!',
   setupMessage: "🚧 Whoops! Looks like the database isn't setup yet! 🚧",
 };
 
-try {
-  const accountFile = await readFile(new URL('../account.json', import.meta.url));
-  const accountFileData = JSON.parse(accountFile);
-  const isAccountFileImported = await db.getSetting(IS_ACCOUNT_FILE_IMPORTED);
-  if (isAccountFileImported) {
-    console.log('Postmarks detected an account.json file that will no longer be read. You should remove this file.');
-  } else {
-    await db.setSettings({
-      ...Object.fromEntries(Object.entries(accountFileData).filter(([name]) => ACTOR_SETTING_NAMES.includes(name))),
-      [IS_ACCOUNT_FILE_IMPORTED]: true,
-    });
-    console.log('Your account.json file has been imported to the database. You should now remove this file.');
-  }
-} catch (e) {
-  // TODO: Check for existence of account.json instead of catching error
-  console.log('Failed to read account.json', e);
-}
-
-export const getActorInfo = () => db.getSettings(ACTOR_SETTING_NAMES);
+export const getActorInfo = () => db.settings.all(ACTOR_SETTING_NAMES);
 
 export const domain = (() => {
   if (process.env.PUBLIC_BASE_URL) {

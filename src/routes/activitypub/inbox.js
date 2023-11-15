@@ -1,7 +1,8 @@
 import express from 'express';
 import crypto from 'crypto';
 import * as linkify from 'linkifyjs';
-import { actorMatchesUsername, parseJSON } from '../../util.js';
+import * as db from '../../database.js';
+import { actorMatchesUsername } from '../../util.js';
 import { signAndSend, getInboxFromActorProfile } from '../../activitypub.js';
 
 import { signedGetJSON } from '../../signature.js';
@@ -9,7 +10,6 @@ import { signedGetJSON } from '../../signature.js';
 const router = express.Router();
 
 async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) {
-  const db = req.app.get('apDb');
   const guid = crypto.randomBytes(16).toString('hex');
   const message = {
     '@context': 'https://www.w3.org/ns/activitystreams',
@@ -21,130 +21,64 @@ async function sendAcceptMessage(thebody, name, domain, req, res, targetDomain) 
 
   const inbox = await getInboxFromActorProfile(message.object.actor);
 
-  signAndSend(message, name, domain, db, targetDomain, inbox);
+  signAndSend(message, name, domain, targetDomain, inbox);
 }
 
 async function handleFollowRequest(req, res) {
   const domain = req.app.get('domain');
-  const apDb = req.app.get('apDb');
 
-  const myURL = new URL(req.body.actor);
-  const targetDomain = myURL.hostname;
+  const { hostname: targetDomain } = new URL(req.body.actor);
   const name = req.body.object.replace(`https://${domain}/u/`, '');
 
   await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
-  // Add the user to the DB of accounts that follow the account
-
-  // get the followers JSON for the user
-  const oldFollowersText = (await apDb.getFollowers()) || '[]';
-
-  // update followers
-  let followers = parseJSON(oldFollowersText);
-  if (followers) {
-    followers.push(req.body.actor);
-    // unique items
-    followers = [...new Set(followers)];
-  } else {
-    followers = [req.body.actor];
-  }
-  const newFollowersText = JSON.stringify(followers);
-  try {
-    // update into DB
-    await apDb.setFollowers(newFollowersText);
-
-    console.log('updated followers!');
-  } catch (e) {
-    console.log('error storing followers after follow', e);
-  }
+  const { actor } = req.body;
+  await db.run('insert into followers (actor) values ? on conflict (actor) do nothing', actor);
 
   return res.status(200);
 }
 
 async function handleUnfollow(req, res) {
   const domain = req.app.get('domain');
-  const apDb = req.app.get('apDb');
-
   const myURL = new URL(req.body.actor);
   const targetDomain = myURL.hostname;
   const name = req.body.object.object.replace(`https://${domain}/u/`, '');
 
   await sendAcceptMessage(req.body, name, domain, req, res, targetDomain);
 
-  // get the followers JSON for the user
-  const oldFollowersText = (await apDb.getFollowers()) || '[]';
-
-  // update followers
-  const followers = parseJSON(oldFollowersText);
-  if (followers) {
-    followers.forEach((follower, idx) => {
-      if (follower === req.body.actor) {
-        followers.splice(idx, 1);
-      }
-    });
-  }
-
-  const newFollowersText = JSON.stringify(followers);
-
-  try {
-    await apDb.setFollowers(newFollowersText);
-    return res.sendStatus(200);
-  } catch (e) {
-    console.log('error storing followers after unfollow', e);
-    return res.status(500);
-  }
-}
-
-async function handleFollowAccepted(req, res) {
-  const apDb = req.app.get('apDb');
-
-  const oldFollowingText = (await apDb.getFollowing()) || '[]';
-
-  let follows = parseJSON(oldFollowingText);
-
-  if (follows) {
-    follows.push(req.body.actor);
-    // unique items
-    follows = [...new Set(follows)];
-  } else {
-    follows = [req.body.actor];
-  }
-  const newFollowingText = JSON.stringify(follows);
-
-  try {
-    // update into DB
-    await apDb.setFollowing(newFollowingText);
-
-    console.log('updated following!');
-    return res.status(200);
-  } catch (e) {
-    console.log('error storing follows after follow action', e);
-    return res.status(500);
-  }
+  const { actor } = req.body;
+  await db.run('delete from followers where actor = ?', actor);
+  return res.sendStatus(200);
 }
 
 async function handleCommentOnBookmark(req, res, inReplyToGuid) {
-  const apDb = req.app.get('apDb');
-
-  const bookmarkId = await apDb.getBookmarkIdFromMessageGuid(inReplyToGuid);
+  const bookmarkId = (await db.get('select bookmark_id from messages where guid = ?', inReplyToGuid))?.bookmark_id;
 
   if (typeof bookmarkId !== 'number') {
     console.log("couldn't find a bookmark this message is related to");
     return res.sendStatus(400);
   }
 
-  const bookmarkPermissions = await apDb.getPermissionsForBookmark(bookmarkId);
-  const globalPermissions = await apDb.getGlobalPermissions();
+  const permissions = await db.all(
+    `
+      select actor, status
+      from permissions
+      where (bookmark_id = 0 or bookmark_id = ?)
+    `,
+    bookmarkId,
+  );
 
-  const bookmarkBlocks = bookmarkPermissions?.blocked?.split('\n') || [];
-  const globalBlocks = globalPermissions?.blocked?.split('\n') || [];
+  const blocklist = [];
+  const allowlist = [];
 
-  const bookmarkAllows = bookmarkPermissions?.allowed?.split('\n') || [];
-  const globalAllows = globalPermissions?.allowed?.split('\n') || [];
+  permissions.forEach(({ actor, status }) => {
+    if (status) {
+      allowlist.push(actor);
+    } else {
+      blocklist.push(actor);
+    }
+  });
 
-  const blocklist = bookmarkBlocks.concat(globalBlocks).filter((x) => x.match(/^@([^@]+)@(.+)$/));
-  const allowlist = bookmarkAllows.concat(globalAllows).filter((x) => x.match(/^@([^@]+)@(.+)$/));
-
-  if (blocklist.length > 0 && blocklist.map((username) => actorMatchesUsername(req.body.actor, username)).some((x) => x)) {
+  if (blocklist.some((username) => actorMatchesUsername(req.body.actor, username)).some((x) => x)) {
     console.log(`Actor ${req.body.actor} matches a blocklist item, ignoring comment`);
     return res.sendStatus(403);
   }
@@ -158,7 +92,7 @@ async function handleCommentOnBookmark(req, res, inReplyToGuid) {
 
   const commentUrl = req.body.object.id;
   let visible = 0;
-  if (allowlist.map((username) => actorMatchesUsername(req.body.actor, username)).some((x) => x)) {
+  if (allowlist.some((username) => actorMatchesUsername(req.body.actor, username)).some((x) => x)) {
     console.log(`Actor ${req.body.actor} matches an allowlist item, marking comment visible`);
     visible = 1;
   }
@@ -218,7 +152,8 @@ router.post('/', async function (req, res) {
     return handleUnfollow(req, res);
   }
   if (req.body.type === 'Accept' && req.body.object?.type === 'Follow') {
-    return handleFollowAccepted(req, res);
+    await db.run('insert into following (actor) values ? on conflict (actor) do nothing', req.body.actor);
+    return res.status(200);
   }
   if (req.body.type === 'Delete') {
     return handleDeleteRequest(req, res);

@@ -4,12 +4,13 @@ import escapeHTML from 'escape-html';
 
 import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorMatchesUsername, replaceEmptyText } from './util.js';
+import * as db from './database.js';
 
 function getGuidFromPermalink(urlString) {
   return urlString.match(/(?:\/m\/)([a-zA-Z0-9+/]+)/)[1];
 }
 
-export async function signAndSend(message, name, domain, db, targetDomain, inbox) {
+export async function signAndSend(message, name, domain, targetDomain, inbox) {
   try {
     const response = await signedPostJSON(inbox, {
       body: JSON.stringify(message),
@@ -80,7 +81,7 @@ export function createNoteObject(bookmark, account, domain) {
   return noteMessage;
 }
 
-function createMessage(noteObject, bookmarkId, account, domain, db) {
+async function createMessage(noteObject, bookmarkId, account, domain) {
   const guidCreate = crypto.randomBytes(16).toString('hex');
 
   const message = {
@@ -92,40 +93,48 @@ function createMessage(noteObject, bookmarkId, account, domain, db) {
     object: noteObject,
   };
 
-  db.insertMessage(getGuidFromPermalink(noteObject.id), bookmarkId, JSON.stringify(noteObject));
+  // TODO: does "insert or replace" work?
+  await db.run(
+    `
+      insert or replace into messages
+      (guid, bookmark_id, message)
+      values (?, ?, ?)
+    `,
+    getGuidFromPermalink(noteObject.id),
+    bookmarkId,
+    JSON.stringify(noteObject),
+  );
 
   return message;
 }
 
-async function createUpdateMessage(bookmark, account, domain, db) {
-  const guid = await db.getGuidForBookmarkId(bookmark.id);
+async function createUpdateMessage(bookmark, account, domain) {
+  const guid = (await db.get('select guid from messages where bookmark_id = ?', bookmark.id))?.guid;
+
+  let note = `https://${domain}/m/${guid}`;
 
   // if the bookmark was created but not published to activitypub
   // we might need to just make our own note object to send along
-  let note;
   if (guid === undefined) {
     note = createNoteObject(bookmark, account, domain);
-    createMessage(note, bookmark.id, account, domain, db);
-  } else {
-    note = `https://${domain}/m/${guid}`;
+    await createMessage(note, bookmark.id, account, domain);
   }
 
-  const updateMessage = {
+  return {
     '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
     summary: `${account} updated the bookmark`,
     type: 'Create', // this should be 'Update' but Mastodon does weird things with Updates
     actor: `https://${domain}/u/${account}`,
     object: note,
   };
-
-  return updateMessage;
 }
 
-async function createDeleteMessage(bookmark, account, domain, db) {
-  const guid = await db.findMessageGuid(bookmark.id);
-  await db.deleteMessage(guid);
+async function createDeleteMessage(bookmark, account, domain) {
+  const guid = (await db.get('select guid from messages where bookmark_id = ?', bookmark.id))?.guid;
 
-  const deleteMessage = {
+  await db.run('delete from messages where bookmark_id = ?', bookmark.id);
+
+  return {
     '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
     id: `https://${domain}/m/${guid}`,
     type: 'Delete',
@@ -136,12 +145,11 @@ async function createDeleteMessage(bookmark, account, domain, db) {
       id: `https://${domain}/m/${guid}`,
     },
   };
-
-  return deleteMessage;
 }
 
-export async function createFollowMessage(account, domain, target, db) {
+export async function createFollowMessage(account, domain, target) {
   const guid = crypto.randomBytes(16).toString('hex');
+
   const followMessage = {
     '@context': 'https://www.w3.org/ns/activitystreams',
     id: guid,
@@ -150,33 +158,42 @@ export async function createFollowMessage(account, domain, target, db) {
     object: target,
   };
 
-  db.insertMessage(guid, null, JSON.stringify(followMessage));
+  await db.run(
+    `
+      insert or replace into messages
+      (guid, bookmark_id, message)
+      values (?, ?, ?)
+    `,
+    guid,
+    null,
+    JSON.stringify(followMessage),
+  );
 
   return followMessage;
 }
 
-export async function createUnfollowMessage(account, domain, target, db) {
+export async function createUnfollowMessage(account, domain, target) {
   const undoGuid = crypto.randomBytes(16).toString('hex');
 
-  const messageRows = await db.findMessage(target);
+  const messageRows = await db.all('select * from messages where message like ?', `%${target}%`);
 
   console.log('result', messageRows);
 
-  const followMessages = messageRows?.filter((row) => {
+  const followMessage = messageRows.find((row) => {
     const message = JSON.parse(row.message || '{}');
     return message.type === 'Follow' && message.object === target;
   });
 
-  if (followMessages?.length > 0) {
-    const undoMessage = {
+  if (followMessage) {
+    return {
       '@context': 'https://www.w3.org/ns/activitystreams',
       type: 'Undo',
       id: undoGuid,
       actor: `${domain}/u/${account}`,
-      object: followMessages.slice(-1).message,
+      object: followMessage.message,
     };
-    return undoMessage;
   }
+
   console.log('tried to find a Follow record in order to unfollow, but failed');
   return null;
 }
@@ -210,58 +227,61 @@ export async function lookupActorInfo(actorUsername) {
   }
 }
 
-export async function broadcastMessage(bookmark, action, db, account, domain) {
+export async function broadcastMessage(bookmark, action, account, domain) {
   // TODO bail if activitypub not set up
 
-  const result = await db.getFollowers();
-  const followers = JSON.parse(result);
+  let followers = (await db.all('select actor from followers')).map((r) => r.actor);
 
-  if (followers === null) {
+  if (!followers.length) {
     console.log(`No followers for account ${account}@${domain}`);
-  } else {
-    const bookmarkPermissions = await db.getPermissionsForBookmark(bookmark.id);
-    const globalPermissions = await db.getGlobalPermissions();
-    const blocklist =
-      bookmarkPermissions?.blocked
-        ?.split('\n')
-        ?.concat(globalPermissions?.blocked?.split('\n'))
-        .filter((x) => !x?.match(/^@([^@]+)@(.+)$/)) || [];
+    return;
+  }
 
-    // now let's try to remove the blocked users
-    followers.filter((actor) => {
-      const matches = blocklist.forEach((username) => {
-        actorMatchesUsername(actor, username);
-      });
+  const blocked = await db.all(
+    `
+    select actor
+    from permissions
+    where status = 0
+    and (bookmark_id = 0 or bookmark_id = ?)
+    `,
+    bookmark.id,
+  );
+  const blocklist = blocked.map((b) => b.actor);
 
-      return !matches?.some((x) => x);
+  // now let's try to remove the blocked users
+  followers = followers.filter((actor) => {
+    const matches = blocklist.forEach((username) => {
+      actorMatchesUsername(actor, username);
     });
 
-    const noteObject = createNoteObject(await bookmark, account, domain);
-    let message;
-    switch (action) {
-      case 'create':
-        message = createMessage(noteObject, bookmark.id, account, domain, db);
-        break;
-      case 'update':
-        message = await createUpdateMessage(bookmark, account, domain, db);
-        break;
-      case 'delete':
-        message = await createDeleteMessage(bookmark, account, domain, db);
-        break;
-      default:
-        console.log('unsupported action!');
-        return;
-    }
+    return !matches?.some((x) => x);
+  });
 
-    console.log(`sending this message to all followers: ${JSON.stringify(message)}`);
+  const noteObject = createNoteObject(await bookmark, account, domain);
+  let message;
+  switch (action) {
+    case 'create':
+      message = await createMessage(noteObject, bookmark.id, account, domain);
+      break;
+    case 'update':
+      message = await createUpdateMessage(bookmark, account, domain);
+      break;
+    case 'delete':
+      message = await createDeleteMessage(bookmark, account, domain);
+      break;
+    default:
+      console.log('unsupported action!');
+      return;
+  }
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const follower of followers) {
-      const inbox = `${follower}/inbox`;
-      const myURL = new URL(follower);
-      const targetDomain = myURL.host;
-      signAndSend(message, account, domain, db, targetDomain, inbox);
-    }
+  console.log(`sending this message to all followers: ${JSON.stringify(message)}`);
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const follower of followers) {
+    // TODO: Don't assume that this is where the user's inbox is
+    const inbox = `${follower}/inbox`;
+    const { host: targetDomain } = new URL(follower);
+    signAndSend(message, account, domain, targetDomain, inbox);
   }
 }
 

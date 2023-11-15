@@ -7,8 +7,8 @@ import escapeHTML from 'escape-html';
 import { domain, simpleLogger, getActorInfo, replaceEmptyText } from './src/util.js';
 import session, { isAuthenticated } from './src/session-auth.js';
 import * as bookmarksDb from './src/bookmarks-db.js';
-import * as apDb from './src/activity-pub-db.js';
 import * as db from './src/database.js';
+import './src/boot.js';
 
 import routes from './src/routes/index.js';
 
@@ -31,7 +31,6 @@ app.use(async (req, res, next) => {
 });
 
 app.set('bookmarksDb', bookmarksDb);
-app.set('apDb', apDb);
 app.set('db', db);
 app.set('domain', domain);
 

@@ -4,6 +4,7 @@ import ogScraper from 'open-graph-scraper';
 import { data, getActorInfo, domain, removeEmpty } from '../util.js';
 import { broadcastMessage } from '../activitypub.js';
 import { isAuthenticated } from '../session-auth.js';
+import * as db from '../database.js';
 
 const router = express.Router();
 export default router;
@@ -100,7 +101,6 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/edit', isAuthenticated, async (req, res) => {
   const params = req.query.raw ? {} : { ephemeral: false };
   const bookmarksDb = req.app.get('bookmarksDb');
-  const apDb = req.app.get('apDb');
 
   const bookmark = await bookmarksDb.getBookmark(req.params.id);
   bookmark.tagsArray = encodeURIComponent(JSON.stringify(bookmark.tags?.split(' ').map((b) => b.slice(1)) || []));
@@ -109,9 +109,18 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
   if (!bookmark) {
     params.error = data.errorMessage;
   } else {
-    const permissions = await apDb.getPermissionsForBookmark(req.params.id);
-    params.allowed = permissions?.allowed;
-    params.blocked = permissions?.blocked;
+    params.allowed = [];
+    params.blocked = [];
+
+    const permissions = await db.all('select * from permissions where bookmark_id = ?', req.params.id);
+
+    permissions.forEach(({ actor, status }) => {
+      if (status) {
+        params.allowed.push(actor);
+      } else {
+        params.blocked.push(actor);
+      }
+    });
 
     params.title = 'Edit Bookmark';
     params.bookmark = bookmark;
@@ -125,13 +134,12 @@ router.post('/:id/delete', isAuthenticated, async (req, res) => {
   const params = {};
   const { id } = req.params;
   const bookmarksDb = req.app.get('bookmarksDb');
-  const apDb = req.app.get('apDb');
 
   await bookmarksDb.deleteBookmark(id);
 
   const { username: account } = await getActorInfo();
 
-  broadcastMessage({ id }, 'delete', apDb, account, domain);
+  await broadcastMessage({ id }, 'delete', account, domain);
 
   return req.query.raw ? res.send(params) : res.redirect('/');
 });
@@ -183,7 +191,6 @@ router.post('/multiadd', isAuthenticated, async (req, res) => {
 
 router.post('/:id?', isAuthenticated, async (req, res) => {
   const bookmarksDb = req.app.get('bookmarksDb');
-  const apDb = req.app.get('apDb');
 
   const params = {};
   const { id } = req.params;
@@ -223,11 +230,30 @@ router.post('/:id?', isAuthenticated, async (req, res) => {
         description: req.body.description.trim(),
         tags,
       });
-      await apDb.setPermissionsForBookmark(id, req.body.allowed || '', req.body.blocked || '');
+
+      const { allowed, blocked } = req.body;
+
+      const records = JSON.parse(allowed)
+        .map((actor) => ({ bookmark_id: id, actor, status: 1 }))
+        .concat(JSON.parse(blocked).map((actor) => ({ bookmark_id: id, actor, status: 0 })));
+
+      if (records.length) {
+        const [insert, values] = db.buildInsert(records);
+
+        await db.run(
+          `
+          insert into permissions
+          ${insert}
+          on conflict (bookmark_id, actor)
+          do update set status = excluded.status
+        `,
+          values,
+        );
+      }
 
       const { username: account } = await getActorInfo();
 
-      broadcastMessage(bookmark, 'update', apDb, account, domain);
+      await broadcastMessage(bookmark, 'update', account, domain);
     }
   } else {
     const noTitle = req.body.title === '';
@@ -259,7 +285,7 @@ router.post('/:id?', isAuthenticated, async (req, res) => {
 
     const { username: account } = await getActorInfo();
 
-    broadcastMessage(bookmark, 'create', apDb, account, domain);
+    await broadcastMessage(bookmark, 'create', account, domain);
   }
 
   params.bookmarks = bookmark;
