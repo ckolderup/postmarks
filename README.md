@@ -44,7 +44,7 @@ as how to submit your changes for review.
 
 - The "Postmarks" name is compliments of [Casey C](https://sowe.li) (no relation to Casey K), who brainstormed dozens of ideas for the name when Casey was first trying to rename the project. Thank you!
 - Postmarks (in its default configuration) uses an edited version of Eynav Raphael's ["Postmark Stamp"](https://thenounproject.com/icon/postmark-stamp-928917/) icon from The Noun Project.
-- It also makes use of free fonts including [Averia Sans](http://iotic.com/averia/) and [Public Sans](https://public-sans.digital.gov/).
+- It also makes use of the free font [Public Sans](https://public-sans.digital.gov/).
 - Much of the original form of the site's frontend is lifted from the starter projects available on [Glitch](https://glitch.com). Thank you to all the people who have contributed to those projects over the years!
 - Much of the original backend of the site is based off of Darius Kazemi's [express-activitypub](https://github.com/dariusk/express-activitypub) repo. I made a point not to just clone his repo from the start, but then ended up retyping most of it as I learned how things work. While some pieces have been upgraded, much of Darius' work creates the foundation for Postmarks' ActivityPub functionality.
 
