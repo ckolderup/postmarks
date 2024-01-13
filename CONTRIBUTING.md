@@ -156,6 +156,11 @@ To automatically log all requests to a text file, add `LOGGING_ENABLED=true`
 to your .env file. This will cause all incoming requests to append to
 `request_log.txt` in your project root directory.
 
+> [!WARNING]  
+> If you are running on a container with limited storage (e.g. Glitch), you
+> should not leave this enabled, or you'll eventually run out of space as
+> ActivityPub messages get logged. This is intended for debugging.
+
 ### Testing Mastodon interoperability
 
 Postmarks aims to be interoperable with other Fediverse apps where it makes
