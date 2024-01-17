@@ -1,22 +1,23 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="https://glitch.com/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    <link rel="icon" href="https://glitch.com/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     {{#if (mastodonAccount)}}
-      <link rel="me" href="{{ mastodonAccount }}" />
+      <link rel="me" href="{{ mastodonAccount }}">
     {{/if}}
-    <link rel="alternate" type="application/atom+xml" href="{{{feedUrl}}}" />
+    <link rel="alternate" type="application/atom+xml" href="{{{feedUrl}}}">
     <title>{{title}} | {{siteName}}</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-touch-icon-180.png?v=1693611327251" />
-    <link rel="shortcut icon" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-favicon.ico?v=1693611323474" />
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-touch-icon-180.png?v=1693611327251">
+    <link rel="shortcut icon" href="https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-favicon.ico?v=1693611323474">
+    <link rel="stylesheet" href="/style.css">
   </head>
   <body>
     <div class="header">
       <div class="logo">
         <a href="/">
-          <img src="/postmarks-logo-small.png" />
+          <img src="/postmarks-logo-small.png" alt="Small Postmarks logo">
           {{siteName}}
         </a>
       </div>
@@ -60,13 +61,13 @@
       {{/if}}
       <div class="btn-section">
         <a class="btn--feed" href="{{{feedUrl}}}" target="_blank">
-        <img src="/feed-icon.png" alt="feed-icon">
+        <img src="/feed-icon.png" alt="RSS feed icon">
       </a>
          <a class="btn--github" href="https://github.com/ckolderup/postmarks" target="_blank">
-        <img src="/github-icon.svg" alt="github-icon">
+        <img src="/github-icon.svg" alt="GitHub logo">
       </a>
       <a class="btn--remix" target="_top" href="https://glitch.new/github.com/ckolderup/postmarks">
-        <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140" alt="" />
+        <img src="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2FLogo_Color.svg?v=1618199565140" alt="Glitch logo">
         Remix on Glitch
       </a>
       </div>
