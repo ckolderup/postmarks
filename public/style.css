@@ -30,7 +30,6 @@
 }
 
 .visually-hidden {
-  clip: rect(0 0 0 0);
   clip-path: inset(50%);
   height: 1px;
   overflow: hidden;
@@ -79,7 +78,7 @@ html {
 
 .btn--github img, .btn--feed img{
   width: 2rem;
-  aspect-ratio: 1;
+  aspect-ratio: 1/1;
 }
 
 .footer {
@@ -499,8 +498,8 @@ a.bookmark-date {
 .network-post {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  border-radius: 10px; 
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5); 
+  border-radius: 10px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
   position: relative;
  line-height: 1.8em;
 }
@@ -545,8 +544,8 @@ a.bookmark-date {
   padding: 2px;
   padding-left: 15px;
   background-color: var(--color-background);
-  filter: brightness(.90);  
+  filter: brightness(.90);
   font-size: small;
-  border-radius: 15px 15px 15px 15px;  
+  border-radius: 15px 15px 15px 15px;
   margin-bottom: 15px;
 }
