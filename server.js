@@ -4,10 +4,11 @@ import cors from 'cors';
 import { create } from 'express-handlebars';
 import escapeHTML from 'escape-html';
 
-import { domain, account, simpleLogger, actorInfo, replaceEmptyText } from './src/util.js';
+import { domain, simpleLogger, getActorInfo, replaceEmptyText } from './src/util.js';
 import session, { isAuthenticated } from './src/session-auth.js';
 import * as bookmarksDb from './src/bookmarks-db.js';
-import * as apDb from './src/activity-pub-db.js';
+import * as db from './src/database.js';
+import './src/boot.js';
 
 import routes from './src/routes/index.js';
 
@@ -22,15 +23,15 @@ app.use(express.json());
 app.use(express.json({ type: 'application/activity+json' }));
 app.use(session());
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   res.locals.loggedIn = req.session.loggedIn;
+  const { displayName } = await getActorInfo();
+  res.locals.siteName = displayName;
   return next();
 });
 
-app.set('site_name', actorInfo.displayName || 'Postmarks');
 app.set('bookmarksDb', bookmarksDb);
-app.set('apDb', apDb);
-app.set('account', account);
+app.set('db', db);
 app.set('domain', domain);
 
 app.disable('x-powered-by');
@@ -60,12 +61,6 @@ const hbs = create({
       // uh-oh. ohhhh no.
       const returnText = escapeHTML(text);
       return returnText?.replace('\n', '<br/>');
-    },
-    siteName() {
-      return app.get('site_name');
-    },
-    account() {
-      return app.get('account');
     },
     feedUrl() {
       return `https://${app.get('domain')}/index.xml`;

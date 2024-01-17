@@ -11,9 +11,7 @@ import { open } from 'sqlite';
 // unclear why eslint can't resolve this package
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { stripHtml } from 'string-strip-html';
-import { timeSince, account, domain } from './util.js';
-
-const ACCOUNT_MENTION_REGEX = new RegExp(`^@${account}@${domain} `);
+import { timeSince, getActorInfo, domain } from './util.js';
 
 // Initialize the database
 const dbFile = './.data/bookmarks.db';
@@ -27,10 +25,10 @@ function stripHtmlFromComment(comment) {
   return { ...comment, content: stripHtml(comment.content).result };
 }
 
-function stripMentionFromComment(comment) {
+function stripMentionFromComment(account, comment) {
   return {
     ...comment,
-    content: comment.content.replace(ACCOUNT_MENTION_REGEX, ''),
+    content: comment.content.replace(new RegExp(`^@${account}@${domain} `), ''),
   };
 }
 
@@ -72,8 +70,8 @@ function massageBookmark(bookmark) {
   return addBookmarkDomain(addTags(insertRelativeTimestamp(bookmark)));
 }
 
-function massageComment(comment) {
-  return generateLinkedDisplayName(stripMentionFromComment(stripHtmlFromComment(insertRelativeTimestamp(comment))));
+function massageComment(account, comment) {
+  return generateLinkedDisplayName(stripMentionFromComment(account, stripHtmlFromComment(insertRelativeTimestamp(comment))));
 }
 
 /*
@@ -345,9 +343,11 @@ export async function toggleCommentVisibility(commentId) {
 }
 
 export async function getAllCommentsForBookmark(bookmarkId) {
+  const { username: account } = await getActorInfo();
+
   try {
     const results = await db.all('SELECT * FROM comments WHERE bookmark_id = ?', bookmarkId);
-    return results.map((c) => massageComment(c));
+    return results.map((c) => massageComment(account, c));
   } catch (dbError) {
     console.error(dbError);
   }
@@ -355,9 +355,11 @@ export async function getAllCommentsForBookmark(bookmarkId) {
 }
 
 export async function getVisibleCommentsForBookmark(bookmarkId) {
+  const { username: account } = await getActorInfo();
+
   try {
     const results = await db.all('SELECT * FROM comments WHERE visible = 1 AND bookmark_id = ?', bookmarkId);
-    return results.map((c) => massageComment(c));
+    return results.map((c) => massageComment(account, c));
   } catch (dbError) {
     console.error(dbError);
   }

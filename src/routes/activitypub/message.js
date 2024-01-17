@@ -1,5 +1,6 @@
 import express from 'express';
 import { synthesizeActivity } from '../../activitypub.js';
+import * as db from '../../database.js';
 
 const router = express.Router();
 
@@ -16,14 +17,12 @@ router.get('/:guid', async (req, res) => {
     return res.status(400).send('Bad request.');
   }
 
-  const db = req.app.get('apDb');
-
   if (!req.headers.accept?.includes('json')) {
     const bookmarkId = await db.getBookmarkIdFromMessageGuid(guid);
     return res.redirect(`/bookmark/${bookmarkId}`);
   }
 
-  const result = await db.getMessage(guid);
+  const result = await db.get('select message from messages where guid = ?', guid);
 
   if (result === undefined) {
     return res.status(404).send(`No message found for ${guid}.`);

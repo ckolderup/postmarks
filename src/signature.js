@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 
-import { account, domain } from './util.js';
-import { getPrivateKey } from './activity-pub-db.js';
+import { getActorInfo, domain } from './util.js';
+import { getPrivateKey } from './database.js';
 
 /**
  * Returns base-64 encoded SHA-256 digest of provided data
@@ -18,16 +18,16 @@ function getDigest(data) {
 /**
  * Returns base-64 encoded string signed with user's RSA private key
  *
- * @param {string} privkey - Postmarks user's private key
+ * @param {string} privateKey - Postmarks user's private key
  * @param {string} data - UTF-8 string to sign
  *
  * @returns {string}
  */
-function getSignature(privkey, data) {
+function getSignature(privateKey, data) {
   const signer = crypto.createSign('sha256');
   signer.update(data);
   signer.end();
-  return signer.sign(privkey).toString('base64');
+  return signer.sign(privateKey).toString('base64');
 }
 
 /**
@@ -67,12 +67,13 @@ function getSignatureParams(body, method, url) {
 /**
  * Returns the full "Signature" header to be included in the signed request
  *
+ * @param {string} account - The actor's username
  * @param {string} signature - Base-64 encoded request signature
  * @param {string[]} signatureKeys - Array of param names used when generating the signature
  *
  * @returns {string}
  */
-function getSignatureHeader(signature, signatureKeys) {
+function getSignatureHeader(account, signature, signatureKeys) {
   return [
     `keyId="https://${domain}/u/${account}"`,
     `algorithm="rsa-sha256"`,
@@ -90,11 +91,9 @@ function getSignatureHeader(signature, signatureKeys) {
  * @returns {Promise<Response>}
  */
 export async function signedFetch(url, init = {}) {
-  const privkey = await getPrivateKey(`${account}@${domain}`);
-  if (!privkey) {
-    throw new Error(`No private key found for ${account}.`);
-  }
+  const { username: account } = await getActorInfo();
 
+  const privateKey = await getPrivateKey();
   const { headers = {}, body = null, method = 'GET', ...rest } = init;
 
   const signatureParams = getSignatureParams(body, method, url);
@@ -102,8 +101,8 @@ export async function signedFetch(url, init = {}) {
   const stringToSign = Object.entries(signatureParams)
     .map(([k, v]) => `${k}: ${v}`)
     .join('\n');
-  const signature = getSignature(privkey, stringToSign);
-  const signatureHeader = getSignatureHeader(signature, signatureKeys);
+  const signature = getSignature(privateKey, stringToSign);
+  const signatureHeader = getSignatureHeader(account, signature, signatureKeys);
 
   return fetch(url, {
     body,

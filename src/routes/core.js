@@ -1,6 +1,6 @@
 import express from 'express';
 import * as linkify from 'linkifyjs';
-import { data, actorInfo } from '../util.js';
+import { data, getActorInfo } from '../util.js';
 import { isAuthenticated } from '../session-auth.js';
 
 const router = express.Router();
@@ -53,6 +53,8 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/about', async (req, res) => {
+  const actorInfo = await getActorInfo();
+
   res.render('about', {
     title: 'About',
     actorInfo,
@@ -97,7 +99,9 @@ router.get('/index.xml', async (req, res) => {
     params.last_updated = lastUpdated.toISOString();
   }
 
-  params.feedTitle = req.app.get('site_name');
+  const { displayName, username: account } = await getActorInfo();
+  params.account = account;
+  params.feedTitle = displayName;
   params.layout = false;
 
   res.type('application/atom+xml');
@@ -124,8 +128,12 @@ router.get('/tagged/*.xml', async (req, res) => {
     params.last_updated = bookmarks[0].created_at;
   }
 
-  params.feedTitle = `${req.app.get('site_name')}: Bookmarks tagged '${tags.join(' and ')}'`;
+  const { displayName, username: account } = await getActorInfo();
+
+  params.feedTitle = `${displayName}: Bookmarks tagged '${tags.join(' and ')}'`;
   params.layout = false;
+
+  params.account = account;
 
   res.type('application/atom+xml');
   return res.render('bookmarks-xml', params);
