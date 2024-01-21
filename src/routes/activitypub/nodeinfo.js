@@ -70,8 +70,8 @@ router.get('/', async (req, res) => {
       software: {
         name: instanceType,
         version: instanceVersion,
-        repository: "https://github.com/ckolderup/postmarks",
-        homepage: "https://postmarks.glitch.me",
+        repository: 'https://github.com/ckolderup/postmarks',
+        homepage: 'https://postmarks.glitch.me',
       },
       protocols: ['activitypub'],
       services: {
@@ -88,15 +88,14 @@ router.get('/', async (req, res) => {
       },
       openRegistrations: false,
       metadata: {
-        nodeName: "Postmarks",
-        nodeDescription: "A single-user bookmarking website designed to live on the Fediverse.",
+        nodeName: 'Postmarks',
+        nodeDescription: 'A single-user bookmarking website designed to live on the Fediverse.',
       },
     };
 
     res.type('application/json; profile="http://nodeinfo.diaspora.software/ns/schema/2.1#"');
     res.json(nodeInfo);
   }
-
 });
 
 export default router;
