@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
   const domain = req.app.get('domain');
   const searchUrl = `https://${domain}/search`;
 
-  var obj = {
+  let obj = {
     OpenSearchDescription: {
       $: {
         xmlns: 'http://a9.com/-/spec/opensearch/1.1/',
@@ -43,8 +43,8 @@ router.get('/', async (req, res) => {
     },
   };
 
-  var builder = new xml2js.Builder({headless: true});
-  var xml = builder.buildObject(obj);
+  const builder = new xml2js.Builder({ headless: true });
+  const xml = builder.buildObject(obj);
 
   res.header('Content-Type', 'application/opensearchdescription+xml');
   res.status(200).send(xml);
