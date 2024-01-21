@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
   const domain = req.app.get('domain');
   const searchUrl = `https://${domain}/search`;
 
-  let obj = {
+  const obj = {
     OpenSearchDescription: {
       $: {
         xmlns: 'http://a9.com/-/spec/opensearch/1.1/',
