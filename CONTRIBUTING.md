@@ -101,7 +101,7 @@ make changes to files inside the project directory. This is very useful for
 development purposes.
 - `npm run lint` which will run ESLint + Prettier and give you feedback on any
 issues with the formatting/code style in your changes. You should make sure this
-command reports no errors before opening a PR with your changes; a Github Action
+command reports no errors before opening a PR with your changes; a GitHub Action
 will block your changes if any errors are present. (If there's something you
 simply don't understand about this, please open your PR and ask for help; if
 someone has time they will try to assist you.)
@@ -109,7 +109,7 @@ someone has time they will try to assist you.)
 Note that you can also run `npm run lint -- --fix` to try and let ESLint apply
 automatic fixes for as many errors it finds as possible; we recommend you commit
 your work BEFORE running this command in case something goes wrong. If you have
-yet to push to Github you can always `git add` and `git commit --amend` to
+yet to push to GitHub you can always `git add` and `git commit --amend` to
 replace your initial commit with all the correctly-applied formatting changes
 once you've verified that they look okay.
 
@@ -121,12 +121,12 @@ properly. You are not required to use VSCode to develop Postmarks. The settings
 included are mostly meant to make the ESLint + Prettier configs allow us to
 standardize code changes as much as possible and with as little friction for you
 as we can add. If you have concerns or suggestions about specific settings, you
-are welcome to open a Github Issue to discuss.
+are welcome to open a GitHub Issue to discuss.
 
 ### Using Glitch
 
 Glitch is an online community for creative coding. Its free hosting allows for
-the "remixing" of projects, including directly from Github repos, and is
+the "remixing" of projects, including directly from GitHub repos, and is
 therefore useful for standing up ActivityPub servers that are instantly
 available at unique hostnames on the internet. You can go to this URL:
 
@@ -184,15 +184,15 @@ things that might aid our work.
 
 If you believe you have a collection of bookmarks that you believe would be
 useful for reproducing a bug or testing a new feature, please feel free to
-include a link to download that CSV in the appropriate Github Issue or PR.
-Github itself can be used to host CSV files via [Gist](https://gist.github.com).
+include a link to download that CSV in the appropriate GitHub Issue or PR.
+GitHub itself can be used to host CSV files via [Gist](https://gist.github.com).
 
 ## Submissions (How to submit changes)
 
 ### Bugfixes
 
 If you believe you've found a bug in Postmarks, we'd appreciate it if you
-documented that bug in the Github Issues for the repo. This will help us work
+documented that bug in the GitHub Issues for the repo. This will help us work
 with you to determine if the bug exists, if it's already been logged somewhere,
 and what the desired behavior is.
 
@@ -206,7 +206,7 @@ issue was determined to be a duplicate of).
 
 If you plan to add a feature to the Postmarks codebase and have any interest in
 submitting that change to the original repo, we'd recommend that you first open
-a Github Issue and explain what it is that you'd like to see. Features
+a GitHub Issue and explain what it is that you'd like to see. Features
 considered for merging should fit within the vision outlined in
 [Technical Philosophy](#technical-philosophy-important-things-to-understand)
 above, but it's possible that there will be other concerns that should be
@@ -222,7 +222,7 @@ section above, then submit a PR to the repo using your fork's branch.
 
 Once you've got an open PR from either of the sections above, a repo
 collaborator will work with you to determine if everything looks okay. Once
-someone else has approved your changes and all Github Actions checks have passed
+someone else has approved your changes and all GitHub Actions checks have passed
 successfully, a collaborator will merge your work.
 
 If you _are_ a repo collaborator, the repo is still configured to require a
@@ -251,7 +251,7 @@ contact the owner of the project ([Casey Kolderup](https://github.com/ckolderup)
 ) if you feel that credit was overlooked somewhere.
 
 If you submit a change to this repo, we will assume that it's okay to refer to
-the work you did using the username or display name you've set on Github in
+the work you did using the username or display name you've set on GitHub in
 other places on the repo as well as in references to Postmarks' development on
 blogs, social media, etc. If that's NOT the case, please indicate your wishes
 when submitting your PR and we'll accommodate you to the best of our abilities.
@@ -269,4 +269,4 @@ the project move forward under its current development phase and volume of
 incoming attention.
 
 If you believe that something needs to change to make you feel comfortable
-contributing to this project, please feel free to open a Github Issue.
+contributing to this project, please feel free to open a GitHub Issue.

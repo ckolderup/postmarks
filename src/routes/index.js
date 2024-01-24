@@ -8,6 +8,7 @@ import message from './activitypub/message.js';
 import user from './activitypub/user.js';
 import webfinger from './activitypub/webfinger.js';
 import nodeinfo from './activitypub/nodeinfo.js';
+import opensearch from './opensearch.js';
 
 export default {
   admin,
@@ -20,4 +21,5 @@ export default {
   user,
   webfinger,
   nodeinfo,
+  opensearch,
 };

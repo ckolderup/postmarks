@@ -27,7 +27,8 @@
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.5",
     "string-strip-html": "^13.4.2",
-    "escape-html": "^1.0.3"
+    "escape-html": "^1.0.3",
+    "xml2js": "^0.6.2"
   },
   "engines": {
     "node": ">=16.x"
@@ -43,7 +44,8 @@
     "fediverse",
     "express",
     "activitypub",
-    "mastodon"
+    "mastodon",
+    "bookmarks"
   ],
   "devDependencies": {
     "eslint": "^8.43.0",
