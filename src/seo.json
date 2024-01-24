@@ -1,7 +1,0 @@
-{
-  "title": "Postmarks",
-  "description": "An ActivityPub bookmarking and sharing site built with Glitch. Remix it to get your own.",
-  "url": "postmarks",
-  "image": "/postmarks-logo.png",
-  "db": "SQLite"
-}
