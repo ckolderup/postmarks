@@ -128,6 +128,7 @@ app.use('/', routes.core);
 app.use('/api/inbox', cors(), routes.inbox);
 app.use('/.well-known/nodeinfo', routes.nodeinfo);
 app.use('/nodeinfo/2.0', routes.nodeinfo);
+app.use('/nodeinfo/2.1', routes.nodeinfo);
 app.use('/opensearch.xml', routes.opensearch);
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
