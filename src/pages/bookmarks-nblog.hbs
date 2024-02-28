@@ -1,0 +1,9 @@
+[
+  {{#each bookmarks}}
+  {
+    "id": "{{projectUrl}}/bookmark/{{id}}",
+    "date": "{{created_at}}",
+    "content": "[{{setTitle this}}]({{url}}){{#if description }} - {{description}}{{/if}}"
+  }{{#unless @last}},{{/unless}}
+  {{/each}}
+]
