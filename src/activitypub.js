@@ -4,7 +4,7 @@ import escapeHTML from 'escape-html';
 
 import { signedGetJSON, signedPostJSON } from './signature.js';
 import { actorInfo, actorMatchesUsername, replaceEmptyText } from './util.js';
-import * as apDb from './activity-pub-db.js'
+import * as apDb from './activity-pub-db.js';
 
 function getGuidFromPermalink(urlString) {
   return urlString.match(/(?:\/m\/)([a-zA-Z0-9+/]+)/)[1];
@@ -268,14 +268,13 @@ export async function broadcastMessage(bookmark, action, db, account, domain) {
   }
 }
 
-
 export async function updateProfile(account, domain) {
   if (actorInfo.disabled) {
     return; // no fediverse setup
   }
-  const publicKey = await apDb.getPublicKey()
-  const actorRecord = apDb.actorJson(publicKey)
-  
+  const publicKey = await apDb.getPublicKey();
+  const actorRecord = apDb.actorJson(publicKey);
+
   const guidUpdate = crypto.randomBytes(16).toString('hex');
   const updateMessage = {
     '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
@@ -285,16 +284,16 @@ export async function updateProfile(account, domain) {
     to: ['https://www.w3.org/ns/activitystreams#Public'],
     object: actorRecord,
   };
-  
+
   apDb.insertMessage(guidUpdate, null, JSON.stringify(updateMessage));
   const result = await apDb.getFollowers();
   const followers = JSON.parse(result);
   // eslint-disable-next-line no-restricted-syntax
   for (const follower of followers) {
-      const myURL = new URL(follower);
-      const targetDomain = myURL.host;
-      const inbox = `https://${targetDomain}/inbox`;
-      signAndSend(updateMessage, account, domain, apDb, targetDomain, inbox);
+    const myURL = new URL(follower);
+    const targetDomain = myURL.host;
+    const inbox = `https://${targetDomain}/inbox`;
+    signAndSend(updateMessage, account, domain, apDb, targetDomain, inbox);
   }
 }
 
