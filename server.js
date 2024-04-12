@@ -10,6 +10,7 @@ import * as bookmarksDb from './src/bookmarks-db.js';
 import * as apDb from './src/activity-pub-db.js';
 
 import routes from './src/routes/index.js';
+import { updateProfile } from './src/activitypub.js';
 
 dotenv.config();
 
@@ -132,3 +133,6 @@ app.use('/nodeinfo/2.1', routes.nodeinfo);
 app.use('/opensearch.xml', routes.opensearch);
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
+app.on('listening', function () {
+  // updateProfile(apDb, account, domain);
+});
