@@ -11,6 +11,7 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import crypto from 'crypto';
 import { account, domain, actorInfo } from './util.js';
+import { updateProfile } from './activitypub.js'
 
 const dbFile = './.data/activitypub.db';
 let db;
@@ -245,6 +246,7 @@ function setup() {
       const publicKey = await getPublicKey();
       const actorRecord = actorJson(publicKey);
       await db.run('UPDATE accounts SET name = ?, actor = ?', actorName, JSON.stringify(actorRecord));
+      //updateProfile(account, domain) // Uncomment this line to send a profile update to all followers
     } catch (dbError) {
       console.error(dbError);
     }
