@@ -118,7 +118,6 @@ app.engine('.hbs', hbs.engine);
 
 app.use(simpleLogger);
 
-
 app.use('/admin', isAuthenticated, routes.admin);
 app.use('/', routes.auth);
 app.use('/bookmark', routes.bookmark);

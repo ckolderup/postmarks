@@ -16,7 +16,6 @@ router.get('/:name', async (req, res) => {
   const domain = req.app.get('domain');
   const username = name;
   name = `${name}@${domain}`;
-  
   const actor = await db.getActor();
 
   if (actor === undefined) {
