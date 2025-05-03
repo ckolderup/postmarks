@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
           height: '16',
           type: 'image/png',
         },
-        _: 'https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-favicon.ico?v=1693611323474',
+        _: 'https://${domain}/postmarks-favicon.ico',
       },
       Url: {
         $: {
