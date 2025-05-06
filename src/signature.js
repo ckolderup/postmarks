@@ -132,13 +132,13 @@ export async function signedFetch(url, init = {}) {
  */
 function _signedFetchJSON(url, method = 'GET', init = {}) {
   const { body, headers = {}, ...rest } = init;
-  const contentTypeHeader = body ? { 'Content-Type': 'application/json' } : {};
+  const contentTypeHeader = body ? { 'Content-Type': 'application/activity+json' } : {};
 
   return signedFetch(url, {
     body,
     headers: {
       ...headers,
-      Accept: 'application/json',
+      Accept: 'application/activity+json',
       ...contentTypeHeader,
     },
     ...rest,

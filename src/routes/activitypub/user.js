@@ -16,7 +16,6 @@ router.get('/:name', async (req, res) => {
   const domain = req.app.get('domain');
   const username = name;
   name = `${name}@${domain}`;
-
   const actor = await db.getActor();
 
   if (actor === undefined) {
@@ -31,6 +30,7 @@ router.get('/:name', async (req, res) => {
   if (tempActor.outbox === undefined) {
     tempActor.outbox = `https://${domain}/u/${username}/outbox`;
   }
+  res.setHeader('Content-Type', 'application/activity+json');
   return res.json(tempActor);
 });
 
@@ -63,6 +63,7 @@ router.get('/:name/followers', async (req, res) => {
     },
     '@context': ['https://www.w3.org/ns/activitystreams'],
   };
+  res.setHeader('Content-Type', 'application/activity+json');
   return res.json(followersCollection);
 });
 
@@ -90,6 +91,7 @@ router.get('/:name/following', async (req, res) => {
     },
     '@context': ['https://www.w3.org/ns/activitystreams'],
   };
+  res.setHeader('Content-Type', 'application/activity+json');
   return res.json(followingCollection);
 });
 
@@ -116,6 +118,7 @@ router.get('/:name/outbox', async (req, res) => {
       last: pageLink(lastPage),
       '@context': ['https://www.w3.org/ns/activitystreams'],
     };
+    res.setHeader('Content-Type', 'application/activity+json');
 
     return res.json(outboxCollection);
   }
@@ -147,6 +150,7 @@ router.get('/:name/outbox', async (req, res) => {
   if (page > 1) {
     collectionPage.prev = pageLink(page - 1);
   }
+  res.setHeader('Content-Type', 'application/activity+json');
 
   return res.json(collectionPage);
 });
