@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
           height: '16',
           type: 'image/png',
         },
-        _: 'https://${domain}/postmarks-favicon.ico',
+        _: `https://${domain}/postmarks-favicon.ico`,
       },
       Url: {
         $: {
