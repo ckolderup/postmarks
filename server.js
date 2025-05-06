@@ -17,9 +17,10 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.static('public'));
+
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.json({ type: 'application/activity+json' }));
+app.use(express.json({ type: ['application/json', 'application/ld+json', 'application/activity+json'] }));
+
 app.use(session());
 
 app.use((req, res, next) => {
