@@ -2,5 +2,12 @@
   "username": "bookmarks",
   "avatar": "https://cdn.glitch.global/8eaf209c-2fa9-4353-9b99-e8d8f3a5f8d4/postmarks-logo-white-small.png?v=1693610556689",
   "displayName": "Postmarks",
-  "description": "An ActivityPub bookmarking and sharing site built with Postmarks"
+  "description": "An ActivityPub bookmarking and sharing site built with Postmarks",
+  "attachment": [
+    {
+      "type": "PropertyValue",
+      "name": "Source Code",
+      "value": "<a href='https://github.com/ckolderup/postmarks' target='_blank' rel='nofollow noopener noreferrer me'>https://github.com/ckolderup/postmarks</a>"
+    }
+  ]
 }
