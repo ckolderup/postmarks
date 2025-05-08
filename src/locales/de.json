@@ -1,0 +1,23 @@
+{
+   "admin" : {
+      "bookmarklet" : {
+         "title" : "JavaScript-Lesezeichen"
+      },
+      "data_export" : {
+         "title" : "Datenexport"
+      },
+      "followers" : {
+         "title" : "Berechtigungen & Follower"
+      },
+      "following" : {
+         "title" : "Konten, denen ich folge"
+      },
+      "import_bookmarks" : {
+         "title" : "Lesezeichen importieren"
+      }
+   },
+   "nonfederated" : {
+      "message" : "Diese Funktion ist derzeit nicht aktiviert, da diese App offenbar nicht für das Fediverse eingerichtet ist. Wenn du denkst, das ist ein Fehler, überprüfe die Setup-Anleitung und stelle sicher, dass du alle Schritte zur Erstellung einer Identität befolgt hast.",
+      "title" : "Nicht aktiviert"
+   }
+}
