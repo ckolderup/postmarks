@@ -3,6 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import { create } from 'express-handlebars';
 import escapeHTML from 'escape-html';
+import i18n from 'i18n';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { domain, account, simpleLogger, actorInfo, replaceEmptyText } from './src/util.js';
 import session, { isAuthenticated } from './src/session-auth.js';
@@ -10,6 +13,9 @@ import * as bookmarksDb from './src/bookmarks-db.js';
 import * as apDb from './src/activity-pub-db.js';
 
 import routes from './src/routes/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -22,6 +28,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ type: ['application/json', 'application/ld+json', 'application/activity+json'] }));
 
 app.use(session());
+
+i18n.configure({
+  locales: ['en', 'de'],
+  directory: path.join(__dirname, '/src/locales'),
+  defaultLocale: 'en',
+  cookie: 'lang',
+  queryParameter: 'lang', // for example /route?lang=fr
+  objectNotation: true,
+  // autoReload: true,   // activiate this for development
+  // syncFiles: true,    // activiate this for development
+});
+
+app.use(i18n.init);
 
 app.use((req, res, next) => {
   res.locals.loggedIn = req.session.loggedIn;
@@ -92,14 +111,14 @@ const hbs = create({
       const lowercased = array.map((tag) => tag.toLowerCase());
       return lowercased.indexOf(item.toLowerCase()) >= 0 ? options.fn(this) : options.inverse(this);
     },
-    removeTag(tag, path) {
-      return path
+    removeTag(tag, path_) {
+      return path_
         .split('/')
         .filter((x) => x.toLowerCase() !== tag.toLowerCase())
         .join('/');
     },
-    ifThisTag(tag, path, options) {
-      return path.toLowerCase() === `/tagged/${tag}`.toLowerCase() ? options.fn(this) : options.inverse(this);
+    ifThisTag(tag, path_, options) {
+      return path_.toLowerCase() === `/tagged/${tag}`.toLowerCase() ? options.fn(this) : options.inverse(this);
     },
     eq(a, b, options) {
       return a === b ? options.fn(this) : options.inverse(this);

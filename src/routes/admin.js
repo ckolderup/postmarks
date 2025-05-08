@@ -7,19 +7,23 @@ import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSen
 
 const DATA_PATH = '/app/.data';
 
-const ADMIN_LINKS = [
-  { href: '/admin', label: 'Bookmarklet' },
-  { href: '/admin/bookmarks', label: 'Import bookmarks' },
-  { href: '/admin/followers', label: 'Permissions & followers' },
-  { href: '/admin/following', label: 'Federated follows' },
-  { href: '/admin/data', label: 'Data export' },
-];
+function adminLinks(req) {
+  // eslint-disable-next-line prefer-destructuring
+  const __ = req.__;
+  return [
+    { href: '/admin', label: __('admin.bookmarklet.title') },
+    { href: '/admin/bookmarks', label: __('admin.import_bookmarks.title') },
+    { href: '/admin/followers', label: __('admin.followers.title') },
+    { href: '/admin/following', label: __('admin.following.title') },
+    { href: '/admin/data', label: __('admin.data_export.title') },
+  ];
+}
 
 const router = express.Router();
 
 router.get('/', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Bookmarklet' };
-  params.adminLinks = ADMIN_LINKS;
+  const params = req.query.raw ? {} : { title: req.__('admin.bookmarklet.title') };
+  params.adminLinks = adminLinks(req);
   params.currentPath = req.originalUrl;
   params.bookmarklet = `javascript:(function(){w=window.open('https://${domain}/bookmark/popup?url='+encodeURIComponent(window.location.href)+'&highlight='+encodeURIComponent(window.getSelection().toString()),'postmarks','scrollbars=yes,width=550,height=600');})();`;
   params.bookmarkletTruncated = `${params.bookmarklet.substr(0, 30)}…`;
@@ -28,21 +32,25 @@ router.get('/', isAuthenticated, async (req, res) => {
 });
 
 router.get('/bookmarks', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Import bookmarks' };
-  params.adminLinks = ADMIN_LINKS;
+  const params = req.query.raw ? {} : { title: req.__('admin.import_bookmarks.title') };
+  params.adminLinks = adminLinks(req);
   params.currentPath = req.originalUrl;
 
   return res.render('admin/bookmarks', params);
 });
 
 router.get('/followers', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Permissions & followers' };
-  params.adminLinks = ADMIN_LINKS;
+  // eslint-disable-next-line prefer-destructuring
+  const __ = req.__;
+  const params = req.query.raw ? {} : { title: __('admin.followers.title') };
+  params.adminLinks = adminLinks(req);
   params.currentPath = req.originalUrl;
 
   const apDb = req.app.get('apDb');
 
   if (actorInfo.disabled) {
+    params.warning = __('nonfederated.title');
+    params.message = __('nonfederated.message');
     return res.render('nonfederated', params);
   }
 
@@ -69,13 +77,17 @@ router.get('/followers', isAuthenticated, async (req, res) => {
 });
 
 router.get('/following', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Federated follows' };
-  params.adminLinks = ADMIN_LINKS;
+  // eslint-disable-next-line prefer-destructuring
+  const __ = req.__;
+  const params = req.query.raw ? {} : { title: __('admin.following.title') };
+  params.adminLinks = adminLinks(req);
   params.currentPath = req.originalUrl;
 
   const apDb = req.app.get('apDb');
 
   if (actorInfo.disabled) {
+    params.warning = __('nonfederated.title');
+    params.message = __('nonfederated.message');
     return res.render('nonfederated', params);
   }
 
@@ -90,8 +102,8 @@ router.get('/following', isAuthenticated, async (req, res) => {
 });
 
 router.get('/data', isAuthenticated, async (req, res) => {
-  const params = req.query.raw ? {} : { title: 'Data export' };
-  params.adminLinks = ADMIN_LINKS;
+  const params = req.query.raw ? {} : { title: req.__('admin.data_export.title') };
+  params.adminLinks = adminLinks(req);
   params.currentPath = req.originalUrl;
 
   return res.render('admin/data', params);
