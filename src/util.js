@@ -5,6 +5,8 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+export const dataDir = process.env.DATA_DIR || '.data';
+
 export const data = {
   errorMessage: 'Whoops! Error connecting to the database–please try again!',
   setupMessage: "🚧 Whoops! Looks like the database isn't setup yet! 🚧",

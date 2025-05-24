@@ -1,5 +1,6 @@
 import session from 'express-session';
 import connectSqlite from 'connect-sqlite3';
+import { dataDir } from './util.js';
 
 const SQLiteStore = connectSqlite(session);
 
@@ -7,7 +8,7 @@ export default () =>
   session({
     store: new SQLiteStore({
       db: 'sessions.db',
-      dir: '.data/',
+      dir: `${dataDir}/`,
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,

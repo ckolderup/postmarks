@@ -1,11 +1,9 @@
 import express from 'express';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { stringify as csvStringify } from 'csv-stringify/sync'; // https://github.com/adaltas/node-csv/issues/323
-import { domain, actorInfo, parseJSON } from '../util.js';
+import { domain, actorInfo, parseJSON, dataDir } from '../util.js';
 import { isAuthenticated } from '../session-auth.js';
 import { lookupActorInfo, createFollowMessage, createUnfollowMessage, signAndSend, getInboxFromActorProfile } from '../activitypub.js';
-
-const DATA_PATH = '/app/.data';
 
 const ADMIN_LINKS = [
   { href: '/admin', label: 'Bookmarklet' },
@@ -98,7 +96,7 @@ router.get('/data', isAuthenticated, async (req, res) => {
 });
 
 router.get('/bookmarks.db', isAuthenticated, async (req, res) => {
-  const filePath = `${DATA_PATH}/bookmarks.db`;
+  const filePath = `${dataDir}/bookmarks.db`;
 
   res.setHeader('Content-Type', 'application/vnd.sqlite3');
   res.setHeader('Content-Disposition', 'attachment; filename="bookmarks.db"');
@@ -118,7 +116,7 @@ router.get('/bookmarks.csv', isAuthenticated, async (req, res) => {
 });
 
 router.get('/activitypub.db', isAuthenticated, async (req, res) => {
-  const filePath = `${DATA_PATH}/activitypub.db`;
+  const filePath = `${dataDir}/activitypub.db`;
 
   res.setHeader('Content-Type', 'application/vnd.sqlite3');
   res.setHeader('Content-Disposition', 'attachment; filename="activitypub.db"');
