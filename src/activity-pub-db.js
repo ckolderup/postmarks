@@ -10,9 +10,9 @@ import fs from 'fs';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import crypto from 'crypto';
-import { account, domain, actorInfo } from './util.js';
+import { account, domain, actorInfo, dataDir } from './util.js';
 
-const dbFile = './.data/activitypub.db';
+const dbFile = `${dataDir}/activitypub.db`;
 let db;
 
 function actorJson(pubkey) {
