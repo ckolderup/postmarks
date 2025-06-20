@@ -15,7 +15,7 @@ import { account, domain, actorInfo, dataDir } from './util.js';
 const dbFile = `${dataDir}/activitypub.db`;
 let db;
 
-function actorJson(pubkey) {
+export function actorJson(pubkey) {
   return {
     '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
 
@@ -33,6 +33,7 @@ function actorJson(pubkey) {
     outbox: `https://${domain}/u/${account}/outbox`,
     followers: `https://${domain}/u/${account}/followers`,
     following: `https://${domain}/u/${account}/following`,
+    attachment: actorInfo.attachment,
 
     publicKey: {
       id: `https://${domain}/u/${account}#main-key`,

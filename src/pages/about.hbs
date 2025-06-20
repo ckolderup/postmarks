@@ -11,9 +11,21 @@
 {{else}}
   <div class="bio">
     <img class="avatar" src="{{actorInfo.avatar}}" />
-    <p>
-      {{actorInfo.description}}
-    </p>
+    <div>
+	    <p>
+	      {{{actorInfo.description}}}
+	    </p>
+	    <table class="attachments">
+	      <tbody>
+	        {{#each actorInfo.attachment}}
+	        <tr>
+	          <td>{{name}}: </td>
+              <td>{{{value}}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+    </div>
   </div>
   <h2>
     Follow on the Fediverse

@@ -270,6 +270,35 @@ export async function broadcastMessage(bookmark, action, db, account, domain) {
   }
 }
 
+export async function updateProfile(db, account, domain) {
+  if (actorInfo.disabled) {
+    return; // no fediverse setup
+  }
+  const publicKey = await db.getPublicKey();
+  const actorRecord = db.actorJson(publicKey);
+
+  const guidUpdate = crypto.randomBytes(16).toString('hex');
+  const updateMessage = {
+    '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
+    type: 'Update',
+    id: `https://${domain}/m/${guidUpdate}`,
+    actor: `https://${domain}/u/${account}`,
+    to: ['https://www.w3.org/ns/activitystreams#Public'],
+    object: actorRecord,
+  };
+
+  db.insertMessage(guidUpdate, null, JSON.stringify(updateMessage));
+  const result = await db.getFollowers();
+  const followers = JSON.parse(result);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const follower of followers) {
+    const myURL = new URL(follower);
+    const targetDomain = myURL.host;
+    const inbox = `https://${targetDomain}/inbox`;
+    signAndSend(updateMessage, account, domain, db, targetDomain, inbox);
+  }
+}
+
 export function synthesizeActivity(note) {
   return {
     // Fake activity URI adds a "a-" prefix to the Note/message guid
