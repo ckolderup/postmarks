@@ -39,7 +39,6 @@
   "license": "MIT",
   "keywords": [
     "node",
-    "glitch",
     "sqlite",
     "fediverse",
     "express",

@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
         name: instanceType,
         version: instanceVersion,
         repository: 'https://github.com/ckolderup/postmarks',
-        homepage: 'https://postmarks.glitch.me',
+        homepage: 'https://sharepostmarks.org',
       },
       protocols: ['activitypub'],
       services: {

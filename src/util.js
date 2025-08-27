@@ -29,11 +29,8 @@ export const domain = (() => {
   if (process.env.PUBLIC_BASE_URL) {
     return process.env.PUBLIC_BASE_URL;
   }
-  if (process.env.PROJECT_DOMAIN) {
-    return `${process.env.PROJECT_DOMAIN}.glitch.me`;
-  }
 
-  console.log("didn't find a PUBLIC_BASE_URL or PROJECT_DOMAIN in env, assuming localhost");
+  console.log("didn't find a PUBLIC_BASE_URL in env, assuming localhost");
   return 'localhost';
 })();
 
