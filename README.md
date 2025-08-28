@@ -15,30 +15,20 @@ Check the setup below to understand how to do that!
 
 To set your app up:
 
-If you're using Glitch:
-
-  - Rename your project immediately in the project settings, if you intend to be called something else. This determines the domain that your site lives at, which also determines the second half of your `@username@project-name.glitch.me` identity on the fediverse. NOTE: If you change this later, you will break the connection any existing followers have to your site, they'll have to re-follow the account on its new domain (and depending on the software they're following from, may even prevent them from unfollowing the old URL 😱)
-  - In your `.env` editor, create a key `ADMIN_KEY` and give it a text string as a value. This is your "password" when your browser prompts you, so make it as secure as you need to protect your data.
-  - Add another key to your .env called `SESSION_SECRET` and generate a random string for its value. This is your [session secret](http://expressjs.com/en/resources/middleware/session.html#secret), used to generate the hashed version of your session that gets encoded with the cookies used to store your login. If you make this string too easily guessable, you make it easier for someone to hijack your session and gain unauthorized login. Also, if you ever change this string, it will invalidate all existing cookies.
-  - If you've got a custom domain in front of your Glitch project, add a key to your .env called `PUBLIC_BASE_URL` with the value set to the hostname (the part after the https://) at which you want the project to be accessible.
-  - Edit the contents of `account.json.example` to set your `@username`, display name, bio, and avatar. (If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@project-name.glitch.me`.)
-  - THEN: either rename `account.json.example` to `account.json`, or copy the contents into a new file called `account.json`. Whatever `username` you have in this file when the project first starts you'll need to retain or else you'll break your followers' connection to this account.
-
-Otherwise:
   - Create a `.env` file in the root of the project.
   - Add the line `PUBLIC_BASE_URL=<hostname>` to your .env where \<hostname\> is the hostname of your instance.
   - Add the line `ADMIN_KEY=<key>` to your .env where \<key\> is the password you'll enter when the browser prompts you, and another line for `SESSION_SECRET=<secret>` where \<secret\> is a random string used when hashing your session for use in a secure cookie.
-  - Make a file called `account.json` in the project root. Copy the contents of `account.json.example` into it and edit the values to set your `@username`, display name, bio, and avatar. (If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@project-name.glitch.me`.)
+  - Make a file called `account.json` in the project root. Copy the contents of `account.json.example` into it and edit the values to set your `@username`, display name, bio, and avatar.
+    - If you don't set a username, your default actor name will be 'bookmarks', so people will find you on the fediverse `@bookmarks@<hostname>`.
+    - You should update the avatar field in order to not hotlink to another server-- the value must be an absolute URL. If you change out the hostname and leave the existing filename, you will link to a statically hosted image on your server that was downloaded along with the rest of the Postmarks repo.
 
-If you're using Glitch, you should be done! 
+If you are using Docker compose you can run `docker compose up` or `docker-compose up` (depending on the version of Docker you are using) and Postmarks should be running. Otherwise, run `npm run start` on the command line. You can also use `npm run start` in any kind of app/container-management tool or SaaS provider that lets you define an entrypoint.
 
-If you are using Docker compose you can run `docker compose up` or `docker-compose up` (depending on the version of Docker you are using) and Postmarks should be running. You can access it at http://localhost:3000
+By default, Postmarks runs on port 3000. You can change this with a `PORT=<number>` entry in your .env. If you're running Postmarks behind a reverse proxy, configure it to send traffic from your Postmarks hostname to this port.
 
-Otherwise, run `npm run start` via whatever mechanism you choose to use to host this website.
+At this point, you should be able to load Postmarks in your browser using the hostname you configured. If you don't have a proxy to direct from the hostname, you'll need to add the port to the URL. In basic local development mode it should be available at http://localhost:3000 .
 
-Click on the **Admin** link in the footer, and enter the password (whatever you set ADMIN_KEY to in the .env).
-
-You should be logged in, at which point you can configure various settings, import bookmarks, and use the "Add" links in the header and footer (as well as the bookmarklet, available in the Admin section) to save new bookmarks.
+Once you're looking at the web interface in your browser, click on the **Admin** link in the footer, and enter the password (whatever you set ADMIN_KEY to in the .env). You should be logged in, at which point you can configure various settings, import bookmarks, and use the "Add" links in the header and footer (as well as the bookmarklet, available in the Admin section) to save new bookmarks.
 
 ## Mastodon Verification
 
@@ -57,9 +47,3 @@ as how to submit your changes for review.
 - Much of the original form of the site's frontend is lifted from the starter projects available on [Glitch](https://glitch.com). Thank you to all the people who have contributed to those projects over the years!
 - Much of the original backend of the site is based off of Darius Kazemi's [express-activitypub](https://github.com/dariusk/express-activitypub) repo. I made a point not to just clone his repo from the start, but then ended up retyping most of it as I learned how things work. While some pieces have been upgraded, much of Darius' work creates the foundation for Postmarks' ActivityPub functionality.
 
-## We built this with Glitch!
-
-[Glitch](https://glitch.com) is a friendly community where millions of people come together to build web apps and websites.
-
-- Need more help? [Check out the Help Center](https://help.glitch.com/) for answers to any common questions.
-- Ready to make it official? [Become a paid Glitch member](https://glitch.com/pricing) to boost your app with private sharing, more storage and memory, domains and more.

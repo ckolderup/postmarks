@@ -123,32 +123,10 @@ standardize code changes as much as possible and with as little friction for you
 as we can add. If you have concerns or suggestions about specific settings, you
 are welcome to open a GitHub Issue to discuss.
 
-### Using Glitch
-
-Glitch is an online community for creative coding. Its free hosting allows for
-the "remixing" of projects, including directly from GitHub repos, and is
-therefore useful for standing up ActivityPub servers that are instantly
-available at unique hostnames on the internet. You can go to this URL:
-
-https://glitch.new/github.com/ckolderup/postmarks
-
-to spin up a new project that uses the current `main` branch of the Postmarks
-repo. You'll be in a web-based IDE that auto-builds the project as you make
-changes. If you're not logged in to Glitch, the project will be archived after
-five days. You can create an account or log in to associate the project with
-the account. You can read more about Glitch's hosting offerings on its
-[documentation](https://help.glitch.com).
-
-_(Disclosure: Postmarks maintainer Casey Kolderup has worked on Glitch from 2021
-up to the time of this writing; no one at Glitch or its parent company requested
-that Casey promote Glitch in the process of working on or talking about
-Postmarks.)_
-
 ### Changing port
 
 You can set the env var `PORT` to any valid number to make Postmarks bind to
-that port. By default, Postmarks uses port 3000. (Don't do this if you're
-developing on Glitch!)
+that port. By default, Postmarks uses port 3000. 
 
 ### Logging persistence
 
@@ -157,7 +135,7 @@ to your .env file. This will cause all incoming requests to append to
 `request_log.txt` in your project root directory.
 
 > [!WARNING]  
-> If you are running on a container with limited storage (e.g. Glitch), you
+> If you are running on a container with limited storage, you
 > should not leave this enabled, or you'll eventually run out of space as
 > ActivityPub messages get logged. This is intended for debugging.
 
@@ -166,13 +144,12 @@ to your .env file. This will cause all incoming requests to append to
 Postmarks aims to be interoperable with other Fediverse apps where it makes
 sense to do so; one of the most common and obvious applications of that concept
 is in working with Mastodon. If you plan on manually QAing changes to Postmarks
-you may want to set up a pair of testing surfaces, one being a persistent Glitch
-app running Postmarks, the other an account on a public Mastodon instance. You
-may want this account to be locked and separate from any existing presence you
-have on Mastodon and associated Fediverse microblogging networks. Many Mastodon
-instances offer free accounts; you can take a look at
-[Join Mastodon](https://joinmastodon.org) to see who is offering open signups
-at this time.
+you may want to set up a pair of testing surfaces, one being a Postmarks instance
+running the latest public release of the software and the other an account on a public
+Mastodon instance. You may want this account to be locked and separate from any existing
+presence you have on Mastodon and associated Fediverse microblogging networks. Many Mastodon
+instances offer free accounts; you can take a look at [Join Mastodon](https://joinmastodon.org)
+to see who is offering open signups at this time.
 
 ### Bookmark data sets
 
