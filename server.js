@@ -14,6 +14,7 @@ import routes from './src/routes/index.js';
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '::';
 
 const app = express();
 app.use(express.static('public'));
@@ -36,10 +37,10 @@ app.set('domain', domain);
 
 app.disable('x-powered-by');
 
+app.set('trust proxy', ['127.0.0.1', '10.0.0.0/8']);
+
 // force HTTPS in production
 if (process.env.ENVIRONMENT === 'production') {
-  app.set('trust proxy', ['127.0.0.1', '10.0.0.0/8']);
-
   app.use(({ secure, hostname, url, port }, response, next) => {
     if (!secure) {
       return response.redirect(308, `https://${hostname}${url}${port ? `:${port}` : ''}`);
@@ -129,4 +130,4 @@ app.use('/nodeinfo/2.0', routes.nodeinfo);
 app.use('/nodeinfo/2.1', routes.nodeinfo);
 app.use('/opensearch.xml', routes.opensearch);
 
-app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
+app.listen(PORT, HOST, () => console.log(`App listening on port ${PORT}`));
