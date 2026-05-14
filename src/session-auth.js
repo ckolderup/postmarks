@@ -21,6 +21,20 @@ export function isAuthenticated(req, res, next) {
   else res.redirect(`/login?sendTo=${encodeURIComponent(req.originalUrl)}`); // TODO: redirect on hitting this? or better provide an error?
 }
 
+// Same-origin path only: must start with "/", must not start with "//"
+// or "/\" (which browsers treat as a protocol-relative URL), and the same
+// must still hold after decodeURIComponent (so "/%2fevil.com" cannot slip
+// through). Returns true iff it is safe to use as a Location header.
+function isSafeRelativeRedirect(value) {
+  if (typeof value !== 'string' || !value.startsWith('/')) return false;
+  if (value.startsWith('//') || value.startsWith('/\\')) return false;
+  let decoded;
+  try { decoded = decodeURIComponent(value); } catch { return false; }
+  if (!decoded.startsWith('/')) return false;
+  if (decoded.startsWith('//') || decoded.startsWith('/\\')) return false;
+  return true;
+}
+
 export function login(req, res, next) {
   req.session.regenerate((err) => {
     if (err) {
@@ -36,8 +50,9 @@ export function login(req, res, next) {
         return next(saveErr);
       }
 
-      if (req.body.sendTo && req.body.sendTo.startsWith('/')) {
-        return res.redirect(decodeURIComponent(req.body.sendTo));
+      const sendTo = req.body.sendTo;
+      if (isSafeRelativeRedirect(sendTo)) {
+        return res.redirect(decodeURIComponent(sendTo));
       }
       return res.redirect('/');
     });
