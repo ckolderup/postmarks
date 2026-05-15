@@ -29,7 +29,11 @@ function isSafeRelativeRedirect(value) {
   if (typeof value !== 'string' || !value.startsWith('/')) return false;
   if (value.startsWith('//') || value.startsWith('/\\')) return false;
   let decoded;
-  try { decoded = decodeURIComponent(value); } catch { return false; }
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    return false;
+  }
   if (!decoded.startsWith('/')) return false;
   if (decoded.startsWith('//') || decoded.startsWith('/\\')) return false;
   return true;
@@ -50,7 +54,7 @@ export function login(req, res, next) {
         return next(saveErr);
       }
 
-      const sendTo = req.body.sendTo;
+      const { sendTo } = req.body;
       if (isSafeRelativeRedirect(sendTo)) {
         return res.redirect(decodeURIComponent(sendTo));
       }
