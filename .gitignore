@@ -8,3 +8,4 @@ node_modules
 *.patch
 request_logs.txt
 .DS_Store
+account.json

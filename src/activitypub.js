@@ -48,8 +48,9 @@ export function createNoteObject(bookmark, account, domain) {
       .join(' ');
   }
 
+  let escapedDescription = '';
   if (updatedBookmark.description?.trim().length > 0) {
-    updatedBookmark.description = `<br/>${updatedBookmark.description?.trim().replace('\n', '<br/>') || ''}`;
+    escapedDescription = `<br/>${updatedBookmark.description?.trim().replace('\n', '<br/>') || ''}`;
   }
 
   if (linkedTags.trim().length > 0) {
@@ -57,17 +58,29 @@ export function createNoteObject(bookmark, account, domain) {
   }
 
   const noteMessage = {
-    '@context': 'https://www.w3.org/ns/activitystreams',
+    '@context': ['https://www.w3.org/ns/activitystreams', { Hashtag: 'https://www.w3.org/ns/activitystreams#Hashtag' }],
     id: `https://${domain}/m/${guidNote}`,
     type: 'Note',
     published: d.toISOString(),
     attributedTo: `https://${domain}/u/${account}`,
+    name: updatedBookmark.title,
     content: `<p><strong><a href="${updatedBookmark.url}" rel="nofollow noopener noreferrer">${replaceEmptyText(
       updatedBookmark.title,
       updatedBookmark.url,
-    )}</a></strong>${updatedBookmark.description}</p>${linkedTags}`,
+    )}</a></strong>${escapedDescription}</p>${linkedTags}`,
     to: [`https://${domain}/u/${account}/followers/`, 'https://www.w3.org/ns/activitystreams#Public'],
     tag: [],
+    url: `https://${domain}/bookmark/${updatedBookmark.id}`,
+    source: {
+      content: updatedBookmark.description,
+      mediaType: 'text/plain',
+    },
+    attachment: [
+      {
+        type: 'Link',
+        href: updatedBookmark.url,
+      },
+    ],
   };
 
   bookmark.tags?.split(' ').forEach((tag) => {
@@ -262,7 +275,8 @@ export async function broadcastMessage(bookmark, action, db, account, domain) {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const follower of followers) {
-      const inbox = `${follower}/inbox`;
+      console.log(`Sending to ${follower}...`);
+      const inbox = await getInboxFromActorProfile(follower);
       const myURL = new URL(follower);
       const targetDomain = myURL.host;
       signAndSend(message, account, domain, db, targetDomain, inbox);
